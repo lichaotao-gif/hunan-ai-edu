@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=36">
+<link rel="stylesheet" href="css/style.css?v=37">
 </head>
 <body>
 <div class="app-shell">
@@ -404,22 +404,21 @@
           <button class="data-tab active" type="button">班级数据</button>
         </div>
 
-        <div class="section-bar">
-          <div class="block-head"><span class="bar"></span>班级详情</div>
-          <div class="section-actions">
-            <div class="data-class-select" id="data-class-select">
-              <button class="dc-trigger" id="dc-trigger" type="button" aria-haspopup="true" aria-expanded="false">
-                <span id="dc-label">—</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="dc-menu" id="dc-menu" hidden></div>
-            </div>
+        <div class="data-scope">
+          <span class="ds-label">数据范围</span>
+          <div class="ds-chips" id="ds-region"></div>
+          <div class="data-class-select" id="data-class-select">
+            <button class="dc-trigger" id="dc-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+              <span id="dc-label">—</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dc-menu" id="dc-menu" hidden></div>
           </div>
         </div>
 
         <div class="stat-strip" id="data-stat-strip"></div>
 
-        <div class="data-subtabs">
+        <div class="data-subtabs" id="data-subtabs">
           <button class="data-subtab active" data-dt="lessons" type="button">上课明细</button>
           <button class="data-subtab" data-dt="courses" type="button">课程明细</button>
         </div>
@@ -680,6 +679,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=34"></script>
+<script src="js/app.js?v=35"></script>
 </body>
 </html>

@@ -1231,23 +1231,35 @@
   const myexpBack = document.getElementById("myexp-back");
   if (myexpBack) myexpBack.addEventListener("click", showMyexpList);
 
-  // ===== 我的数据：按班级查看上课/课程明细 =====
+  // ===== 我的数据：按数据范围（省/市/校只读 + 班级可选/汇总）查看 =====
   const dataStrip = document.getElementById("data-stat-strip");
   const dataTableEl = document.getElementById("data-table");
+  const dsRegion = document.getElementById("ds-region");
   const dcSelect = document.getElementById("data-class-select");
   const dcTrigger = document.getElementById("dc-trigger");
   const dcMenu = document.getElementById("dc-menu");
   const dcLabel = document.getElementById("dc-label");
+  const dataSubtabs = document.getElementById("data-subtabs");
   const dataFilter = document.getElementById("data-filter");
   const dataMonthInput = document.getElementById("data-month");
   const DATA_LESSON_POOL = ["认识人工智能", "数据与表格", "图像识别初探", "让机器听懂你", "智能体验课", "算法初步", "机器学习入门", "综合实践"];
-  let dataSelectedClassId = null;
+  const ALL_SCOPE = "__all__";
+  let dataScope = ALL_SCOPE; // 班级 id 或 全部班级
   let dataTab = "lessons";
   let dataMonth = ""; // YYYY-MM，空=全部
   let currentData = null;
 
   const ymd = (d) => `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())}`;
   const ymKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+
+  // 教师视角：省固定演示为湖南省，市由学校名前缀推断
+  function regionOf(school) {
+    const province = "湖南省";
+    let city = "长沙市";
+    const m = school && school.match(/^(.+?市)/);
+    if (m) city = m[1];
+    return { province, city };
+  }
 
   function buildClassData(cls) {
     const courses = cls.courses || [];
@@ -1272,18 +1284,24 @@
     return { records, courseDetail, stats: { courseCount: courses.length, total, done, rate: total ? Math.round(done / total * 100) : 0, first } };
   }
 
-  function renderStatStrip(s) {
-    dataStrip.innerHTML = [
-      ["课程数量", s.courseCount],
-      ["总课时数", s.total],
-      ["已上课时数", s.done],
-      ["上课率", s.rate + "%"],
-      ["首次上课时间", s.first ? ymd(s.first) : "—"],
-    ].map(([l, v]) => `<div class="stat-item"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  function buildAllData() {
+    let firstAll = null;
+    const rows = classStore.map((c) => {
+      const d = buildClassData(c);
+      if (d.stats.first && (!firstAll || d.stats.first < firstAll)) firstAll = d.stats.first;
+      return { id: c.id, name: c.name, courseCount: d.stats.courseCount, total: d.stats.total, done: d.stats.done, rate: d.stats.rate };
+    });
+    rows.sort((a, b) => b.rate - a.rate || b.done - a.done); // 按上课率排名
+    const agg = rows.reduce((s, r) => ({ courseCount: s.courseCount + r.courseCount, total: s.total + r.total, done: s.done + r.done }), { courseCount: 0, total: 0, done: 0 });
+    agg.rate = agg.total ? Math.round(agg.done / agg.total * 100) : 0;
+    return { rows, classCount: rows.length, agg, first: firstAll };
   }
 
-  function renderDataTable() {
-    if (!currentData) { dataTableEl.innerHTML = '<div class="data-empty">请先在「班级管理」创建班级</div>'; return; }
+  function renderStrip(items) {
+    dataStrip.innerHTML = items.map(([l, v]) => `<div class="stat-item"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  }
+
+  function renderLessonTable() {
     if (dataTab === "lessons") {
       dataFilter.hidden = false;
       let recs = currentData.records;
@@ -1301,27 +1319,67 @@
     }
   }
 
+  function renderRankingTable(rows) {
+    if (!rows.length) { dataTableEl.innerHTML = '<div class="data-empty">暂无班级数据</div>'; return; }
+    dataTableEl.innerHTML = `<table><thead><tr><th>班级</th><th>课程数</th><th>总课时</th><th>已上课时</th><th>上课率</th></tr></thead><tbody>${
+      rows.map((r) => `<tr class="rank-row" data-rankcls="${r.id}"><td><span class="rank-name">${esc(r.name)}</span><span class="rank-go">›</span></td><td>${r.courseCount}</td><td>${r.total}</td><td>${r.done}</td><td>${r.rate}%</td></tr>`).join("")
+    }</tbody></table>`;
+  }
+
+  function renderScopeChips() {
+    const school = loadSchool();
+    if (!school) { dsRegion.innerHTML = '<span class="ds-chip">未绑定学校</span>'; return; }
+    const r = regionOf(school);
+    dsRegion.innerHTML = `<span class="ds-chip">${esc(r.province)}</span><span class="ds-chip">${esc(r.city)}</span><span class="ds-chip">${esc(school)}</span>`;
+  }
+
   function renderDcMenu() {
-    dcMenu.innerHTML = classStore.map((c) =>
-      `<button class="dc-option${c.id === dataSelectedClassId ? " active" : ""}" data-cls="${c.id}" type="button">${esc(c.name)}</button>`
-    ).join("");
+    const opts = [`<button class="dc-option${dataScope === ALL_SCOPE ? " active" : ""}" data-cls="${ALL_SCOPE}" type="button">全部班级</button>`]
+      .concat(classStore.map((c) =>
+        `<button class="dc-option${c.id === dataScope ? " active" : ""}" data-cls="${c.id}" type="button">${esc(c.name)}</button>`));
+    dcMenu.innerHTML = opts.join("");
   }
 
   function renderDataSection() {
+    renderScopeChips();
     if (!classStore.length) {
       dcLabel.textContent = "暂无班级";
       dataStrip.innerHTML = "";
-      currentData = null;
-      renderDataTable();
+      dataSubtabs.hidden = true;
+      dataFilter.hidden = true;
+      dataTableEl.innerHTML = '<div class="data-empty">请先在「班级管理」创建班级</div>';
+      renderDcMenu();
       return;
     }
-    if (!classStore.find((c) => c.id === dataSelectedClassId)) dataSelectedClassId = classStore[0].id;
-    const cls = classStore.find((c) => c.id === dataSelectedClassId);
-    dcLabel.textContent = cls.name;
+    if (dataScope !== ALL_SCOPE && !classStore.find((c) => c.id === dataScope)) dataScope = ALL_SCOPE;
     renderDcMenu();
-    currentData = buildClassData(cls);
-    renderStatStrip(currentData.stats);
-    renderDataTable();
+    if (dataScope === ALL_SCOPE) {
+      dcLabel.textContent = "全部班级";
+      const all = buildAllData();
+      renderStrip([
+        ["班级数量", all.classCount],
+        ["课程总数", all.agg.courseCount],
+        ["总课时数", all.agg.total],
+        ["已上课时数", all.agg.done],
+        ["平均上课率", all.agg.rate + "%"],
+      ]);
+      dataSubtabs.hidden = true;
+      dataFilter.hidden = true;
+      renderRankingTable(all.rows);
+    } else {
+      const cls = classStore.find((c) => c.id === dataScope);
+      dcLabel.textContent = cls.name;
+      currentData = buildClassData(cls);
+      renderStrip([
+        ["课程数量", currentData.stats.courseCount],
+        ["总课时数", currentData.stats.total],
+        ["已上课时数", currentData.stats.done],
+        ["上课率", currentData.stats.rate + "%"],
+        ["首次上课时间", currentData.stats.first ? ymd(currentData.stats.first) : "—"],
+      ]);
+      dataSubtabs.hidden = false;
+      renderLessonTable();
+    }
   }
 
   if (dcTrigger) {
@@ -1335,7 +1393,9 @@
     dcMenu.addEventListener("click", (e) => {
       const opt = e.target.closest(".dc-option");
       if (!opt) return;
-      dataSelectedClassId = opt.dataset.cls;
+      dataScope = opt.dataset.cls;
+      dataTab = "lessons";
+      document.querySelectorAll(".data-subtab").forEach((x) => x.classList.toggle("active", x.dataset.dt === "lessons"));
       dcMenu.hidden = true;
       dcSelect.classList.remove("open");
       renderDataSection();
@@ -1343,22 +1403,31 @@
     document.addEventListener("click", (e) => {
       if (!dcSelect.contains(e.target)) { dcMenu.hidden = true; dcSelect.classList.remove("open"); }
     });
+    // 汇总排名行点击 -> 下钻到该班级
+    dataTableEl.addEventListener("click", (e) => {
+      const row = e.target.closest("[data-rankcls]");
+      if (!row) return;
+      dataScope = row.dataset.rankcls;
+      dataTab = "lessons";
+      document.querySelectorAll(".data-subtab").forEach((x) => x.classList.toggle("active", x.dataset.dt === "lessons"));
+      renderDataSection();
+    });
     document.querySelectorAll(".data-subtab").forEach((t) => t.addEventListener("click", () => {
       document.querySelectorAll(".data-subtab").forEach((x) => x.classList.remove("active"));
       t.classList.add("active");
       dataTab = t.dataset.dt;
-      renderDataTable();
+      renderLessonTable();
     }));
-    dataMonthInput.addEventListener("change", () => { dataMonth = dataMonthInput.value; renderDataTable(); });
+    dataMonthInput.addEventListener("change", () => { dataMonth = dataMonthInput.value; renderLessonTable(); });
     document.getElementById("data-thismonth").addEventListener("click", () => {
       const now = new Date();
       dataMonth = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}`;
       dataMonthInput.value = dataMonth;
-      renderDataTable();
+      renderLessonTable();
     });
     document.getElementById("data-allmonth").addEventListener("click", () => {
       dataMonth = ""; dataMonthInput.value = "";
-      renderDataTable();
+      renderLessonTable();
     });
   }
 

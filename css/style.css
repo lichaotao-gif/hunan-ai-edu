@@ -485,6 +485,17 @@ ul { list-style: none; }
 .data-tab { padding: 7px 18px; border-radius: 18px; font-size: 14px; font-weight: 600; color: var(--text-mid); background: var(--bg); border: 1px solid var(--border); transition: background .15s, color .15s; }
 .data-tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(15, 175, 160, .26); }
 
+/* 数据范围条（省/市/校只读 + 班级可选） */
+.data-scope { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-5); }
+.ds-label { font-size: 14px; color: var(--text-mid); font-weight: 500; margin-right: var(--sp-1); }
+.ds-chips { display: inline-flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.ds-chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 16px;
+  background: var(--bg); border: 1px solid var(--border); color: var(--text-mid); font-size: 13.5px; font-weight: 500;
+}
+.ds-chip svg { width: 12px; height: 12px; color: var(--text-sub); }
+.ds-sep { color: var(--text-sub); font-size: 12px; }
+
 /* 班级选择下拉（胶囊） */
 .data-class-select { position: relative; }
 .dc-trigger { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 16px; background: var(--primary-light); color: var(--primary-dark); font-size: 13.5px; font-weight: 600; transition: filter .15s; }
@@ -521,6 +532,10 @@ ul { list-style: none; }
 /* 数据表 */
 .data-table-card .data-status { color: var(--cta-dark); font-weight: 600; }
 .data-empty { text-align: center; color: var(--text-sub); font-size: 13.5px; padding: var(--sp-10) 0; }
+.data-subtabs[hidden] { display: none; }
+.data-table-card .rank-row { cursor: pointer; }
+.data-table-card .rank-row .rank-name { color: var(--primary-dark); font-weight: 600; }
+.data-table-card .rank-row td .rank-go { color: var(--text-sub); font-size: 12px; margin-left: 4px; }
 
 /* 3. 课程包列表 */
 .pkg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-6); }
