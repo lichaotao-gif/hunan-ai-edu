@@ -1032,7 +1032,7 @@ tbody tr:hover { background: #FAFCFD; }
 
 /* 班级课程弹窗 */
 .course-mgmt-modal { width: min(600px, 100%); }
-.course-mgmt-list { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-5); max-height: 52vh; overflow-y: auto; padding-right: 2px; }
+.course-mgmt-list { display: flex; flex-direction: column; gap: var(--sp-3); max-height: 42vh; overflow-y: auto; padding-right: 2px; }
 .course-mgmt-empty { text-align: center; color: var(--text-sub); font-size: 13px; padding: var(--sp-8) 0; }
 .course-mgmt-item {
   display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4);
@@ -1065,9 +1065,10 @@ tbody tr:hover { background: #FAFCFD; }
 .plan-day input { width: 16px; height: 16px; accent-color: var(--primary); }
 .plan-edit-actions { display: flex; gap: var(--sp-2); }
 .primary-action.sm, .secondary-action.sm { min-height: 34px; padding: 0 var(--sp-4); font-size: 13px; }
-/* 添加课程行（从已有课程包多选） */
-.course-add-head { padding-top: var(--sp-4); margin-bottom: var(--sp-2); border-top: 1px solid var(--border); font-size: 13.5px; font-weight: 700; color: var(--text-main); }
-.course-add { display: flex; gap: var(--sp-2); align-items: center; }
+/* 添加课程行（从已有课程包多选，置于弹窗顶部） */
+.course-add-head { margin-bottom: var(--sp-2); font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+.course-add { display: flex; gap: var(--sp-2); align-items: center; margin-bottom: var(--sp-5); }
+.course-added-head { padding-top: var(--sp-4); margin-bottom: var(--sp-3); border-top: 1px solid var(--border); font-size: 13.5px; font-weight: 700; color: var(--text-main); }
 .course-add .secondary-action { flex-shrink: 0; }
 .ms-select { position: relative; flex: 1; min-width: 0; }
 .ms-trigger {
@@ -1083,7 +1084,7 @@ tbody tr:hover { background: #FAFCFD; }
 .ms-trigger svg { width: 16px; height: 16px; color: var(--text-sub); flex-shrink: 0; transition: transform .15s; }
 .ms-select.open .ms-trigger svg { transform: rotate(180deg); }
 .ms-menu {
-  position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 5;
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5;
   background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow);
   padding: var(--sp-2); max-height: 240px; overflow-y: auto;
 }

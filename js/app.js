@@ -475,14 +475,7 @@
         ? `<div class="stu-cell"><span class="stu-count">${c.students}人</span><a class="link act" data-import="${c.id}">导入学生</a></div>`
         : `<div class="stu-cell"><a class="link act" data-import="${c.id}">导入学生</a></div>`;
       const courses = c.courses || [];
-      let courseCell;
-      if (courses.length === 0) {
-        courseCell = `<a class="course-empty-link" data-courses="${c.id}">添加课程</a>`;
-      } else if (courses.length <= 2) {
-        courseCell = `<div class="course-cell" data-courses="${c.id}">${courses.map((co) => `<span class="course-chip">${esc(co.package)}</span>`).join("")}</div>`;
-      } else {
-        courseCell = `<div class="course-cell" data-courses="${c.id}"><span class="course-more">共 ${courses.length} 门课 ›</span></div>`;
-      }
+      const courseCell = `<a class="link" data-courses="${c.id}">共 ${courses.length} 门课 ›</a>`;
       return `<tr>
         <td><span class="cell-name">${esc(c.name)}<button class="qr-btn" data-qr="${c.id}" title="班级二维码" aria-label="班级二维码">${ICON_QR}</button></span></td>
         <td><span class="${typeClass}">${esc(c.type)}</span></td>
@@ -688,7 +681,7 @@
     document.getElementById("course-modal-title").textContent = c.name;
     courseModalSub.textContent = `班级课程 · 共 ${c.courses.length} 门`;
     if (c.courses.length === 0) {
-      courseMgmtList.innerHTML = '<div class="course-mgmt-empty">该班级暂无课程，可在下方添加。</div>';
+      courseMgmtList.innerHTML = '<div class="course-mgmt-empty">暂无已添加课程，请在上方添加。</div>';
       return;
     }
     courseMgmtList.innerHTML = c.courses.map((co) => {
