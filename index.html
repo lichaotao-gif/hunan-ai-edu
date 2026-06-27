@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=28">
+<link rel="stylesheet" href="css/style.css?v=29">
 </head>
 <body>
 <div class="app-shell">
@@ -530,8 +530,13 @@
     <p class="class-modal-sub" id="course-modal-sub">—</p>
     <div class="course-mgmt-list" id="course-mgmt-list"></div>
     <div class="course-add">
-      <input type="text" id="ca-package" placeholder="课包名称" maxlength="30">
-      <input type="text" id="ca-plan" placeholder="授课计划（选填）" maxlength="60">
+      <div class="ms-select" id="ms-select">
+        <button class="ms-trigger" id="ms-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span id="ms-label" class="ms-placeholder">选择课程包</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="ms-menu" id="ms-menu" hidden></div>
+      </div>
       <button class="secondary-action" id="ca-add" type="button">添加</button>
     </div>
   </div>
@@ -549,6 +554,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=25"></script>
+<script src="js/app.js?v=26"></script>
 </body>
 </html>

@@ -648,10 +648,21 @@
   const courseModal = document.getElementById("course-modal");
   const courseMgmtList = document.getElementById("course-mgmt-list");
   const courseModalSub = document.getElementById("course-modal-sub");
-  const caPackage = document.getElementById("ca-package");
-  const caPlan = document.getElementById("ca-plan");
+  const msSelect = document.getElementById("ms-select");
+  const msTrigger = document.getElementById("ms-trigger");
+  const msMenu = document.getElementById("ms-menu");
+  const msLabel = document.getElementById("ms-label");
   let activeCourseClassId = null;
   let editingPlanCourseId = null;
+  let msSelection = new Set(); // 待添加的课程包名（多选）
+
+  // 系统内全部课程包名称（去重，运行时从课程与实验室数据汇总）
+  function getAllPackages() {
+    const set = new Set();
+    Object.values(courses).forEach((cs) => cs.lessons.forEach((l) => set.add(l.name)));
+    if (typeof labPackages !== "undefined") labPackages.forEach((p) => set.add(p.title));
+    return [...set];
+  }
 
   function getActiveClass() { return classStore.find((x) => x.id === activeCourseClassId); }
 
@@ -676,11 +687,48 @@
     }).join("");
   }
 
+  function renderMsMenu() {
+    const c = getActiveClass();
+    if (!c) return;
+    const existing = new Set(c.courses.map((co) => co.package));
+    const all = getAllPackages();
+    const html = all.map((name) => {
+      if (existing.has(name)) {
+        return `<div class="ms-option added"><span>${esc(name)}</span><span class="ms-added-tag">已添加</span></div>`;
+      }
+      const checked = msSelection.has(name) ? "checked" : "";
+      return `<label class="ms-option"><input type="checkbox" value="${esc(name)}" ${checked}><span>${esc(name)}</span></label>`;
+    }).join("");
+    msMenu.innerHTML = html || '<div class="ms-menu-empty">暂无可选课程包</div>';
+  }
+
+  function updateMsLabel() {
+    if (msSelection.size === 0) {
+      msLabel.textContent = "选择课程包";
+      msLabel.classList.add("ms-placeholder");
+    } else {
+      msLabel.textContent = `已选 ${msSelection.size} 个课程包`;
+      msLabel.classList.remove("ms-placeholder");
+    }
+  }
+
+  function setMsOpen(open) {
+    msSelect.classList.toggle("open", open);
+    msMenu.hidden = !open;
+    msTrigger.setAttribute("aria-expanded", String(open));
+  }
+
+  function resetMsSelect() {
+    msSelection = new Set();
+    updateMsLabel();
+    renderMsMenu();
+    setMsOpen(false);
+  }
+
   function openCourseModal(classId) {
     activeCourseClassId = classId;
     editingPlanCourseId = null;
-    caPackage.value = "";
-    caPlan.value = "";
+    resetMsSelect();
     renderCourseModal();
     courseModal.hidden = false;
     document.body.classList.add("modal-open");
@@ -689,7 +737,23 @@
     courseModal.hidden = true;
     document.body.classList.remove("modal-open");
     editingPlanCourseId = null;
+    setMsOpen(false);
   }
+
+  msTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setMsOpen(msMenu.hidden);
+  });
+  msMenu.addEventListener("change", (e) => {
+    if (e.target.type !== "checkbox") return;
+    if (e.target.checked) msSelection.add(e.target.value);
+    else msSelection.delete(e.target.value);
+    updateMsLabel();
+  });
+  // 点击下拉外部时收起菜单（不关闭整个弹窗）
+  courseModal.addEventListener("click", (e) => {
+    if (!msMenu.hidden && !msSelect.contains(e.target)) setMsOpen(false);
+  });
 
   courseMgmtList.addEventListener("click", (e) => {
     const t = e.target.closest("[data-edit-plan],[data-del-course],[data-save-plan],[data-cancel-plan]");
@@ -727,15 +791,19 @@
   document.getElementById("ca-add").addEventListener("click", () => {
     const c = getActiveClass();
     if (!c) return;
-    const pkg = caPackage.value.trim();
-    if (!pkg) { showToast("请输入课包名称"); caPackage.focus(); return; }
-    c.courses.push({ id: "co-" + Date.now(), package: pkg, plan: caPlan.value.trim() });
-    caPackage.value = "";
-    caPlan.value = "";
+    if (msSelection.size === 0) { showToast("请选择课程包"); setMsOpen(true); return; }
+    const existing = new Set(c.courses.map((co) => co.package));
+    let added = 0;
+    msSelection.forEach((name) => {
+      if (existing.has(name)) return;
+      c.courses.push({ id: "co-" + Date.now() + "-" + added, package: name, plan: "" });
+      added += 1;
+    });
+    resetMsSelect();
     saveClasses();
     renderCourseModal();
     renderClassTable();
-    showToast("已添加课程");
+    showToast(added > 0 ? `已添加 ${added} 门课程` : "所选课程已存在");
   });
 
   document.getElementById("course-modal-close").addEventListener("click", closeCourseModal);
