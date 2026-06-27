@@ -143,19 +143,25 @@
       const raw = localStorage.getItem(CLASS_KEY);
       if (raw) {
         const arr = JSON.parse(raw);
-        arr.forEach((c) => { if (!Array.isArray(c.courses)) c.courses = []; }); // 兼容旧数据
+        arr.forEach((c) => { // 兼容旧数据
+          if (!Array.isArray(c.courses)) c.courses = [];
+          c.courses.forEach((co) => {
+            if (!co.plan || typeof co.plan !== "object") co.plan = { on: false, days: [] };
+            if (!Array.isArray(co.plan.days)) co.plan.days = [];
+          });
+        });
         return arr;
       }
     } catch (e) { /* ignore */ }
     // 首次种子数据
     const seed = [
       { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime(), courses: [
-        { id: "co-1", package: "人工智能（四下）", plan: "每周二 第3节 · 共10课时" },
-        { id: "co-2", package: "人工智能（五下）", plan: "每周四 第5节 · 共10课时" },
-        { id: "co-3", package: "体验课", plan: "" },
+        { id: "co-1", package: "人工智能（四下）", plan: { on: true, days: ["每周二"] } },
+        { id: "co-2", package: "人工智能（五下）", plan: { on: true, days: ["每周四"] } },
+        { id: "co-3", package: "体验课", plan: { on: false, days: [] } },
       ] },
       { id: "cls-2", name: "萃雅·7班", type: "兴趣班", teacher: currentTeacher, students: 3, intro: "校级人工智能兴趣社团，面向四至六年级招募。", createdAt: new Date("2022-03-25T10:37:00").getTime(), courses: [
-        { id: "co-4", package: "人工智能（八下）", plan: "每周三 社团活动课 · 共12课时" },
+        { id: "co-4", package: "人工智能（八下）", plan: { on: true, days: ["每周三"] } },
       ] },
     ];
     localStorage.setItem(CLASS_KEY, JSON.stringify(seed));
@@ -399,7 +405,7 @@
     if (!selected) { showToast("请选择班级"); return; }
     if (!Array.isArray(selected.courses)) selected.courses = [];
     if (activeLessonName && !selected.courses.some((co) => co.package === activeLessonName)) {
-      selected.courses.push({ id: "co-" + Date.now(), package: activeLessonName, plan: "" });
+      selected.courses.push({ id: "co-" + Date.now(), package: activeLessonName, plan: { on: false, days: [] } });
       saveClasses();
       renderClassTable();
     }
@@ -664,7 +670,16 @@
     return [...set];
   }
 
+  const WEEKDAYS = ["每周一", "每周二", "每周三", "每周四", "每周五"];
+
   function getActiveClass() { return classStore.find((x) => x.id === activeCourseClassId); }
+
+  // 授课计划展示文案：未开启→null；开启无日期→“已开启”；否则→“每周一、每周三”
+  function formatPlan(plan) {
+    if (!plan || !plan.on) return null;
+    if (!plan.days || plan.days.length === 0) return "已开启（未选择日期）";
+    return plan.days.join("、");
+  }
 
   function renderCourseModal() {
     const c = getActiveClass();
@@ -677,9 +692,22 @@
     }
     courseMgmtList.innerHTML = c.courses.map((co) => {
       const editing = editingPlanCourseId === co.id;
-      const planView = editing
-        ? `<div class="plan-edit"><input class="plan-input" value="${esc(co.plan)}" placeholder="如：每周二 第3节 · 共10课时"><div class="plan-edit-actions"><button class="primary-action sm" data-save-plan="${co.id}" type="button">保存</button><button class="secondary-action sm" data-cancel-plan="1" type="button">取消</button></div></div>`
-        : `<span class="course-mgmt-plan">授课计划：${co.plan && co.plan.trim() ? esc(co.plan) : '<span class="muted">未设置</span>'}</span>`;
+      let planView;
+      if (editing) {
+        const on = !!(co.plan && co.plan.on);
+        const days = (co.plan && co.plan.days) || [];
+        const dayBoxes = WEEKDAYS.map((d) =>
+          `<label class="plan-day"><input type="checkbox" value="${d}" ${days.includes(d) ? "checked" : ""}><span>${d}</span></label>`
+        ).join("");
+        planView = `<div class="plan-edit">
+          <label class="plan-toggle"><span>计划授课</span><span class="switch"><input type="checkbox" class="plan-on" ${on ? "checked" : ""}><span class="slider"></span></span></label>
+          <div class="plan-days" ${on ? "" : "hidden"}>${dayBoxes}</div>
+          <div class="plan-edit-actions"><button class="primary-action sm" data-save-plan="${co.id}" type="button">保存</button><button class="secondary-action sm" data-cancel-plan="1" type="button">取消</button></div>
+        </div>`;
+      } else {
+        const txt = formatPlan(co.plan);
+        planView = `<span class="course-mgmt-plan">授课计划：${txt ? esc(txt) : '<span class="muted">未设置</span>'}</span>`;
+      }
       const actions = editing
         ? ""
         : `<div class="course-mgmt-actions"><a class="link" data-edit-plan="${co.id}">编辑授课计划</a><a class="act del" data-del-course="${co.id}">删除</a></div>`;
@@ -769,9 +797,13 @@
       editingPlanCourseId = null;
       renderCourseModal();
     } else if (t.dataset.savePlan) {
-      const inp = courseMgmtList.querySelector(".plan-input");
+      const wrap = t.closest(".plan-edit");
       const co = c.courses.find((x) => x.id === t.dataset.savePlan);
-      if (co && inp) co.plan = inp.value.trim();
+      if (co && wrap) {
+        const on = wrap.querySelector(".plan-on").checked;
+        const days = on ? [...wrap.querySelectorAll(".plan-day input:checked")].map((i) => i.value) : [];
+        co.plan = { on, days };
+      }
       editingPlanCourseId = null;
       saveClasses();
       renderCourseModal();
@@ -788,6 +820,14 @@
     }
   });
 
+  // 计划授课开关：切换时显示/隐藏周几选项
+  courseMgmtList.addEventListener("change", (e) => {
+    if (!e.target.classList.contains("plan-on")) return;
+    const wrap = e.target.closest(".plan-edit");
+    const daysEl = wrap && wrap.querySelector(".plan-days");
+    if (daysEl) daysEl.hidden = !e.target.checked;
+  });
+
   document.getElementById("ca-add").addEventListener("click", () => {
     const c = getActiveClass();
     if (!c) return;
@@ -796,7 +836,7 @@
     let added = 0;
     msSelection.forEach((name) => {
       if (existing.has(name)) return;
-      c.courses.push({ id: "co-" + Date.now() + "-" + added, package: name, plan: "" });
+      c.courses.push({ id: "co-" + Date.now() + "-" + added, package: name, plan: { on: false, days: [] } });
       added += 1;
     });
     resetMsSelect();

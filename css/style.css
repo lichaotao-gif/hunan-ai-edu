@@ -1046,14 +1046,23 @@ tbody tr:hover { background: #FAFCFD; }
 .course-mgmt-actions .link, .course-mgmt-actions .act { cursor: pointer; font-weight: 500; font-size: 13px; white-space: nowrap; }
 .course-mgmt-actions .act.del { color: var(--danger); }
 .course-mgmt-actions .act.del:hover { text-decoration: underline; }
-/* 行内编辑授课计划 */
-.plan-edit { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: 4px; }
-.plan-input {
-  min-height: 40px; padding: 8px var(--sp-3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); background: var(--bg); font-size: 13.5px; color: var(--text-main);
-  outline: none; transition: border-color .15s, box-shadow .15s, background .15s;
+/* 行内编辑授课计划：开关 + 周几多选 */
+.plan-edit { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-2); }
+.plan-toggle { display: inline-flex; align-items: center; gap: var(--sp-3); cursor: pointer; }
+.plan-toggle > span:first-child { font-size: 13.5px; font-weight: 500; color: var(--text-mid); }
+.switch { position: relative; display: inline-flex; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; }
+.switch .slider { position: absolute; inset: 0; border-radius: 24px; background: #CBD5DC; transition: background .18s; }
+.switch .slider::before {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(20, 58, 64, .25); transition: transform .18s;
 }
-.plan-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 175, 160, .10); background: #fff; }
+.switch input:checked + .slider { background: var(--primary); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+.plan-days { display: flex; flex-direction: column; gap: var(--sp-2); padding-left: var(--sp-1); }
+.plan-days[hidden] { display: none; }
+.plan-day { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: 13.5px; color: var(--text-main); cursor: pointer; }
+.plan-day input { width: 16px; height: 16px; accent-color: var(--primary); }
 .plan-edit-actions { display: flex; gap: var(--sp-2); }
 .primary-action.sm, .secondary-action.sm { min-height: 34px; padding: 0 var(--sp-4); font-size: 13px; }
 /* 添加课程行（从已有课程包多选） */
