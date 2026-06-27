@@ -480,6 +480,27 @@ ul { list-style: none; }
 .cal-class .cc-klass { font-size: 12px; color: var(--text-mid); }
 .cal-empty { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--text-sub); font-size: 12.5px; }
 
+/* 全屏页面（覆盖菜单与顶栏） */
+.fullpage {
+  position: fixed; inset: 0; z-index: 70; overflow-y: auto;
+  display: flex; flex-direction: column;
+  background: linear-gradient(180deg, var(--primary-light), var(--bg) 38%);
+}
+.fullpage[hidden] { display: none; }
+.fullpage-head { display: flex; align-items: center; gap: var(--sp-4); padding: clamp(20px, 3vw, 36px) clamp(20px, 4vw, 48px) var(--sp-5); }
+.fullpage-back {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--primary-dark); box-shadow: var(--shadow-sm);
+  transition: background .15s, transform .15s;
+}
+.fullpage-back:hover { background: var(--primary-light); transform: translateX(-2px); }
+.fullpage-back svg { width: 24px; height: 24px; }
+.fullpage-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fullpage-titles h1 { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; color: var(--text-main); }
+.fullpage-titles span { font-size: 13.5px; color: var(--text-sub); }
+.fullpage-body { flex: 1; padding: 0 clamp(20px, 4vw, 48px) clamp(24px, 4vw, 48px); }
+
 /* 我的课程：课时横排列表 */
 .lesson-rail-wrap { position: relative; }
 .lesson-rail { display: flex; gap: var(--sp-5); overflow-x: auto; padding: var(--sp-2) var(--sp-1) var(--sp-5); scroll-behavior: smooth; }

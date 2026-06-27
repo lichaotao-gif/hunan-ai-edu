@@ -1749,23 +1749,23 @@
 
   const mcHome = document.getElementById("mc-home");
   const mcCalendar = document.getElementById("mc-calendar");
-  const mcLessons = document.getElementById("mc-lessons");
   function mcShow(view) {
-    [mcHome, mcCalendar, mcLessons].forEach((el) => el && el.classList.remove("active"));
+    [mcHome, mcCalendar].forEach((el) => el && el.classList.remove("active"));
     if (view) view.classList.add("active");
   }
   function showMcHome() { mcShow(mcHome); }
   function showMcCalendar() { mcShow(mcCalendar); renderCalWeek(calWeekOffset); }
 
-  // 课时列表（横排可左滑）
+  // 课时列表：全屏页面（覆盖菜单与顶栏，原页面不关闭）
+  const lessonPage = document.getElementById("lesson-page");
   const lessonRail = document.getElementById("mc-lessons-rail");
   const MC_LESSON_POOL = ["认识人工智能", "数据的奥秘", "图像识别初体验", "让机器听懂你", "智能小管家", "算法闯关", "机器学习入门", "人脸识别探秘", "语音助手小达人", "综合创作项目"];
   const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg>';
 
   function openMcLessons(pkg) {
     if (!pkg) return;
-    document.getElementById("mc-lessons-title").textContent = pkg.names[0];
-    document.getElementById("mc-lessons-sub").textContent = `共 ${MC_LESSON_POOL.length} 课时 · ${pkg.klass}`;
+    document.getElementById("lesson-page-title").textContent = pkg.names[0];
+    document.getElementById("lesson-page-sub").textContent = `共 ${MC_LESSON_POOL.length} 课时 · ${pkg.klass}`;
     const taughtUpTo = 1; // 演示：已上到第 1 课时
     lessonRail.innerHTML = MC_LESSON_POOL.map((name, i) => {
       const no = i + 1;
@@ -1778,8 +1778,13 @@
       </div>`;
     }).join("");
     lessonRail.scrollLeft = 0;
-    mcShow(mcLessons);
-    document.querySelector(".content").scrollTop = 0;
+    lessonPage.hidden = false;
+    lessonPage.scrollTop = 0;
+    document.body.classList.add("modal-open");
+  }
+  function closeMcLessons() {
+    lessonPage.hidden = true;
+    document.body.classList.remove("modal-open");
   }
 
   if (lessonRail) {
@@ -1789,9 +1794,10 @@
       if (prep) showToast(`备课 · 第${prep.dataset.prep}课时（开发中）`);
       else if (teach) showToast(`上课 · 第${teach.dataset.teach}课时（开发中）`);
     });
-    document.getElementById("mc-lessons-back").addEventListener("click", showMcHome);
+    document.getElementById("lesson-page-back").addEventListener("click", closeMcLessons);
     document.getElementById("rail-prev").addEventListener("click", () => lessonRail.scrollBy({ left: -320, behavior: "smooth" }));
     document.getElementById("rail-next").addEventListener("click", () => lessonRail.scrollBy({ left: 320, behavior: "smooth" }));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden) closeMcLessons(); });
   }
 
   renderTodaySchedule();
