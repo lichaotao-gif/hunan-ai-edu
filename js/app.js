@@ -503,8 +503,8 @@
     else if (t.dataset.del) deleteClass(t.dataset.del);
     else if (t.dataset.intro) openInfoModal(t.dataset.intro);
     else if (t.dataset.courses) openCourseModal(t.dataset.courses);
-    else if (t.dataset.import) showToast("学生导入功能开发中");
-    else if (t.dataset.qr) showToast("班级二维码功能开发中");
+    else if (t.dataset.import) openImportModal(t.dataset.import);
+    else if (t.dataset.qr) openQrModal(t.dataset.qr);
   });
 
   document.getElementById("create-class-trigger").addEventListener("click", () => openClassForm());
@@ -624,12 +624,13 @@
   function deleteClass(id) {
     const c = classStore.find((x) => x.id === id);
     if (!c) return;
-    if (!window.confirm(`确定删除「${c.name}」吗？此操作不可恢复。`)) return;
-    classStore = classStore.filter((x) => x.id !== id);
-    if (selectedClassId === id) selectedClassId = classStore[0] && classStore[0].id;
-    saveClasses();
-    renderClassTable();
-    showToast("已删除");
+    openConfirm(`确定删除班级「${c.name}」吗？删除后该班级的课程与学生数据将一并移除，且不可恢复。`, () => {
+      classStore = classStore.filter((x) => x.id !== id);
+      if (selectedClassId === id) selectedClassId = classStore[0] && classStore[0].id;
+      saveClasses();
+      renderClassTable();
+      showToast("已删除班级");
+    }, "确定删除");
   }
 
   // --- 班级介绍查看弹窗 ---
@@ -811,12 +812,14 @@
     } else if (t.dataset.delCourse) {
       const co = c.courses.find((x) => x.id === t.dataset.delCourse);
       if (!co) return;
-      if (!window.confirm(`确定从「${c.name}」移除「${co.package}」吗？`)) return;
-      c.courses = c.courses.filter((x) => x.id !== t.dataset.delCourse);
-      saveClasses();
-      renderCourseModal();
-      renderClassTable();
-      showToast("已删除课程");
+      const cid = t.dataset.delCourse;
+      openConfirm(`确定从「${c.name}」移除课程「${co.package}」吗？`, () => {
+        c.courses = c.courses.filter((x) => x.id !== cid);
+        saveClasses();
+        renderCourseModal();
+        renderClassTable();
+        showToast("已删除课程");
+      }, "确定移除");
     }
   });
 
@@ -849,12 +852,182 @@
   document.getElementById("course-modal-close").addEventListener("click", closeCourseModal);
   courseModal.addEventListener("click", (e) => { if (e.target === courseModal) closeCourseModal(); });
 
+  // --- 通用二次确认弹窗 ---
+  const confirmModal = document.getElementById("confirm-modal");
+  let confirmCallback = null;
+  function openConfirm(msg, onOk, okText) {
+    document.getElementById("confirm-msg").textContent = msg;
+    document.getElementById("confirm-ok").textContent = okText || "确定删除";
+    confirmCallback = onOk;
+    confirmModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeConfirm() {
+    confirmModal.hidden = true;
+    confirmCallback = null;
+    // 若仍有上层弹窗（如课程弹窗）打开，保持滚动锁定
+    if (courseModal.hidden) document.body.classList.remove("modal-open");
+  }
+  document.getElementById("confirm-cancel").addEventListener("click", closeConfirm);
+  confirmModal.addEventListener("click", (e) => { if (e.target === confirmModal) closeConfirm(); });
+  document.getElementById("confirm-ok").addEventListener("click", () => {
+    const cb = confirmCallback;
+    closeConfirm();
+    if (cb) cb();
+  });
+
+  // --- 班级二维码弹窗 ---
+  const qrModal = document.getElementById("qr-modal");
+  const qrImg = document.getElementById("qr-img");
+  const qrFallback = document.getElementById("qr-fallback");
+  let qrShareUrl = "";
+  function classJoinUrl(c) {
+    return `https://bingoclass.edu/join?c=${encodeURIComponent(c.id)}`;
+  }
+  function openQrModal(classId) {
+    const c = classStore.find((x) => x.id === classId);
+    if (!c) return;
+    qrShareUrl = classJoinUrl(c);
+    document.getElementById("qr-modal-class").textContent = c.name;
+    qrFallback.hidden = true;
+    qrImg.hidden = false;
+    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=" + encodeURIComponent(qrShareUrl);
+    qrModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeQrModal() {
+    qrModal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+  qrImg.addEventListener("error", () => { qrImg.hidden = true; qrFallback.hidden = false; });
+  document.getElementById("qr-modal-close").addEventListener("click", closeQrModal);
+  qrModal.addEventListener("click", (e) => { if (e.target === qrModal) closeQrModal(); });
+  document.getElementById("qr-copy").addEventListener("click", () => {
+    const done = () => showToast("邀请链接已复制");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(qrShareUrl).then(done).catch(() => showToast(qrShareUrl));
+    } else {
+      showToast(qrShareUrl);
+    }
+  });
+  document.getElementById("qr-share").addEventListener("click", () => {
+    const cls = document.getElementById("qr-modal-class").textContent;
+    if (navigator.share) {
+      navigator.share({ title: "加入班级", text: `邀请你加入「${cls}」`, url: qrShareUrl }).catch(() => {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(qrShareUrl).then(() => showToast("当前环境不支持直接分享，已复制链接"));
+    } else {
+      showToast("请复制链接后发送给学生");
+    }
+  });
+
+  // --- 导入学生名单弹窗 ---
+  const importModal = document.getElementById("import-modal");
+  const importFileInput = document.getElementById("import-file");
+  const importDrop = document.getElementById("import-drop");
+  const importFileName = document.getElementById("import-file-name");
+  const importConfirmBtn = document.getElementById("import-confirm");
+  let importClassId = null;
+  let importPickedFile = null;
+
+  function openImportModal(classId) {
+    const c = classStore.find((x) => x.id === classId);
+    if (!c) return;
+    importClassId = classId;
+    importPickedFile = null;
+    importFileInput.value = "";
+    importFileName.textContent = "点击选择本地表格文件（.csv / .xlsx）";
+    importDrop.classList.remove("has-file");
+    importConfirmBtn.disabled = true;
+    document.getElementById("import-modal-class").textContent = c.name;
+    importModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeImportModal() {
+    importModal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+  document.getElementById("import-modal-close").addEventListener("click", closeImportModal);
+  document.getElementById("import-cancel").addEventListener("click", closeImportModal);
+  importModal.addEventListener("click", (e) => { if (e.target === importModal) closeImportModal(); });
+
+  document.getElementById("import-tpl").addEventListener("click", () => {
+    const rows = [
+      ["姓名", "学号", "性别", "备注"],
+      ["张三", "20240101", "男", "示例行，可删除"],
+      ["李四", "20240102", "女", "示例行，可删除"],
+    ];
+    const csv = "﻿" + rows.map((r) => r.join(",")).join("\r\n"); // BOM 保证 Excel 中文不乱码
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "学生名单导入模板.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    showToast("模板已下载");
+  });
+
+  importFileInput.addEventListener("change", () => {
+    const f = importFileInput.files && importFileInput.files[0];
+    importPickedFile = f || null;
+    if (f) {
+      importFileName.textContent = f.name;
+      importDrop.classList.add("has-file");
+      importConfirmBtn.disabled = false;
+    } else {
+      importFileName.textContent = "点击选择本地表格文件（.csv / .xlsx）";
+      importDrop.classList.remove("has-file");
+      importConfirmBtn.disabled = true;
+    }
+  });
+
+  function countCsvStudents(text) {
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && l.replace(/,/g, ""));
+    if (lines.length === 0) return 0;
+    // 跳过表头（含“姓名”视为表头）
+    const start = lines[0].includes("姓名") ? 1 : 0;
+    let n = 0;
+    for (let i = start; i < lines.length; i++) {
+      const name = lines[i].split(",")[0].trim();
+      if (name) n += 1;
+    }
+    return n;
+  }
+
+  importConfirmBtn.addEventListener("click", () => {
+    const c = classStore.find((x) => x.id === importClassId);
+    if (!c || !importPickedFile) return;
+    const name = importPickedFile.name.toLowerCase();
+    if (name.endsWith(".csv")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const count = countCsvStudents(String(reader.result || ""));
+        if (count === 0) { showToast("未识别到学生数据，请检查模板格式"); return; }
+        c.students = count;
+        saveClasses();
+        renderClassTable();
+        closeImportModal();
+        showToast(`成功导入 ${count} 名学生`);
+      };
+      reader.onerror = () => showToast("文件读取失败");
+      reader.readAsText(importPickedFile, "utf-8");
+    } else {
+      // xlsx 解析需后端/库支持，演示阶段提示使用 CSV 模板
+      showToast("当前演示仅支持 CSV 模板，请下载模板填写后上传");
+    }
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!schoolModal.hidden) closeSchoolModal();
     if (!classFormModal.hidden) closeClassForm();
     if (!infoModal.hidden) closeInfoModal();
     if (!courseModal.hidden) closeCourseModal();
+    if (!qrModal.hidden) closeQrModal();
+    if (!importModal.hidden) closeImportModal();
+    if (!confirmModal.hidden) closeConfirm();
   });
 
   renderSchoolBanner();

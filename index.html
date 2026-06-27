@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=30">
+<link rel="stylesheet" href="css/style.css?v=31">
 </head>
 <body>
 <div class="app-shell">
@@ -529,6 +529,7 @@
     <h2 id="course-modal-title">班级课程</h2>
     <p class="class-modal-sub" id="course-modal-sub">—</p>
     <div class="course-mgmt-list" id="course-mgmt-list"></div>
+    <div class="course-add-head">添加课程</div>
     <div class="course-add">
       <div class="ms-select" id="ms-select">
         <button class="ms-trigger" id="ms-trigger" type="button" aria-haspopup="true" aria-expanded="false">
@@ -553,7 +554,67 @@
   </div>
 </div>
 
+<!-- 班级二维码弹窗 -->
+<div class="modal-backdrop" id="qr-modal" hidden>
+  <div class="class-modal qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+    <button class="modal-close" id="qr-modal-close" aria-label="关闭二维码弹窗">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2 id="qr-modal-title">班级二维码</h2>
+    <p class="class-modal-sub" id="qr-modal-class">—</p>
+    <div class="qr-box">
+      <img id="qr-img" alt="班级二维码" width="200" height="200">
+      <div class="qr-fallback" id="qr-fallback" hidden>二维码加载失败，请检查网络后重试</div>
+    </div>
+    <p class="qr-tip">学生使用 App 扫描上方二维码即可加入班级</p>
+    <div class="class-modal-actions">
+      <button class="secondary-action" id="qr-copy" type="button">复制邀请链接</button>
+      <button class="primary-action" id="qr-share" type="button">分享给学生</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导入学生名单弹窗 -->
+<div class="modal-backdrop" id="import-modal" hidden>
+  <div class="class-modal import-modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+    <button class="modal-close" id="import-modal-close" aria-label="关闭导入弹窗">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2 id="import-modal-title">导入学生名单</h2>
+    <p class="class-modal-sub" id="import-modal-class">—</p>
+    <div class="import-tip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+      <span>为保证导入准确率，请先下载模板，按表头格式填写后再上传。</span>
+    </div>
+    <button class="import-tpl-btn" id="import-tpl" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载 Excel 模板
+    </button>
+    <label class="import-drop" id="import-drop">
+      <input type="file" id="import-file" accept=".csv,.xlsx,.xls" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span id="import-file-name">点击选择本地表格文件（.csv / .xlsx）</span>
+    </label>
+    <div class="class-modal-actions">
+      <button class="secondary-action" id="import-cancel" type="button">取消</button>
+      <button class="primary-action" id="import-confirm" type="button" disabled>确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 通用二次确认弹窗 -->
+<div class="modal-backdrop" id="confirm-modal" hidden>
+  <div class="class-modal confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">确认删除</h2>
+    <p class="confirm-msg" id="confirm-msg"></p>
+    <div class="class-modal-actions">
+      <button class="secondary-action" id="confirm-cancel" type="button">取消</button>
+      <button class="primary-action danger" id="confirm-ok" type="button">确定删除</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=27"></script>
+<script src="js/app.js?v=28"></script>
 </body>
 </html>
