@@ -599,19 +599,26 @@
     if (editingClassId) {
       const c = classStore.find((x) => x.id === editingClassId);
       if (c) { c.name = name; c.type = cfType.value; c.intro = cfIntro.value.trim(); }
+      saveClasses();
+      renderClassTable();
+      closeClassForm();
       showToast("已保存");
-    } else {
-      classStore.unshift({
-        id: "cls-" + Date.now(),
-        name, type: cfType.value, teacher: currentTeacher,
-        students: 0, intro: cfIntro.value.trim(), createdAt: Date.now(),
-      });
-      if (!selectedClassId) selectedClassId = classStore[0].id;
-      showToast("班级已创建");
+      return;
     }
+    // 创建班级
+    const newId = "cls-" + Date.now();
+    classStore.unshift({
+      id: newId,
+      name, type: cfType.value, teacher: currentTeacher,
+      students: 0, intro: cfIntro.value.trim(), createdAt: Date.now(), courses: [],
+    });
+    if (!selectedClassId) selectedClassId = newId;
     saveClasses();
     renderClassTable();
     closeClassForm();
+    showToast("班级已创建，请为班级添加课程");
+    // 引导：创建后直接打开该班级的课程弹窗去选课程
+    openCourseModal(newId);
   });
   document.getElementById("class-form-close").addEventListener("click", closeClassForm);
   document.getElementById("class-form-cancel").addEventListener("click", closeClassForm);
