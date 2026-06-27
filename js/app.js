@@ -116,14 +116,47 @@
   const classListEl = document.getElementById("class-list");
   const classEmptyEl = document.getElementById("class-empty");
   const classActionsEl = document.getElementById("class-modal-actions");
-  const demoClasses = [
-    { id: "c1", name: "四年级(1)班", students: 42 },
-    { id: "c2", name: "五年级(2)班", students: 39 },
-    { id: "c3", name: "七年级(3)班", students: 45 },
+  // ===== 班级 & 学校：本地存储数据层 =====
+  const SCHOOL_KEY = "hndj_school";
+  const CLASS_KEY = "hndj_classes";
+
+  // 当前登录老师姓名（用作新班级的默认管理教师）
+  let currentTeacher = "老师";
+  try {
+    const u = JSON.parse(localStorage.getItem("hndj_user") || "{}");
+    if (u && u.name) currentTeacher = u.name;
+  } catch (e) { /* ignore */ }
+
+  // 可选学校列表（演示数据，可搜索）
+  const SCHOOLS = [
+    "长沙市第一中学", "长沙市雅礼中学", "长沙市长郡中学", "湖南师范大学附属中学",
+    "长沙市明德中学", "长沙市周南中学", "长沙市第十一中学", "长沙市实验小学",
+    "长沙市砂子塘小学", "长沙市枫树山小学", "长沙市育英小学", "长沙市清水塘小学",
+    "株洲市第二中学", "湘潭市第一中学", "岳阳市第一中学", "常德市第一中学",
   ];
+
+  function loadSchool() { return localStorage.getItem(SCHOOL_KEY) || ""; }
+  function saveSchool(name) { localStorage.setItem(SCHOOL_KEY, name); }
+
+  function loadClasses() {
+    try {
+      const raw = localStorage.getItem(CLASS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    // 首次种子数据
+    const seed = [
+      { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime() },
+      { id: "cls-2", name: "萃雅·7班", type: "兴趣班", teacher: currentTeacher, students: 3, intro: "校级人工智能兴趣社团，面向四至六年级招募。", createdAt: new Date("2022-03-25T10:37:00").getTime() },
+    ];
+    localStorage.setItem(CLASS_KEY, JSON.stringify(seed));
+    return seed;
+  }
+  function saveClasses() { localStorage.setItem(CLASS_KEY, JSON.stringify(classStore)); }
+
+  let classStore = loadClasses();
   let activeCourseKey = "spring";
   let activeLessonName = "";
-  let selectedClassId = demoClasses[0] && demoClasses[0].id;
+  let selectedClassId = classStore[0] && classStore[0].id;
 
   function showDtList() {
     dtDetail.classList.remove("active");
@@ -208,7 +241,7 @@
   function openClassModal() {
     document.getElementById("class-modal-course").textContent =
       activeLessonName ? `将 ${activeLessonName} 添加到班级` : "请选择要添加到的班级";
-    if (demoClasses.length === 0) {
+    if (classStore.length === 0) {
       classListEl.innerHTML = "";
       classListEl.hidden = true;
       classActionsEl.hidden = true;
@@ -217,7 +250,7 @@
       classListEl.hidden = false;
       classActionsEl.hidden = false;
       classEmptyEl.hidden = true;
-      classListEl.innerHTML = demoClasses.map((item) => `
+      classListEl.innerHTML = classStore.map((item) => `
         <label class="class-option">
           <input type="radio" name="target-class" value="${item.id}" ${item.id === selectedClassId ? "checked" : ""}>
           <span class="class-option-main">
@@ -352,16 +385,245 @@
     if (event.target === classModal) closeClassModal();
   });
   document.getElementById("confirm-add-course").addEventListener("click", () => {
-    const selected = demoClasses.find((item) => item.id === selectedClassId);
+    const selected = classStore.find((item) => item.id === selectedClassId);
     showToast(selected ? `已添加到${selected.name}` : "请选择班级");
     if (selected) closeClassModal();
   });
   document.getElementById("create-class-btn").addEventListener("click", () => {
-    showToast("创建班级功能开发中");
+    closeClassModal();
+    openClassForm();
   });
   document.getElementById("create-class-empty").addEventListener("click", () => {
-    showToast("创建班级功能开发中");
+    closeClassModal();
+    openClassForm();
   });
+
+  // ===== 班级管理：学校绑定 + 班级列表 =====
+  const schoolBanner = document.getElementById("school-banner");
+  const classTableBody = document.getElementById("class-table-body");
+  const classTableEmpty = document.getElementById("class-table-empty");
+
+  const ICON_SCHOOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>';
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>';
+  const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  const ICON_QR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="14.5" x2="14" y2="21"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="17.5" y1="21" x2="21" y2="21"/></svg>';
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function fmtDate(ts) {
+    const d = new Date(ts);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function renderSchoolBanner() {
+    const school = loadSchool();
+    if (school) {
+      schoolBanner.className = "school-banner bound";
+      schoolBanner.innerHTML =
+        `<div class="sb-icon">${ICON_SCHOOL}</div>` +
+        `<div class="sb-text"><span class="sb-name">${esc(school)}</span>` +
+        `<span class="sb-badge">${ICON_CHECK}已绑定</span></div>` +
+        `<div class="sb-action"><button class="ghost-btn" id="change-school-btn" type="button">修改学校</button></div>`;
+      document.getElementById("change-school-btn").addEventListener("click", openSchoolModal);
+    } else {
+      schoolBanner.className = "school-banner unbound";
+      schoolBanner.innerHTML =
+        `<div class="sb-icon">${ICON_SCHOOL}</div>` +
+        `<div class="sb-text"><span class="sb-name">尚未绑定学校</span>` +
+        `<span class="sb-sub">绑定学校后才能创建班级</span></div>` +
+        `<div class="sb-action"><button class="solid-btn" id="bind-school-btn" type="button">${ICON_PLUS}绑定学校</button></div>`;
+      document.getElementById("bind-school-btn").addEventListener("click", openSchoolModal);
+    }
+  }
+
+  function renderClassTable() {
+    if (classStore.length === 0) {
+      classTableBody.innerHTML = "";
+      classTableEmpty.hidden = false;
+      return;
+    }
+    classTableEmpty.hidden = true;
+    classTableBody.innerHTML = classStore.map((c) => {
+      const typeClass = c.type === "兴趣班" ? "type-tag fun" : "type-tag";
+      const stu = c.students > 0
+        ? `<div class="stu-cell"><span class="stu-count">${c.students}人</span><a class="link act" data-import="${c.id}">导入学生</a></div>`
+        : `<div class="stu-cell"><a class="link act" data-import="${c.id}">导入学生</a></div>`;
+      return `<tr>
+        <td><span class="cell-name">${esc(c.name)}<button class="qr-btn" data-qr="${c.id}" title="班级二维码" aria-label="班级二维码">${ICON_QR}</button></span></td>
+        <td><span class="${typeClass}">${esc(c.type)}</span></td>
+        <td>${esc(c.teacher)}</td>
+        <td>${stu}</td>
+        <td><a class="link" data-intro="${c.id}">介绍</a></td>
+        <td>${fmtDate(c.createdAt)}</td>
+        <td><div class="row-actions"><a class="link act" data-edit="${c.id}">编辑班级</a><a class="act del" data-del="${c.id}">删除班级</a></div></td>
+      </tr>`;
+    }).join("");
+  }
+
+  classTableBody.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-edit],[data-del],[data-intro],[data-import],[data-qr]");
+    if (!t) return;
+    if (t.dataset.edit) openClassForm(t.dataset.edit);
+    else if (t.dataset.del) deleteClass(t.dataset.del);
+    else if (t.dataset.intro) openInfoModal(t.dataset.intro);
+    else if (t.dataset.import) showToast("学生导入功能开发中");
+    else if (t.dataset.qr) showToast("班级二维码功能开发中");
+  });
+
+  document.getElementById("create-class-trigger").addEventListener("click", () => openClassForm());
+
+  // --- 绑定学校弹窗 ---
+  const schoolModal = document.getElementById("school-modal");
+  const schoolSearchInput = document.getElementById("school-search-input");
+  const schoolListEl = document.getElementById("school-list");
+  let schoolSelection = "";
+
+  function renderSchoolOptions(filter) {
+    const kw = (filter || "").trim();
+    const list = kw ? SCHOOLS.filter((s) => s.includes(kw)) : SCHOOLS;
+    if (list.length === 0) {
+      schoolListEl.innerHTML = '<div class="school-empty">未找到匹配的学校</div>';
+      return;
+    }
+    schoolListEl.innerHTML = list.map((s) =>
+      `<label class="school-option"><input type="radio" name="school-pick" value="${esc(s)}" ${s === schoolSelection ? "checked" : ""}><b>${esc(s)}</b></label>`
+    ).join("");
+  }
+
+  function openSchoolModal() {
+    schoolSelection = loadSchool();
+    schoolSearchInput.value = "";
+    renderSchoolOptions("");
+    schoolModal.hidden = false;
+    document.body.classList.add("modal-open");
+    schoolSearchInput.focus();
+  }
+  function closeSchoolModal() {
+    schoolModal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+  schoolSearchInput.addEventListener("input", () => renderSchoolOptions(schoolSearchInput.value));
+  schoolListEl.addEventListener("change", (e) => {
+    if (e.target.name === "school-pick") schoolSelection = e.target.value;
+  });
+  document.getElementById("school-modal-close").addEventListener("click", closeSchoolModal);
+  document.getElementById("school-cancel").addEventListener("click", closeSchoolModal);
+  schoolModal.addEventListener("click", (e) => { if (e.target === schoolModal) closeSchoolModal(); });
+  document.getElementById("school-confirm").addEventListener("click", () => {
+    if (!schoolSelection) { showToast("请选择学校"); return; }
+    saveSchool(schoolSelection);
+    renderSchoolBanner();
+    closeSchoolModal();
+    showToast("已绑定 " + schoolSelection);
+  });
+
+  // --- 创建 / 编辑班级弹窗 ---
+  const classFormModal = document.getElementById("class-form-modal");
+  const cfName = document.getElementById("cf-name");
+  const cfType = document.getElementById("cf-type");
+  const cfIntro = document.getElementById("cf-intro");
+  const cfTitle = document.getElementById("class-form-title");
+  const cfSchool = document.getElementById("class-form-school");
+  const cfConfirm = document.getElementById("class-form-confirm");
+  let editingClassId = null;
+
+  function openClassForm(id) {
+    const school = loadSchool();
+    if (!school) {
+      showToast("请先绑定学校");
+      openSchoolModal();
+      return;
+    }
+    editingClassId = id || null;
+    cfSchool.textContent = "所属学校：" + school;
+    if (editingClassId) {
+      const c = classStore.find((x) => x.id === editingClassId);
+      if (!c) return;
+      cfTitle.textContent = "编辑班级";
+      cfConfirm.textContent = "保存修改";
+      cfName.value = c.name;
+      cfType.value = c.type;
+      cfIntro.value = c.intro || "";
+    } else {
+      cfTitle.textContent = "创建班级";
+      cfConfirm.textContent = "确认创建";
+      cfName.value = "";
+      cfType.value = "行政班";
+      cfIntro.value = "";
+    }
+    classFormModal.hidden = false;
+    document.body.classList.add("modal-open");
+    cfName.focus();
+  }
+  function closeClassForm() {
+    classFormModal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+  cfConfirm.addEventListener("click", () => {
+    const name = cfName.value.trim();
+    if (!name) { showToast("请输入班级名称"); cfName.focus(); return; }
+    if (editingClassId) {
+      const c = classStore.find((x) => x.id === editingClassId);
+      if (c) { c.name = name; c.type = cfType.value; c.intro = cfIntro.value.trim(); }
+      showToast("已保存");
+    } else {
+      classStore.unshift({
+        id: "cls-" + Date.now(),
+        name, type: cfType.value, teacher: currentTeacher,
+        students: 0, intro: cfIntro.value.trim(), createdAt: Date.now(),
+      });
+      if (!selectedClassId) selectedClassId = classStore[0].id;
+      showToast("班级已创建");
+    }
+    saveClasses();
+    renderClassTable();
+    closeClassForm();
+  });
+  document.getElementById("class-form-close").addEventListener("click", closeClassForm);
+  document.getElementById("class-form-cancel").addEventListener("click", closeClassForm);
+  classFormModal.addEventListener("click", (e) => { if (e.target === classFormModal) closeClassForm(); });
+
+  function deleteClass(id) {
+    const c = classStore.find((x) => x.id === id);
+    if (!c) return;
+    if (!window.confirm(`确定删除「${c.name}」吗？此操作不可恢复。`)) return;
+    classStore = classStore.filter((x) => x.id !== id);
+    if (selectedClassId === id) selectedClassId = classStore[0] && classStore[0].id;
+    saveClasses();
+    renderClassTable();
+    showToast("已删除");
+  }
+
+  // --- 班级介绍查看弹窗 ---
+  const infoModal = document.getElementById("info-modal");
+  function openInfoModal(id) {
+    const c = classStore.find((x) => x.id === id);
+    if (!c) return;
+    document.getElementById("info-modal-title").textContent = c.name + " · 班级介绍";
+    document.getElementById("info-modal-body").textContent =
+      c.intro && c.intro.trim() ? c.intro : "暂无班级介绍。";
+    infoModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeInfoModal() {
+    infoModal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+  document.getElementById("info-modal-close").addEventListener("click", closeInfoModal);
+  infoModal.addEventListener("click", (e) => { if (e.target === infoModal) closeInfoModal(); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (!schoolModal.hidden) closeSchoolModal();
+    if (!classFormModal.hidden) closeClassForm();
+    if (!infoModal.hidden) closeInfoModal();
+  });
+
+  renderSchoolBanner();
+  renderClassTable();
 
   // ===== AI实验室：课程包 -> 实验列表 =====
   const labPackages = [
