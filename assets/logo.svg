@@ -1,0 +1,20 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人工智能通识教育平台标识">
+  <defs>
+    <linearGradient id="bg" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0FAFA0"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="5" y="5" width="54" height="54" rx="15" fill="url(#bg)"/>
+
+  <path d="M18 22.5c0-2.2 1.8-4 4-4h8c3.2 0 5.8 2.6 5.8 5.8v20.2A8.4 8.4 0 0 0 29.8 42H22c-2.2 0-4-1.8-4-4V22.5Z" fill="#FFFFFF"/>
+  <path d="M46 18.5h-7.8c-3.2 0-5.8 2.6-5.8 5.8v20.2a8.4 8.4 0 0 1 6-2.5H46c2.2 0 4-1.8 4-4V22.5c0-2.2-1.8-4-4-4Z" fill="#E9FFFC"/>
+
+  <circle cx="32" cy="31" r="5.2" fill="none" stroke="#0C8C80" stroke-width="2.4"/>
+  <circle cx="32" cy="31" r="1.8" fill="#0C8C80"/>
+  <path d="M32 25.8v-4.2M36.5 33.6l3.7 2.2M27.5 33.6l-3.7 2.2" stroke="#0C8C80" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="32" cy="21.4" r="2" fill="#FFBE55"/>
+  <circle cx="41" cy="36.3" r="2" fill="#FFBE55"/>
+  <circle cx="23" cy="36.3" r="2" fill="#FFBE55"/>
+</svg>
