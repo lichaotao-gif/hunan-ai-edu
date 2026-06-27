@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=25">
+<link rel="stylesheet" href="css/style.css?v=26">
 </head>
 <body>
 <div class="app-shell">
@@ -359,7 +359,7 @@
           <table class="class-table">
             <thead><tr>
               <th>班级名称</th><th>班级类型</th><th>管理教师</th>
-              <th>学生名单</th><th>班级介绍</th><th>创建时间</th><th>操作</th>
+              <th>学生名单</th><th>班级课程</th><th>班级介绍</th><th>创建时间</th><th>操作</th>
             </tr></thead>
             <tbody id="class-table-body"></tbody>
           </table>
@@ -483,6 +483,23 @@
   </div>
 </div>
 
+<!-- 班级课程弹窗 -->
+<div class="modal-backdrop" id="course-modal" hidden>
+  <div class="class-modal course-mgmt-modal" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
+    <button class="modal-close" id="course-modal-close" aria-label="关闭班级课程弹窗">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2 id="course-modal-title">班级课程</h2>
+    <p class="class-modal-sub" id="course-modal-sub">—</p>
+    <div class="course-mgmt-list" id="course-mgmt-list"></div>
+    <div class="course-add">
+      <input type="text" id="ca-package" placeholder="课包名称" maxlength="30">
+      <input type="text" id="ca-plan" placeholder="授课计划（选填）" maxlength="60">
+      <button class="secondary-action" id="ca-add" type="button">添加</button>
+    </div>
+  </div>
+</div>
+
 <!-- 班级介绍查看弹窗 -->
 <div class="modal-backdrop" id="info-modal" hidden>
   <div class="class-modal info-modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
@@ -495,6 +512,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=22"></script>
+<script src="js/app.js?v=23"></script>
 </body>
 </html>

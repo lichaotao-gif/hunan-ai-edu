@@ -141,12 +141,22 @@
   function loadClasses() {
     try {
       const raw = localStorage.getItem(CLASS_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        arr.forEach((c) => { if (!Array.isArray(c.courses)) c.courses = []; }); // 兼容旧数据
+        return arr;
+      }
     } catch (e) { /* ignore */ }
     // 首次种子数据
     const seed = [
-      { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime() },
-      { id: "cls-2", name: "萃雅·7班", type: "兴趣班", teacher: currentTeacher, students: 3, intro: "校级人工智能兴趣社团，面向四至六年级招募。", createdAt: new Date("2022-03-25T10:37:00").getTime() },
+      { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime(), courses: [
+        { id: "co-1", package: "人工智能（四下）", plan: "每周二 第3节 · 共10课时" },
+        { id: "co-2", package: "人工智能（五下）", plan: "每周四 第5节 · 共10课时" },
+        { id: "co-3", package: "体验课", plan: "" },
+      ] },
+      { id: "cls-2", name: "萃雅·7班", type: "兴趣班", teacher: currentTeacher, students: 3, intro: "校级人工智能兴趣社团，面向四至六年级招募。", createdAt: new Date("2022-03-25T10:37:00").getTime(), courses: [
+        { id: "co-4", package: "人工智能（八下）", plan: "每周三 社团活动课 · 共12课时" },
+      ] },
     ];
     localStorage.setItem(CLASS_KEY, JSON.stringify(seed));
     return seed;
@@ -386,8 +396,15 @@
   });
   document.getElementById("confirm-add-course").addEventListener("click", () => {
     const selected = classStore.find((item) => item.id === selectedClassId);
-    showToast(selected ? `已添加到${selected.name}` : "请选择班级");
-    if (selected) closeClassModal();
+    if (!selected) { showToast("请选择班级"); return; }
+    if (!Array.isArray(selected.courses)) selected.courses = [];
+    if (activeLessonName && !selected.courses.some((co) => co.package === activeLessonName)) {
+      selected.courses.push({ id: "co-" + Date.now(), package: activeLessonName, plan: "" });
+      saveClasses();
+      renderClassTable();
+    }
+    showToast(`已添加到${selected.name}`);
+    closeClassModal();
   });
   document.getElementById("create-class-btn").addEventListener("click", () => {
     closeClassModal();
@@ -451,11 +468,21 @@
       const stu = c.students > 0
         ? `<div class="stu-cell"><span class="stu-count">${c.students}人</span><a class="link act" data-import="${c.id}">导入学生</a></div>`
         : `<div class="stu-cell"><a class="link act" data-import="${c.id}">导入学生</a></div>`;
+      const courses = c.courses || [];
+      let courseCell;
+      if (courses.length === 0) {
+        courseCell = `<a class="course-empty-link" data-courses="${c.id}">添加课程</a>`;
+      } else if (courses.length <= 2) {
+        courseCell = `<div class="course-cell" data-courses="${c.id}">${courses.map((co) => `<span class="course-chip">${esc(co.package)}</span>`).join("")}</div>`;
+      } else {
+        courseCell = `<div class="course-cell" data-courses="${c.id}"><span class="course-more">共 ${courses.length} 门课 ›</span></div>`;
+      }
       return `<tr>
         <td><span class="cell-name">${esc(c.name)}<button class="qr-btn" data-qr="${c.id}" title="班级二维码" aria-label="班级二维码">${ICON_QR}</button></span></td>
         <td><span class="${typeClass}">${esc(c.type)}</span></td>
         <td>${esc(c.teacher)}</td>
         <td>${stu}</td>
+        <td>${courseCell}</td>
         <td><a class="link" data-intro="${c.id}">介绍</a></td>
         <td>${fmtDate(c.createdAt)}</td>
         <td><div class="row-actions"><a class="link act" data-edit="${c.id}">编辑班级</a><a class="act del" data-del="${c.id}">删除班级</a></div></td>
@@ -464,11 +491,12 @@
   }
 
   classTableBody.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-edit],[data-del],[data-intro],[data-import],[data-qr]");
+    const t = e.target.closest("[data-edit],[data-del],[data-intro],[data-import],[data-qr],[data-courses]");
     if (!t) return;
     if (t.dataset.edit) openClassForm(t.dataset.edit);
     else if (t.dataset.del) deleteClass(t.dataset.del);
     else if (t.dataset.intro) openInfoModal(t.dataset.intro);
+    else if (t.dataset.courses) openCourseModal(t.dataset.courses);
     else if (t.dataset.import) showToast("学生导入功能开发中");
     else if (t.dataset.qr) showToast("班级二维码功能开发中");
   });
@@ -615,11 +643,109 @@
   document.getElementById("info-modal-close").addEventListener("click", closeInfoModal);
   infoModal.addEventListener("click", (e) => { if (e.target === infoModal) closeInfoModal(); });
 
+  // --- 班级课程弹窗 ---
+  const courseModal = document.getElementById("course-modal");
+  const courseMgmtList = document.getElementById("course-mgmt-list");
+  const courseModalSub = document.getElementById("course-modal-sub");
+  const caPackage = document.getElementById("ca-package");
+  const caPlan = document.getElementById("ca-plan");
+  let activeCourseClassId = null;
+  let editingPlanCourseId = null;
+
+  function getActiveClass() { return classStore.find((x) => x.id === activeCourseClassId); }
+
+  function renderCourseModal() {
+    const c = getActiveClass();
+    if (!c) return;
+    document.getElementById("course-modal-title").textContent = c.name;
+    courseModalSub.textContent = `班级课程 · 共 ${c.courses.length} 门`;
+    if (c.courses.length === 0) {
+      courseMgmtList.innerHTML = '<div class="course-mgmt-empty">该班级暂无课程，可在下方添加。</div>';
+      return;
+    }
+    courseMgmtList.innerHTML = c.courses.map((co) => {
+      const editing = editingPlanCourseId === co.id;
+      const planView = editing
+        ? `<div class="plan-edit"><input class="plan-input" value="${esc(co.plan)}" placeholder="如：每周二 第3节 · 共10课时"><div class="plan-edit-actions"><button class="primary-action sm" data-save-plan="${co.id}" type="button">保存</button><button class="secondary-action sm" data-cancel-plan="1" type="button">取消</button></div></div>`
+        : `<span class="course-mgmt-plan">授课计划：${co.plan && co.plan.trim() ? esc(co.plan) : '<span class="muted">未设置</span>'}</span>`;
+      const actions = editing
+        ? ""
+        : `<div class="course-mgmt-actions"><a class="link" data-edit-plan="${co.id}">编辑授课计划</a><a class="act del" data-del-course="${co.id}">删除</a></div>`;
+      return `<div class="course-mgmt-item"><div class="course-mgmt-main"><span class="course-mgmt-pkg">${esc(co.package)}</span>${planView}</div>${actions}</div>`;
+    }).join("");
+  }
+
+  function openCourseModal(classId) {
+    activeCourseClassId = classId;
+    editingPlanCourseId = null;
+    caPackage.value = "";
+    caPlan.value = "";
+    renderCourseModal();
+    courseModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeCourseModal() {
+    courseModal.hidden = true;
+    document.body.classList.remove("modal-open");
+    editingPlanCourseId = null;
+  }
+
+  courseMgmtList.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-edit-plan],[data-del-course],[data-save-plan],[data-cancel-plan]");
+    if (!t) return;
+    const c = getActiveClass();
+    if (!c) return;
+    if (t.dataset.editPlan) {
+      editingPlanCourseId = t.dataset.editPlan;
+      renderCourseModal();
+      const inp = courseMgmtList.querySelector(".plan-input");
+      if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    } else if (t.dataset.cancelPlan) {
+      editingPlanCourseId = null;
+      renderCourseModal();
+    } else if (t.dataset.savePlan) {
+      const inp = courseMgmtList.querySelector(".plan-input");
+      const co = c.courses.find((x) => x.id === t.dataset.savePlan);
+      if (co && inp) co.plan = inp.value.trim();
+      editingPlanCourseId = null;
+      saveClasses();
+      renderCourseModal();
+      showToast("授课计划已保存");
+    } else if (t.dataset.delCourse) {
+      const co = c.courses.find((x) => x.id === t.dataset.delCourse);
+      if (!co) return;
+      if (!window.confirm(`确定从「${c.name}」移除「${co.package}」吗？`)) return;
+      c.courses = c.courses.filter((x) => x.id !== t.dataset.delCourse);
+      saveClasses();
+      renderCourseModal();
+      renderClassTable();
+      showToast("已删除课程");
+    }
+  });
+
+  document.getElementById("ca-add").addEventListener("click", () => {
+    const c = getActiveClass();
+    if (!c) return;
+    const pkg = caPackage.value.trim();
+    if (!pkg) { showToast("请输入课包名称"); caPackage.focus(); return; }
+    c.courses.push({ id: "co-" + Date.now(), package: pkg, plan: caPlan.value.trim() });
+    caPackage.value = "";
+    caPlan.value = "";
+    saveClasses();
+    renderCourseModal();
+    renderClassTable();
+    showToast("已添加课程");
+  });
+
+  document.getElementById("course-modal-close").addEventListener("click", closeCourseModal);
+  courseModal.addEventListener("click", (e) => { if (e.target === courseModal) closeCourseModal(); });
+
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!schoolModal.hidden) closeSchoolModal();
     if (!classFormModal.hidden) closeClassForm();
     if (!infoModal.hidden) closeInfoModal();
+    if (!courseModal.hidden) closeCourseModal();
   });
 
   renderSchoolBanner();

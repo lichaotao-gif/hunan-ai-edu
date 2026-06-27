@@ -950,6 +950,49 @@ tbody tr:hover { background: #FAFCFD; }
 .class-table .act { cursor: pointer; font-weight: 500; }
 .class-table .act.del { color: var(--danger); }
 .class-table .act.del:hover { text-decoration: underline; }
+/* 班级课程单元格 */
+.class-table .course-cell { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; cursor: pointer; }
+.class-table .course-chip { color: var(--text-main); line-height: 1.4; }
+.class-table .course-cell:hover .course-chip { color: var(--primary-dark); }
+.class-table .course-more { color: var(--primary-dark); font-weight: 500; white-space: nowrap; }
+.class-table .course-empty-link { color: var(--primary-dark); font-weight: 500; cursor: pointer; }
+.class-table .course-empty-link:hover { text-decoration: underline; }
+
+/* 班级课程弹窗 */
+.course-mgmt-modal { width: min(600px, 100%); }
+.course-mgmt-list { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-5); max-height: 52vh; overflow-y: auto; padding-right: 2px; }
+.course-mgmt-empty { text-align: center; color: var(--text-sub); font-size: 13px; padding: var(--sp-8) 0; }
+.course-mgmt-item {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4);
+  padding: var(--sp-4); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.course-mgmt-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.course-mgmt-pkg { font-size: 14.5px; font-weight: 600; color: var(--text-main); }
+.course-mgmt-plan { font-size: 13px; color: var(--text-mid); }
+.course-mgmt-plan .muted { color: var(--text-sub); }
+.course-mgmt-actions { display: flex; gap: var(--sp-3); flex-shrink: 0; align-items: center; }
+.course-mgmt-actions .link, .course-mgmt-actions .act { cursor: pointer; font-weight: 500; font-size: 13px; white-space: nowrap; }
+.course-mgmt-actions .act.del { color: var(--danger); }
+.course-mgmt-actions .act.del:hover { text-decoration: underline; }
+/* 行内编辑授课计划 */
+.plan-edit { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: 4px; }
+.plan-input {
+  min-height: 40px; padding: 8px var(--sp-3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--bg); font-size: 13.5px; color: var(--text-main);
+  outline: none; transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.plan-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 175, 160, .10); background: #fff; }
+.plan-edit-actions { display: flex; gap: var(--sp-2); }
+.primary-action.sm, .secondary-action.sm { min-height: 34px; padding: 0 var(--sp-4); font-size: 13px; }
+/* 添加课程行 */
+.course-add { display: flex; gap: var(--sp-2); align-items: center; padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+.course-add input {
+  flex: 1; min-width: 0; min-height: 42px; padding: 8px var(--sp-3);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
+  font-size: 13.5px; color: var(--text-main); outline: none; transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.course-add input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 175, 160, .10); background: #fff; }
+.course-add .secondary-action { flex-shrink: 0; }
 .class-table-empty {
   min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: var(--sp-8) var(--sp-4);
@@ -1032,7 +1075,11 @@ tbody tr:hover { background: #FAFCFD; }
   .primary-action, .secondary-action { width: 100%; }
   .book-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .table-card { overflow-x: auto; }
-  .class-table { min-width: 720px; }
+  .class-table { min-width: 860px; }
+  .course-add { flex-wrap: wrap; }
+  .course-add input { flex-basis: 100%; }
+  .course-add .secondary-action { width: 100%; }
+  .course-mgmt-item { flex-direction: column; gap: var(--sp-3); }
   .school-banner { flex-wrap: wrap; }
   .school-banner .sb-action { width: 100%; }
   .school-banner .sb-action .ghost-btn,
