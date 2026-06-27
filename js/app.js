@@ -58,6 +58,7 @@
       if (typeof showResearchList === "function") showResearchList();
       if (typeof showMcHome === "function") showMcHome();
       if (typeof showMyexpList === "function") showMyexpList();
+      if (item.dataset.target === "my-data" && typeof renderDataSection === "function") renderDataSection();
       setSidebarOpen(false);
     });
   });
@@ -1229,6 +1230,137 @@
   }
   const myexpBack = document.getElementById("myexp-back");
   if (myexpBack) myexpBack.addEventListener("click", showMyexpList);
+
+  // ===== 我的数据：按班级查看上课/课程明细 =====
+  const dataStrip = document.getElementById("data-stat-strip");
+  const dataTableEl = document.getElementById("data-table");
+  const dcSelect = document.getElementById("data-class-select");
+  const dcTrigger = document.getElementById("dc-trigger");
+  const dcMenu = document.getElementById("dc-menu");
+  const dcLabel = document.getElementById("dc-label");
+  const dataFilter = document.getElementById("data-filter");
+  const dataMonthInput = document.getElementById("data-month");
+  const DATA_LESSON_POOL = ["认识人工智能", "数据与表格", "图像识别初探", "让机器听懂你", "智能体验课", "算法初步", "机器学习入门", "综合实践"];
+  let dataSelectedClassId = null;
+  let dataTab = "lessons";
+  let dataMonth = ""; // YYYY-MM，空=全部
+  let currentData = null;
+
+  const ymd = (d) => `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())}`;
+  const ymKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+
+  function buildClassData(cls) {
+    const courses = cls.courses || [];
+    const PER = 8; // 每课程包总课时（演示）
+    const records = [];
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (courses.length) {
+      const n = Math.min(8, Math.max(courses.length, 4));
+      for (let i = 0; i < n; i++) {
+        const co = courses[i % courses.length];
+        const d = new Date(today); d.setDate(today.getDate() - i * 6);
+        records.push({ date: d, lesson: DATA_LESSON_POOL[i % DATA_LESSON_POOL.length], pkg: co.package, teacher: cls.teacher, status: "已完成" });
+      }
+    }
+    const total = courses.length * PER;
+    const done = records.length;
+    const courseDetail = courses.map((co) => {
+      const cdDone = records.filter((r) => r.pkg === co.package).length;
+      return { pkg: co.package, total: PER, done: cdDone, rate: Math.round(cdDone / PER * 100) };
+    });
+    const first = records.length ? records[records.length - 1].date : null;
+    return { records, courseDetail, stats: { courseCount: courses.length, total, done, rate: total ? Math.round(done / total * 100) : 0, first } };
+  }
+
+  function renderStatStrip(s) {
+    dataStrip.innerHTML = [
+      ["课程数量", s.courseCount],
+      ["总课时数", s.total],
+      ["已上课时数", s.done],
+      ["上课率", s.rate + "%"],
+      ["首次上课时间", s.first ? ymd(s.first) : "—"],
+    ].map(([l, v]) => `<div class="stat-item"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  }
+
+  function renderDataTable() {
+    if (!currentData) { dataTableEl.innerHTML = '<div class="data-empty">请先在「班级管理」创建班级</div>'; return; }
+    if (dataTab === "lessons") {
+      dataFilter.hidden = false;
+      let recs = currentData.records;
+      if (dataMonth) recs = recs.filter((r) => ymKey(r.date) === dataMonth);
+      if (!recs.length) { dataTableEl.innerHTML = '<div class="data-empty">该时间段暂无上课记录</div>'; return; }
+      dataTableEl.innerHTML = `<table><thead><tr><th>上课时间</th><th>课时名称</th><th>所属课程包</th><th>主讲教师</th><th>课程状态</th></tr></thead><tbody>${
+        recs.map((r) => `<tr><td>${ymd(r.date)}</td><td>${esc(r.lesson)}</td><td>${esc(r.pkg)}</td><td>${esc(r.teacher)}</td><td><span class="data-status">${r.status}</span></td></tr>`).join("")
+      }</tbody></table>`;
+    } else {
+      dataFilter.hidden = true;
+      if (!currentData.courseDetail.length) { dataTableEl.innerHTML = '<div class="data-empty">该班级暂无课程</div>'; return; }
+      dataTableEl.innerHTML = `<table><thead><tr><th>课程包</th><th>总课时</th><th>已上课时</th><th>上课率</th></tr></thead><tbody>${
+        currentData.courseDetail.map((c) => `<tr><td>${esc(c.pkg)}</td><td>${c.total}</td><td>${c.done}</td><td>${c.rate}%</td></tr>`).join("")
+      }</tbody></table>`;
+    }
+  }
+
+  function renderDcMenu() {
+    dcMenu.innerHTML = classStore.map((c) =>
+      `<button class="dc-option${c.id === dataSelectedClassId ? " active" : ""}" data-cls="${c.id}" type="button">${esc(c.name)}</button>`
+    ).join("");
+  }
+
+  function renderDataSection() {
+    if (!classStore.length) {
+      dcLabel.textContent = "暂无班级";
+      dataStrip.innerHTML = "";
+      currentData = null;
+      renderDataTable();
+      return;
+    }
+    if (!classStore.find((c) => c.id === dataSelectedClassId)) dataSelectedClassId = classStore[0].id;
+    const cls = classStore.find((c) => c.id === dataSelectedClassId);
+    dcLabel.textContent = cls.name;
+    renderDcMenu();
+    currentData = buildClassData(cls);
+    renderStatStrip(currentData.stats);
+    renderDataTable();
+  }
+
+  if (dcTrigger) {
+    dcTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = dcMenu.hidden;
+      dcMenu.hidden = !open;
+      dcSelect.classList.toggle("open", open);
+      dcTrigger.setAttribute("aria-expanded", String(open));
+    });
+    dcMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest(".dc-option");
+      if (!opt) return;
+      dataSelectedClassId = opt.dataset.cls;
+      dcMenu.hidden = true;
+      dcSelect.classList.remove("open");
+      renderDataSection();
+    });
+    document.addEventListener("click", (e) => {
+      if (!dcSelect.contains(e.target)) { dcMenu.hidden = true; dcSelect.classList.remove("open"); }
+    });
+    document.querySelectorAll(".data-subtab").forEach((t) => t.addEventListener("click", () => {
+      document.querySelectorAll(".data-subtab").forEach((x) => x.classList.remove("active"));
+      t.classList.add("active");
+      dataTab = t.dataset.dt;
+      renderDataTable();
+    }));
+    dataMonthInput.addEventListener("change", () => { dataMonth = dataMonthInput.value; renderDataTable(); });
+    document.getElementById("data-thismonth").addEventListener("click", () => {
+      const now = new Date();
+      dataMonth = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}`;
+      dataMonthInput.value = dataMonth;
+      renderDataTable();
+    });
+    document.getElementById("data-allmonth").addEventListener("click", () => {
+      dataMonth = ""; dataMonthInput.value = "";
+      renderDataTable();
+    });
+  }
 
   // ===== 学科教研 / 数字资源：视频内容 =====
   const playIcon = '<div class="video-play"><span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>';

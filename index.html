@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=35">
+<link rel="stylesheet" href="css/style.css?v=36">
 </head>
 <body>
 <div class="app-shell">
@@ -398,12 +398,41 @@
       <section class="content-section" id="sec-my-data">
         <div class="page-head">
           <h1 class="page-title">我的数据</h1>
-          <p class="page-sub">教学数据总览</p>
         </div>
-        <div class="card-grid">
-          <article class="feature-card"><h3>本月授课课时</h3><span class="metric">36</span><p>较上月 +12%</p></article>
-          <article class="feature-card"><h3>学生平均正确率</h3><span class="metric">82.4%</span><p>较上月 +3.1%</p></article>
-          <article class="feature-card"><h3>布置作业次数</h3><span class="metric">14</span><p>本月累计</p></article>
+
+        <div class="data-tabs">
+          <button class="data-tab active" type="button">班级数据</button>
+        </div>
+
+        <div class="section-bar">
+          <div class="block-head"><span class="bar"></span>班级详情</div>
+          <div class="section-actions">
+            <div class="data-class-select" id="data-class-select">
+              <button class="dc-trigger" id="dc-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+                <span id="dc-label">—</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="dc-menu" id="dc-menu" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-strip" id="data-stat-strip"></div>
+
+        <div class="data-subtabs">
+          <button class="data-subtab active" data-dt="lessons" type="button">上课明细</button>
+          <button class="data-subtab" data-dt="courses" type="button">课程明细</button>
+        </div>
+
+        <div class="data-filter" id="data-filter">
+          <span class="df-label">时间段选择</span>
+          <input type="month" class="df-range" id="data-month">
+          <button class="ghost-btn" id="data-thismonth" type="button">本月</button>
+          <button class="ghost-btn" id="data-allmonth" type="button">全部</button>
+        </div>
+
+        <div class="table-card data-table-card">
+          <div id="data-table"></div>
         </div>
       </section>
 
@@ -651,6 +680,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=33"></script>
+<script src="js/app.js?v=34"></script>
 </body>
 </html>
