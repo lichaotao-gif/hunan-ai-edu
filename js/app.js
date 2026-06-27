@@ -1167,10 +1167,104 @@
   document.getElementById("settings-btn").addEventListener("click", () => {
     showToast("设置功能开发中");
   });
-  document.getElementById("topbar-avatar").addEventListener("click", () => {
+  // ===== 个人中心下拉面板 =====
+  const profilePop = document.getElementById("profile-pop");
+  const avatarBtn = document.getElementById("topbar-avatar");
+
+  function applyUserToUI(name) {
+    const initial = name.charAt(0) || "";
+    const h = new Date().getHours();
+    const greeting = h < 6 ? "凌晨好" : h < 12 ? "早上好" : h < 14 ? "中午好" : h < 18 ? "下午好" : "晚上好";
+    document.getElementById("sidebar-greet").textContent = `${greeting}，${name}`;
+    document.getElementById("sidebar-avatar").textContent = initial;
+    document.getElementById("topbar-av").textContent = initial;
+    document.getElementById("topbar-name").textContent = name;
+    document.getElementById("pp-av").textContent = initial;
+    document.getElementById("pp-name").textContent = name;
+  }
+
+  // 初始化面板信息
+  (function initProfile() {
+    let u = {};
+    try { u = JSON.parse(localStorage.getItem("hndj_user") || "{}"); } catch (e) { /* ignore */ }
+    document.getElementById("pp-av").textContent = (u.name || "").charAt(0);
+    document.getElementById("pp-name").textContent = u.name || "用户";
+    document.getElementById("pp-phone").textContent = u.account || "未绑定手机号";
+  })();
+
+  function toggleProfile(open) {
+    const willOpen = open !== undefined ? open : profilePop.hidden;
+    profilePop.hidden = !willOpen;
+    avatarBtn.setAttribute("aria-expanded", String(willOpen));
+  }
+
+  avatarBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleProfile();
+  });
+  document.addEventListener("click", (e) => {
+    if (profilePop.hidden) return;
+    if (!profilePop.contains(e.target) && !e.target.closest("#topbar-avatar")) toggleProfile(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !profilePop.hidden) toggleProfile(false);
+  });
+
+  // 退出登录
+  document.getElementById("pp-logout").addEventListener("click", () => {
     if (confirm("是否退出登录？")) {
       localStorage.removeItem("hndj_user");
       window.location.href = "login.html";
     }
+  });
+
+  // 行内编辑姓名
+  document.getElementById("pp-edit-name").addEventListener("click", () => {
+    if (document.getElementById("pp-name-input")) return;
+    const nameEl = document.getElementById("pp-name");
+    const cur = nameEl.textContent;
+    const input = document.createElement("input");
+    input.id = "pp-name-input";
+    input.className = "pp-name-input";
+    input.value = cur;
+    input.maxLength = 12;
+    nameEl.replaceWith(input);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    let committed = false;
+    function commit() {
+      if (committed) return;
+      committed = true;
+      const name = input.value.trim() || cur;
+      const span = document.createElement("span");
+      span.className = "pp-name";
+      span.id = "pp-name";
+      span.textContent = name;
+      input.replaceWith(span);
+      let u = {};
+      try { u = JSON.parse(localStorage.getItem("hndj_user") || "{}"); } catch (e) { /* ignore */ }
+      u.name = name;
+      localStorage.setItem("hndj_user", JSON.stringify(u));
+      applyUserToUI(name);
+      if (name !== cur) showToast("姓名已更新");
+    }
+    input.addEventListener("keydown", (ev) => {
+      ev.stopPropagation();
+      if (ev.key === "Enter") input.blur();
+      if (ev.key === "Escape") { input.value = cur; input.blur(); }
+    });
+    input.addEventListener("blur", commit, { once: true });
+  });
+
+  // 暂未接入后端的占位操作
+  const placeholders = {
+    "pp-photo": "更换头像功能开发中",
+    "pp-edit-phone": "修改手机号功能开发中",
+    "pp-edit-pwd": "修改密码功能开发中",
+    "pp-swap": "切换账号功能开发中",
+  };
+  Object.keys(placeholders).forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", (e) => { e.stopPropagation(); showToast(placeholders[id]); });
   });
 })();
