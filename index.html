@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=34">
+<link rel="stylesheet" href="css/style.css?v=35">
 </head>
 <body>
 <div class="app-shell">
@@ -307,11 +307,30 @@
       </section>
 
       <section class="content-section" id="sec-my-experiments">
-        <div class="page-head">
-          <h1 class="page-title">我的AI实验</h1>
-          <p class="page-sub">已添加的实验包，可进入查看线上 / 线下实验</p>
+
+        <!-- 实验包列表 -->
+        <div class="subview active" id="myexp-list">
+          <div class="page-head">
+            <h1 class="page-title">我的AI实验</h1>
+            <p class="page-sub">实验包与你的课程一一对应，点击进入查看线上 / 线下实验</p>
+          </div>
+          <div class="pkg-list" id="my-exp-list"></div>
         </div>
-        <div class="pkg-list" id="my-exp-list"></div>
+
+        <!-- 实验包详情（实验列表） -->
+        <div class="subview" id="myexp-detail">
+          <div class="detail-head">
+            <button class="back-link" id="myexp-back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              返回
+            </button>
+            <span class="detail-divider"></span>
+            <h1 class="detail-title" id="myexp-title">实验包</h1>
+            <span class="detail-sub" id="myexp-sub"></span>
+          </div>
+          <div class="exp-grid" id="myexp-experiments"></div>
+        </div>
+
       </section>
 
       <section class="content-section" id="sec-subject-research">
@@ -632,6 +651,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=32"></script>
+<script src="js/app.js?v=33"></script>
 </body>
 </html>

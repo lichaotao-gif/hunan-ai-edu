@@ -57,6 +57,7 @@
       showLabList();
       if (typeof showResearchList === "function") showResearchList();
       if (typeof showMcHome === "function") showMcHome();
+      if (typeof showMyexpList === "function") showMyexpList();
       setSidebarOpen(false);
     });
   });
@@ -1167,67 +1168,67 @@
     });
   }
 
-  // ===== 我的AI实验：实验包列表 =====
-  const myExpPackages = [
-    { cover: IMG + "computer-vision-experiment.jpg", names: ["人工智能（八下）实验包"], status: "未开始", klass: "八年级(2)班", count: "8 个实验 · 线上 / 线下" },
-    { cover: IMG + "robotics-kit.jpg", names: ["人工智能（三上）实验包"], status: "未开始", klass: "三年级(4)班", count: "6 个实验 · 线上 / 线下" },
-    { cover: IMG + "online-lab-interface.jpg", names: ["人工智能（七下）实验包"], status: "未开始", klass: "七年级(3)班", count: "8 个实验 · 线上 / 线下" },
-  ];
+  // ===== 我的AI实验：实验包与课程一一对应，无编辑/删除，可进入实验列表 =====
+  // 由「我的课程」(myPackages) 派生：课程有什么，配套实验包就有什么
+  const myExpPackages = myPackages.map((p) => ({
+    cover: p.cover,
+    course: p.names[0],
+    name: p.names[0] + " 实验包",
+    klass: p.klass,
+  }));
 
   const expListEl = document.getElementById("my-exp-list");
+  const myexpList = document.getElementById("myexp-list");
+  const myexpDetail = document.getElementById("myexp-detail");
+  const myexpExperimentsEl = document.getElementById("myexp-experiments");
+
+  function showMyexpList() {
+    if (myexpDetail) myexpDetail.classList.remove("active");
+    if (myexpList) myexpList.classList.add("active");
+  }
+  function openMyexpDetail(idx) {
+    const p = myExpPackages[idx];
+    if (!p) return;
+    document.getElementById("myexp-title").textContent = p.name;
+    document.getElementById("myexp-sub").textContent = `共 ${experiments.length} 个实验 · 线上 / 线下`;
+    myexpExperimentsEl.innerHTML = experiments.map((e, i) => `
+      <article class="exp-card">
+        <div class="exp-cover">
+          <img src="${expPhotos[i % expPhotos.length]}" alt="${e.title}">
+          ${e.offline ? '<span class="exp-tag">线下实验</span>' : ""}
+        </div>
+        <div class="exp-body">
+          <h4>${e.title}</h4>
+          <div class="desc">${e.desc}</div>
+        </div>
+      </article>`).join("");
+    myexpList.classList.remove("active");
+    myexpDetail.classList.add("active");
+    document.querySelector(".content").scrollTop = 0;
+  }
+
   if (expListEl) {
     expListEl.innerHTML = myExpPackages.map((p, i) => `
-      <article class="pkg-card">
+      <article class="pkg-card pkg-clickable" data-exp="${i}">
         <div class="pkg-cover">
-          <img src="${p.cover}" alt="${p.names[0]}">
-          <span class="pkg-status">${p.status}</span>
+          <img src="${p.cover}" alt="${p.name}">
         </div>
         <div class="pkg-info">
           <div class="pkg-title-row">
-            <div class="pkg-names">${p.names.map((n) => `<span class="pkg-name">${n}</span>`).join("")}</div>
-            <div class="pkg-more">
-              <button class="pkg-more-btn" data-more="${i}" aria-label="更多操作">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-              </button>
-              <div class="pkg-menu" data-menu="${i}">
-                <button data-act="edit">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-                  编辑
-                </button>
-                <button data-act="delete" class="danger">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  删除
-                </button>
-              </div>
-            </div>
+            <div class="pkg-names"><span class="pkg-name">${p.name}</span></div>
           </div>
+          <div class="pkg-meta"><span class="k">配套课程：</span><span class="klass">${p.course}</span></div>
           <div class="pkg-meta"><span class="k">上课班级：</span><span class="klass">${p.klass}</span></div>
-          <div class="pkg-meta"><span class="k">实验数量：</span>${p.count}</div>
         </div>
       </article>`).join("");
 
-    function closeAllExpMenus() {
-      expListEl.querySelectorAll(".pkg-menu.open").forEach((m) => m.classList.remove("open"));
-    }
     expListEl.addEventListener("click", (e) => {
-      const moreBtn = e.target.closest(".pkg-more-btn");
-      if (moreBtn) {
-        const menu = expListEl.querySelector(`.pkg-menu[data-menu="${moreBtn.dataset.more}"]`);
-        const isOpen = menu.classList.contains("open");
-        closeAllExpMenus();
-        if (!isOpen) menu.classList.add("open");
-        return;
-      }
-      const actBtn = e.target.closest(".pkg-menu button");
-      if (actBtn) {
-        showToast(actBtn.dataset.act === "edit" ? "编辑实验包（开发中）" : "删除实验包（开发中）");
-        closeAllExpMenus();
-      }
-    });
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest("#my-exp-list .pkg-more")) closeAllExpMenus();
+      const card = e.target.closest("[data-exp]");
+      if (card) openMyexpDetail(parseInt(card.dataset.exp, 10));
     });
   }
+  const myexpBack = document.getElementById("myexp-back");
+  if (myexpBack) myexpBack.addEventListener("click", showMyexpList);
 
   // ===== 学科教研 / 数字资源：视频内容 =====
   const playIcon = '<div class="video-play"><span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>';
