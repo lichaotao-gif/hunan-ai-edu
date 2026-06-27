@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=38">
+<link rel="stylesheet" href="css/style.css?v=39">
 </head>
 <body>
 <div class="app-shell">
@@ -302,6 +302,30 @@
           </div>
           <div class="cal-range" id="cal-range"></div>
           <div class="cal-week" id="cal-week"></div>
+        </div>
+
+        <!-- 课时列表视图（横排可左滑） -->
+        <div class="subview" id="mc-lessons">
+          <div class="detail-head">
+            <button class="back-link" id="mc-lessons-back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              返回
+            </button>
+            <span class="detail-divider"></span>
+            <h1 class="detail-title" id="mc-lessons-title">课程</h1>
+            <span class="detail-sub" id="mc-lessons-sub"></span>
+          </div>
+          <div class="lesson-rail-wrap">
+            <div class="lesson-rail" id="mc-lessons-rail"></div>
+            <div class="lesson-rail-nav">
+              <button id="rail-prev" type="button" aria-label="左滑">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button id="rail-next" type="button" aria-label="右滑">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
       </section>
@@ -689,6 +713,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=37"></script>
+<script src="js/app.js?v=38"></script>
 </body>
 </html>

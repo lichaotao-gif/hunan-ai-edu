@@ -1158,7 +1158,7 @@
   const pkgListEl = document.getElementById("my-pkg-list");
   if (pkgListEl) {
     pkgListEl.innerHTML = myPackages.map((p, i) => `
-      <article class="pkg-card">
+      <article class="pkg-card pkg-clickable" data-pkg-idx="${i}">
         <div class="pkg-cover">
           <img src="${p.cover}" alt="${p.names[0]}">
           <span class="pkg-status">${p.status}</span>
@@ -1206,7 +1206,10 @@
         return;
       }
       const plan = e.target.closest("[data-plan]");
-      if (plan) { e.preventDefault(); showToast("授课计划（开发中）"); }
+      if (plan) { e.preventDefault(); showToast("授课计划（开发中）"); return; }
+      // 点击课程卡片本体 -> 进入课时列表
+      const card = e.target.closest("[data-pkg-idx]");
+      if (card) openMcLessons(myPackages[parseInt(card.dataset.pkgIdx, 10)]);
     });
     document.addEventListener("click", (e) => {
       if (!e.target.closest(".pkg-more")) closeAllPkgMenus();
@@ -1746,14 +1749,49 @@
 
   const mcHome = document.getElementById("mc-home");
   const mcCalendar = document.getElementById("mc-calendar");
-  function showMcHome() {
-    if (mcCalendar) mcCalendar.classList.remove("active");
-    if (mcHome) mcHome.classList.add("active");
+  const mcLessons = document.getElementById("mc-lessons");
+  function mcShow(view) {
+    [mcHome, mcCalendar, mcLessons].forEach((el) => el && el.classList.remove("active"));
+    if (view) view.classList.add("active");
   }
-  function showMcCalendar() {
-    if (mcHome) mcHome.classList.remove("active");
-    if (mcCalendar) mcCalendar.classList.add("active");
-    renderCalWeek(calWeekOffset);
+  function showMcHome() { mcShow(mcHome); }
+  function showMcCalendar() { mcShow(mcCalendar); renderCalWeek(calWeekOffset); }
+
+  // 课时列表（横排可左滑）
+  const lessonRail = document.getElementById("mc-lessons-rail");
+  const MC_LESSON_POOL = ["认识人工智能", "数据的奥秘", "图像识别初体验", "让机器听懂你", "智能小管家", "算法闯关", "机器学习入门", "人脸识别探秘", "语音助手小达人", "综合创作项目"];
+  const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg>';
+
+  function openMcLessons(pkg) {
+    if (!pkg) return;
+    document.getElementById("mc-lessons-title").textContent = pkg.names[0];
+    document.getElementById("mc-lessons-sub").textContent = `共 ${MC_LESSON_POOL.length} 课时 · ${pkg.klass}`;
+    const taughtUpTo = 1; // 演示：已上到第 1 课时
+    lessonRail.innerHTML = MC_LESSON_POOL.map((name, i) => {
+      const no = i + 1;
+      const progress = no === taughtUpTo ? `<div class="lrc-progress">${ICON_UP}上到这里</div>` : '<div class="lrc-progress"></div>';
+      return `<div class="lesson-rail-card">
+        <div class="lrc-cover"><img src="${pkg.cover}" alt="${esc(name)}"><span class="lrc-num">${no}</span></div>
+        <h4 class="lrc-name">${esc(name)}</h4>
+        <div class="lrc-actions"><button class="lrc-prep" data-prep="${no}" type="button">备课</button><button class="lrc-teach" data-teach="${no}" type="button">上课</button></div>
+        ${progress}
+      </div>`;
+    }).join("");
+    lessonRail.scrollLeft = 0;
+    mcShow(mcLessons);
+    document.querySelector(".content").scrollTop = 0;
+  }
+
+  if (lessonRail) {
+    lessonRail.addEventListener("click", (e) => {
+      const prep = e.target.closest("[data-prep]");
+      const teach = e.target.closest("[data-teach]");
+      if (prep) showToast(`备课 · 第${prep.dataset.prep}课时（开发中）`);
+      else if (teach) showToast(`上课 · 第${teach.dataset.teach}课时（开发中）`);
+    });
+    document.getElementById("mc-lessons-back").addEventListener("click", showMcHome);
+    document.getElementById("rail-prev").addEventListener("click", () => lessonRail.scrollBy({ left: -320, behavior: "smooth" }));
+    document.getElementById("rail-next").addEventListener("click", () => lessonRail.scrollBy({ left: 320, behavior: "smooth" }));
   }
 
   renderTodaySchedule();
