@@ -559,7 +559,29 @@
   const cfTitle = document.getElementById("class-form-title");
   const cfSchool = document.getElementById("class-form-school");
   const cfConfirm = document.getElementById("class-form-confirm");
+  const cfGrade = document.getElementById("cf-grade");
+  const cfClassNo = document.getElementById("cf-classno");
+  const cfGradeField = document.getElementById("cf-grade-field");
+  const cfClassNoField = document.getElementById("cf-classno-field");
+  const cfNameField = document.getElementById("cf-name-field");
   let editingClassId = null;
+
+  // 年级选项：1-6 年级（2025↓）、7-9 年级（2025↓），值为年级名、显示带入学年份
+  const GRADES = ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级"];
+  cfGrade.innerHTML = '<option value="">请选择</option>' + GRADES.map((g, i) => {
+    const year = i < 6 ? 2025 - i : 2025 - (i - 6);
+    return `<option value="${g}">${g}${year}</option>`;
+  }).join("");
+  cfClassNo.innerHTML = '<option value="">请选择</option>' + Array.from({ length: 20 }, (_, i) => `<option value="${i + 1}">${i + 1}班</option>`).join("");
+
+  // 按类型切换字段：行政班=年级+班级，兴趣班=自定义名称
+  function applyTypeFields() {
+    const isAdmin = cfType.value === "行政班";
+    cfGradeField.hidden = !isAdmin;
+    cfClassNoField.hidden = !isAdmin;
+    cfNameField.hidden = isAdmin;
+  }
+  cfType.addEventListener("change", applyTypeFields);
 
   function openClassForm(id) {
     const school = loadSchool();
@@ -570,35 +592,50 @@
     }
     editingClassId = id || null;
     cfSchool.textContent = "所属学校：" + school;
+    cfGrade.value = "";
+    cfClassNo.value = "";
+    cfName.value = "";
     if (editingClassId) {
       const c = classStore.find((x) => x.id === editingClassId);
       if (!c) return;
       cfTitle.textContent = "编辑班级";
       cfConfirm.textContent = "保存修改";
-      cfName.value = c.name;
       cfType.value = c.type;
       cfIntro.value = c.intro || "";
+      if (c.type === "行政班") {
+        const m = c.name.match(/^(.+?年级)[（(](\d+)[)）]班$/);
+        if (m) { cfGrade.value = m[1]; cfClassNo.value = m[2]; }
+      } else {
+        cfName.value = c.name;
+      }
     } else {
       cfTitle.textContent = "创建班级";
       cfConfirm.textContent = "确认创建";
-      cfName.value = "";
       cfType.value = "行政班";
       cfIntro.value = "";
     }
+    applyTypeFields();
     classFormModal.hidden = false;
     document.body.classList.add("modal-open");
-    cfName.focus();
   }
   function closeClassForm() {
     classFormModal.hidden = true;
     document.body.classList.remove("modal-open");
   }
   cfConfirm.addEventListener("click", () => {
-    const name = cfName.value.trim();
-    if (!name) { showToast("请输入班级名称"); cfName.focus(); return; }
+    const type = cfType.value;
+    let name;
+    if (type === "行政班") {
+      if (!cfGrade.value) { showToast("请选择年级"); return; }
+      if (!cfClassNo.value) { showToast("请选择班级"); return; }
+      name = `${cfGrade.value}(${cfClassNo.value})班`;
+    } else {
+      name = cfName.value.trim();
+      if (!name) { showToast("请输入班级名称"); cfName.focus(); return; }
+    }
     if (editingClassId) {
       const c = classStore.find((x) => x.id === editingClassId);
-      if (c) { c.name = name; c.type = cfType.value; c.intro = cfIntro.value.trim(); }
+      if (c) { c.name = name; c.type = type; c.intro = cfIntro.value.trim(); }
       saveClasses();
       renderClassTable();
       closeClassForm();

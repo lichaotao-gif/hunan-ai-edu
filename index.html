@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=37">
+<link rel="stylesheet" href="css/style.css?v=38">
 </head>
 <body>
 <div class="app-shell">
@@ -562,15 +562,25 @@
     <h2 id="class-form-title">创建班级</h2>
     <p class="class-modal-sub" id="class-form-school">所属学校：—</p>
     <div class="form-field">
-      <label for="cf-name">班级名称</label>
-      <input type="text" id="cf-name" placeholder="如：四年级(6)班" maxlength="20">
-    </div>
-    <div class="form-field">
       <label for="cf-type">班级类型</label>
       <select id="cf-type">
         <option value="行政班">行政班</option>
         <option value="兴趣班">兴趣班</option>
       </select>
+    </div>
+    <!-- 行政班：选年级 + 班级 -->
+    <div class="form-field" id="cf-grade-field">
+      <label for="cf-grade">选择年级</label>
+      <select id="cf-grade"><option value="">请选择</option></select>
+    </div>
+    <div class="form-field" id="cf-classno-field">
+      <label for="cf-classno">选择班级</label>
+      <select id="cf-classno"><option value="">请选择</option></select>
+    </div>
+    <!-- 兴趣班：自定义名称 -->
+    <div class="form-field" id="cf-name-field" hidden>
+      <label for="cf-name">班级名称</label>
+      <input type="text" id="cf-name" placeholder="如：编程社团、魔法拼读班" maxlength="20">
     </div>
     <div class="form-field">
       <label for="cf-intro">班级介绍</label>
@@ -679,6 +689,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=36"></script>
+<script src="js/app.js?v=37"></script>
 </body>
 </html>

@@ -1279,6 +1279,7 @@ tbody tr:hover { background: #FAFCFD; }
 
 /* ---------- 班级表单弹窗：表单项 ---------- */
 .form-field { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.form-field[hidden] { display: none; }
 .form-field label { font-size: 13px; font-weight: 600; color: var(--text-mid); }
 .form-field input,
 .form-field select,
