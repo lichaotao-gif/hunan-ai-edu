@@ -439,6 +439,47 @@ ul { list-style: none; }
 .today-empty svg { width: 44px; height: 44px; color: #C6D2D7; }
 .today-empty p { font-size: 14px; }
 
+/* 今日课表 列表 */
+.today-list { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-8); }
+.today-item {
+  display: flex; align-items: center; gap: var(--sp-4);
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-5); box-shadow: var(--shadow-sm);
+}
+.ti-time {
+  display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+  min-width: 64px; font-size: 15px; font-weight: 700; color: var(--primary-dark); line-height: 1.35;
+}
+.ti-time span { font-size: 12px; font-weight: 500; color: var(--text-sub); }
+.ti-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ti-main b { font-size: 15px; font-weight: 700; color: var(--text-main); }
+.ti-main span { font-size: 13px; color: var(--text-sub); }
+.ti-go { flex-shrink: 0; }
+
+/* 课程日历 */
+.cal-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 22px; margin-bottom: var(--sp-4); }
+.cal-tab { padding: 7px 20px; border-radius: 18px; font-size: 14px; font-weight: 600; color: var(--text-mid); transition: background .15s, color .15s; }
+.cal-tab:hover { color: var(--primary-dark); }
+.cal-tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 12px rgba(15, 175, 160, .26); }
+.cal-range { font-size: 13.5px; color: var(--text-sub); margin-bottom: var(--sp-5); }
+.cal-week { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-3); }
+.cal-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.cal-day.today { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(15, 175, 160, .12), var(--shadow-sm); }
+.cal-day-head {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 10px var(--sp-4); background: #FAFCFD; border-bottom: 1px solid var(--border);
+}
+.cal-day.today .cal-day-head { background: var(--primary-light); }
+.cd-week { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+.cd-date { font-size: 12.5px; color: var(--text-sub); }
+.cd-today { margin-left: auto; font-size: 11px; font-weight: 600; color: #fff; background: var(--primary); padding: 1px 8px; border-radius: 10px; }
+.cal-day-body { padding: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2); min-height: 90px; }
+.cal-class { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); border-radius: var(--radius-sm); background: var(--primary-light); }
+.cal-class .cc-time { font-size: 12px; font-weight: 600; color: var(--primary-dark); }
+.cal-class b { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.35; }
+.cal-class .cc-klass { font-size: 12px; color: var(--text-mid); }
+.cal-empty { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--text-sub); font-size: 12.5px; }
+
 /* 3. 课程包列表 */
 .pkg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-6); }
 .pkg-card {
@@ -1231,6 +1272,9 @@ tbody tr:hover { background: #FAFCFD; }
   .book-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .table-card { overflow-x: auto; }
   .class-table { min-width: 860px; }
+  .cal-week { grid-template-columns: 1fr; }
+  .cal-tabs { display: flex; }
+  .cal-tab { flex: 1; text-align: center; }
   .course-add { flex-wrap: wrap; }
   .course-add input { flex-basis: 100%; }
   .course-add .secondary-action { width: 100%; }
