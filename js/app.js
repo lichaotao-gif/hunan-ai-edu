@@ -1435,11 +1435,11 @@
   // ===== 今日课表 + 课程日历 =====
   // 每周固定排课示例（周一=1 … 周五=5）
   const weekSchedule = {
-    1: [{ time: "08:00-08:40", course: "人工智能（四下）", klass: "四年级(6)班" }],
-    2: [{ time: "10:00-10:40", course: "人工智能（五下）", klass: "五年级(2)班" }],
-    3: [{ time: "14:00-14:40", course: "人工智能（八下）", klass: "八年级(2)班" }, { time: "15:00-15:40", course: "人工智能（七下）", klass: "七年级(3)班" }],
-    4: [{ time: "09:00-09:40", course: "人工智能（六下）", klass: "六年级(1)班" }],
-    5: [{ time: "10:00-10:40", course: "体验课", klass: "三年级(4)班" }],
+    1: [{ course: "人工智能（四下）", klass: "四年级(6)班" }],
+    2: [{ course: "人工智能（五下）", klass: "五年级(2)班" }],
+    3: [{ course: "人工智能（八下）", klass: "八年级(2)班" }, { course: "人工智能（七下）", klass: "七年级(3)班" }],
+    4: [{ course: "人工智能（六下）", klass: "六年级(1)班" }],
+    5: [{ course: "体验课", klass: "三年级(4)班" }],
   };
   const WEEK_LABELS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   const pad2 = (n) => String(n).padStart(2, "0");
@@ -1462,15 +1462,13 @@
     const now = new Date();
     const wd = now.getDay();
     const items = weekSchedule[wd] || weekSchedule[1]; // 周末用周一示例
-    listEl.innerHTML = items.map((it, i) => {
-      const pill = i === 0 ? '<span class="status-pill upcoming">即将开始</span>' : '<span class="status-pill done">已结束</span>';
-      return `<div class="today-item">
-        <div class="ti-time">${it.time.split("-")[0]}<span>${it.time.split("-")[1]}</span></div>
+    const dateStr = `${pad2(now.getMonth() + 1)}/${pad2(now.getDate())}`;
+    listEl.innerHTML = items.map((it) => `
+      <div class="today-item">
+        <div class="ti-date"><b>${dateStr}</b><span>${WEEK_LABELS[wd]}</span></div>
         <div class="ti-main"><b>${it.course}</b><span>${it.klass} · 双师AI课堂</span></div>
-        ${pill}
         <button class="ghost-btn ti-go" type="button">进入</button>
-      </div>`;
-    }).join("");
+      </div>`).join("");
     listEl.querySelectorAll(".ti-go").forEach((b) => b.addEventListener("click", () => showToast("进入课堂（开发中）")));
   }
 
@@ -1490,7 +1488,7 @@
       const isToday = sameDay(date, today);
       const items = weekSchedule[i + 1] || [];
       const body = items.length
-        ? items.map((it) => `<div class="cal-class"><span class="cc-time">${it.time}</span><b>${it.course}</b><span class="cc-klass">${it.klass}</span></div>`).join("")
+        ? items.map((it) => `<div class="cal-class"><b>${it.course}</b><span class="cc-klass">${it.klass}</span></div>`).join("")
         : '<div class="cal-empty">无课</div>';
       html += `<div class="cal-day${isToday ? " today" : ""}">
         <div class="cal-day-head"><span class="cd-week">${WEEK_LABELS[i + 1]}</span><span class="cd-date">${pad2(date.getMonth() + 1)}/${pad2(date.getDate())}</span>${isToday ? '<span class="cd-today">今天</span>' : ""}</div>
