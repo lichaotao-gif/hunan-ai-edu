@@ -904,7 +904,7 @@ tbody tr:hover { background: #FAFCFD; }
 /* ---------- 班级管理：学校绑定横幅 ---------- */
 .school-banner {
   display: flex; align-items: center; gap: var(--sp-4);
-  padding: var(--sp-5) var(--sp-6); margin-bottom: var(--sp-6);
+  padding: var(--sp-5) var(--sp-6); margin-bottom: var(--sp-8);
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow-sm);
 }
@@ -938,14 +938,16 @@ tbody tr:hover { background: #FAFCFD; }
 .class-table .qr-btn:hover { background: var(--primary-light); color: var(--primary-dark); }
 .class-table .qr-btn svg { width: 18px; height: 18px; }
 .class-table .type-tag {
-  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  display: inline-block; padding: 4px 12px; border-radius: 14px;
   font-size: 12px; font-weight: 600; background: var(--primary-light); color: var(--primary-dark);
 }
 .class-table .type-tag.fun { background: rgba(34, 211, 238, .14); color: #0E7490; }
 .class-table .stu-cell { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
 .class-table .stu-count { color: var(--text-main); }
 .class-table .row-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-.class-table .act { font-weight: 500; }
+/* 表格内操作均为无 href 的 a，需显式手型光标 */
+.class-table a.link,
+.class-table .act { cursor: pointer; font-weight: 500; }
 .class-table .act.del { color: var(--danger); }
 .class-table .act.del:hover { text-decoration: underline; }
 .class-table-empty {
