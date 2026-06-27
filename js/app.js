@@ -1524,9 +1524,6 @@
     renderCalWeek(calWeekOffset);
   }));
 
-  const moreBtn = document.getElementById("course-more-btn");
-  if (moreBtn) moreBtn.addEventListener("click", showMcCalendar);
-
   // 顶部按钮
   document.getElementById("refresh-btn").addEventListener("click", () => {
     showToast("已刷新");
