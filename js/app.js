@@ -544,6 +544,7 @@
     if (!schoolSelection) { showToast("请选择学校"); return; }
     saveSchool(schoolSelection);
     renderSchoolBanner();
+    renderProfileSchool();
     closeSchoolModal();
     showToast("已绑定 " + schoolSelection);
   });
@@ -1183,6 +1184,11 @@
     document.getElementById("pp-name").textContent = name;
   }
 
+  function renderProfileSchool() {
+    const el = document.getElementById("pp-school");
+    if (el) el.textContent = loadSchool() || "未绑定学校";
+  }
+
   // 初始化面板信息
   (function initProfile() {
     let u = {};
@@ -1190,7 +1196,16 @@
     document.getElementById("pp-av").textContent = (u.name || "").charAt(0);
     document.getElementById("pp-name").textContent = u.name || "用户";
     document.getElementById("pp-phone").textContent = u.account || "未绑定手机号";
+    renderProfileSchool();
   })();
+
+  // 切换学校（复用班级管理里的绑定学校弹窗）
+  function switchSchoolFromProfile() {
+    toggleProfile(false);
+    openSchoolModal();
+  }
+  document.getElementById("pp-swap").addEventListener("click", (e) => { e.stopPropagation(); switchSchoolFromProfile(); });
+  document.getElementById("pp-school").addEventListener("click", (e) => { e.stopPropagation(); switchSchoolFromProfile(); });
 
   function toggleProfile(open) {
     const willOpen = open !== undefined ? open : profilePop.hidden;
@@ -1261,7 +1276,6 @@
     "pp-photo": "更换头像功能开发中",
     "pp-edit-phone": "修改手机号功能开发中",
     "pp-edit-pwd": "修改密码功能开发中",
-    "pp-swap": "切换账号功能开发中",
   };
   Object.keys(placeholders).forEach((id) => {
     const el = document.getElementById(id);

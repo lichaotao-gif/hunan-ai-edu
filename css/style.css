@@ -298,7 +298,10 @@ ul { list-style: none; }
 .pp-badge {
   display: inline-flex; align-items: center; padding: 3px 12px; border-radius: 14px;
   font-size: 12px; font-weight: 600; color: var(--primary-dark); border: 1px solid var(--primary);
+  cursor: pointer; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background .15s;
 }
+.pp-badge:hover { background: var(--primary-light); }
 .pp-row { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4) 0; border-top: 1px solid var(--border); }
 .pp-row-icon {
   width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
