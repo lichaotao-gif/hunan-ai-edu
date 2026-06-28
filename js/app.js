@@ -478,7 +478,7 @@
         ? `<div class="stu-cell"><span class="stu-count">${c.students}人</span><a class="link act" data-import="${c.id}">导入学生</a></div>`
         : `<div class="stu-cell"><a class="link act" data-import="${c.id}">导入学生</a></div>`;
       const courses = c.courses || [];
-      const courseCell = `<a class="link" data-courses="${c.id}">共 ${courses.length} 门课 ›</a>`;
+      const courseCell = `<div class="course-cell-actions"><a class="link" data-courses="${c.id}">共 ${courses.length} 门课 ›</a><button class="course-add-btn" data-addcourse="${c.id}" type="button">${ICON_PLUS}添加</button></div>`;
       return `<tr>
         <td><span class="cell-name">${esc(c.name)}<button class="qr-btn" data-qr="${c.id}" title="班级二维码" aria-label="班级二维码">${ICON_QR}</button></span></td>
         <td><span class="${typeClass}">${esc(c.type)}</span></td>
@@ -492,12 +492,13 @@
   }
 
   classTableBody.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-edit],[data-del],[data-intro],[data-import],[data-qr],[data-courses]");
+    const t = e.target.closest("[data-edit],[data-del],[data-intro],[data-import],[data-qr],[data-courses],[data-addcourse]");
     if (!t) return;
     if (t.dataset.edit) openClassForm(t.dataset.edit);
     else if (t.dataset.del) deleteClass(t.dataset.del);
     else if (t.dataset.intro) openInfoModal(t.dataset.intro);
     else if (t.dataset.courses) openCourseModal(t.dataset.courses);
+    else if (t.dataset.addcourse) openCourseModal(t.dataset.addcourse);
     else if (t.dataset.import) openImportModal(t.dataset.import);
     else if (t.dataset.qr) openQrModal(t.dataset.qr);
   });

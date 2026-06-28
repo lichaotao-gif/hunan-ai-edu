@@ -1213,6 +1213,10 @@ tbody tr:hover { background: #FAFCFD; }
 .class-table .course-chip { color: var(--text-main); line-height: 1.4; }
 .class-table .course-cell:hover .course-chip { color: var(--primary-dark); }
 .class-table .course-more { color: var(--primary-dark); font-weight: 500; white-space: nowrap; }
+.class-table .course-cell-actions { display: flex; align-items: center; gap: var(--sp-3); }
+.class-table .course-add-btn { display: inline-flex; align-items: center; gap: 3px; color: var(--primary-dark); font-weight: 500; cursor: pointer; white-space: nowrap; }
+.class-table .course-add-btn svg { width: 13px; height: 13px; }
+.class-table .course-add-btn:hover { text-decoration: underline; }
 .class-table .course-empty-link { color: var(--primary-dark); font-weight: 500; cursor: pointer; }
 .class-table .course-empty-link:hover { text-decoration: underline; }
 
