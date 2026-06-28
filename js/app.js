@@ -1678,7 +1678,7 @@
   }
 
   const dualBanner = document.getElementById("dual-banner");
-  if (dualBanner) dualBanner.addEventListener("click", () => showToast("进入双师AI课堂（开发中）"));
+  if (dualBanner) dualBanner.addEventListener("click", () => openClassroom());
 
   // ===== 今日课表 + 课程日历 =====
   // 每周固定排课示例（周一=1 … 周五=5）
@@ -1899,6 +1899,134 @@
       if (!prepLessonSwitch.contains(e.target)) { prepLessonMenu.hidden = true; prepLessonSwitch.classList.remove("open"); }
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !prepPage.hidden) closePrep(); });
+  }
+
+  // ===== 双师AI课堂：沉浸式页面 =====
+  const classroomPage = document.getElementById("classroom-page");
+  const clsTeacherEl = document.getElementById("cls-teacher");
+  const clsStageName = document.getElementById("cls-stage-name");
+  const clsRolesEl = document.getElementById("cls-roles");
+  const clsCourseListEl = document.getElementById("cls-course-list");
+  const clsClassSwitch = document.getElementById("cls-class-switch");
+  const clsClassMenu = document.getElementById("cls-class-menu");
+  const CLS_ROLES = [
+    { name: "晓岚老师", color: "#22D3EE" },
+    { name: "子墨老师", color: "#6C8CFF" },
+    { name: "灵犀老师", color: "#FF9F6B" },
+  ];
+  const CLS_COVERS = [
+    IMG + "ai-course-spring-redesign.png", IMG + "ai-course-autumn-redesign.png",
+    IMG + "robotics-kit.jpg", IMG + "computer-vision-experiment.jpg",
+    IMG + "machine-learning-classroom.jpg", IMG + "online-lab-interface.jpg",
+  ];
+  let clsClassId = null;
+  let clsRole = 0;
+
+  function teacherSVG(color) {
+    return `<svg viewBox="0 0 220 340" xmlns="http://www.w3.org/2000/svg">
+      <path d="M110 120 C150 120 168 150 176 196 L196 300 C198 312 190 322 178 322 L42 322 C30 322 22 312 24 300 L44 196 C52 150 70 120 110 120 Z" fill="${color}"/>
+      <path d="M110 132 L133 152 L110 252 L87 152 Z" fill="#ffffff" opacity=".95"/>
+      <path d="M110 150 L119 163 L114 216 L110 228 L106 216 L101 163 Z" fill="#0C8C80"/>
+      <rect x="96" y="104" width="28" height="30" rx="11" fill="#F4C9A0"/>
+      <circle cx="110" cy="78" r="46" fill="#FAD9B8"/>
+      <path d="M64 80 C64 44 156 44 156 80 C156 62 150 40 110 40 C70 40 64 62 64 80 Z" fill="#2E3A45"/>
+      <circle cx="94" cy="80" r="4.6" fill="#2E3A45"/>
+      <circle cx="126" cy="80" r="4.6" fill="#2E3A45"/>
+      <path d="M99 97 q11 9 22 0" stroke="#C98A5E" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function renderClsTeacher() {
+    const role = CLS_ROLES[clsRole];
+    clsTeacherEl.innerHTML = teacherSVG(role.color);
+    clsStageName.textContent = role.name;
+    clsRolesEl.innerHTML = CLS_ROLES.map((r, i) =>
+      `<button class="cls-role${i === clsRole ? " active" : ""}" data-role="${i}" type="button" style="--rc:${r.color}"><span class="cls-role-av">${r.name.charAt(0)}</span><span class="cls-role-name">${r.name}</span></button>`
+    ).join("");
+  }
+
+  function renderClsCourses() {
+    const cls = classStore.find((c) => c.id === clsClassId);
+    const courses = (cls && cls.courses) || [];
+    if (!courses.length) {
+      clsCourseListEl.innerHTML = '<div class="cls-courses-empty">该班级暂无课程，请先在班级管理中添加。</div>';
+      return;
+    }
+    clsCourseListEl.innerHTML = courses.map((co, i) => {
+      const total = 10;
+      const done = [3, 6, 1, 8, 10, 0][i % 6];
+      return `<div class="cls-course-card" data-clscourse="${i}">
+        <div class="cls-cc-cover"><img src="${CLS_COVERS[i % CLS_COVERS.length]}" alt="${esc(co.package)}"></div>
+        <div class="cls-cc-main">
+          <div class="cls-cc-title">${esc(co.package)}</div>
+          <div class="cls-cc-progress">已上 <b>${done}</b> / 共 ${total} 节</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderClsClassMenu() {
+    clsClassMenu.innerHTML = classStore.map((c) =>
+      `<button class="fp-switch-opt${c.id === clsClassId ? " active" : ""}" data-clsopt="${c.id}" type="button">${esc(c.name)}</button>`
+    ).join("");
+  }
+
+  function renderClassroom() {
+    const cls = classStore.find((c) => c.id === clsClassId);
+    document.getElementById("cls-class-name").textContent = cls ? cls.name : "暂无班级";
+    renderClsClassMenu();
+    renderClsTeacher();
+    renderClsCourses();
+  }
+
+  function openClassroom() {
+    if (!classStore.length) { showToast("请先在班级管理创建班级"); return; }
+    if (!classStore.find((c) => c.id === clsClassId)) clsClassId = classStore[0].id;
+    renderClassroom();
+    classroomPage.hidden = false;
+    classroomPage.scrollTop = 0;
+    document.body.classList.add("modal-open");
+  }
+  function closeClassroom() {
+    classroomPage.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+
+  if (classroomPage) {
+    document.getElementById("cls-exit").addEventListener("click", closeClassroom);
+    clsRolesEl.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-role]");
+      if (!b) return;
+      clsRole = parseInt(b.dataset.role, 10);
+      renderClsTeacher();
+    });
+    clsCourseListEl.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-clscourse]");
+      if (!card) return;
+      const cls = classStore.find((c) => c.id === clsClassId);
+      const co = cls.courses[parseInt(card.dataset.clscourse, 10)];
+      if (!co) return;
+      closeClassroom();
+      openMcLessons({ names: [co.package], klass: cls.name, cover: CLS_COVERS[parseInt(card.dataset.clscourse, 10) % CLS_COVERS.length] });
+    });
+    document.getElementById("cls-class-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = clsClassMenu.hidden;
+      clsClassMenu.hidden = !open;
+      clsClassSwitch.classList.toggle("open", open);
+    });
+    clsClassMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-clsopt]");
+      if (!opt) return;
+      clsClassId = opt.dataset.clsopt;
+      clsClassMenu.hidden = true;
+      clsClassSwitch.classList.remove("open");
+      renderClassroom();
+    });
+    document.addEventListener("click", (e) => {
+      if (!clsClassSwitch.contains(e.target)) { clsClassMenu.hidden = true; clsClassSwitch.classList.remove("open"); }
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !classroomPage.hidden) closeClassroom(); });
   }
 
   renderTodaySchedule();

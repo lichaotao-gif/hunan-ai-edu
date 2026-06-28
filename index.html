@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=49">
+<link rel="stylesheet" href="css/style.css?v=50">
 </head>
 <body>
 <div class="app-shell">
@@ -746,7 +746,37 @@
   </div>
 </div>
 
+<!-- 双师AI课堂：沉浸式全屏页面 -->
+<div class="fullpage classroom-page" id="classroom-page" hidden>
+  <div class="cls-topbar">
+    <button class="cls-exit" id="cls-exit" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+      退出课堂
+    </button>
+    <div class="fp-switch cls-class-switch" id="cls-class-switch">
+      <button class="fp-switch-trigger" id="cls-class-btn" type="button" aria-haspopup="true" aria-expanded="false">
+        <h1 id="cls-class-name">班级</h1>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="fp-switch-menu" id="cls-class-menu" hidden></div>
+    </div>
+    <span class="cls-top-spacer"></span>
+  </div>
+  <div class="cls-body">
+    <div class="cls-stage">
+      <div class="cls-teacher" id="cls-teacher"></div>
+      <div class="cls-platform"></div>
+      <div class="cls-stage-name" id="cls-stage-name">AI 虚拟老师</div>
+      <div class="cls-roles" id="cls-roles"></div>
+    </div>
+    <div class="cls-courses">
+      <h3 class="cls-courses-title">本班课程</h3>
+      <div class="cls-course-list" id="cls-course-list"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=43"></script>
+<script src="js/app.js?v=44"></script>
 </body>
 </html>
