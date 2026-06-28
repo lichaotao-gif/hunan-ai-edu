@@ -482,7 +482,6 @@
       return `<tr>
         <td><span class="cell-name">${esc(c.name)}<button class="qr-btn" data-qr="${c.id}" title="班级二维码" aria-label="班级二维码">${ICON_QR}</button></span></td>
         <td><span class="${typeClass}">${esc(c.type)}</span></td>
-        <td>${esc(c.teacher)}</td>
         <td>${stu}</td>
         <td>${courseCell}</td>
         <td><a class="link" data-intro="${c.id}">介绍</a></td>
