@@ -1759,13 +1759,21 @@
   // 课时列表：全屏页面（覆盖菜单与顶栏，原页面不关闭）
   const lessonPage = document.getElementById("lesson-page");
   const lessonRail = document.getElementById("mc-lessons-rail");
+  const lessonPkgSwitch = document.getElementById("lesson-pkg-switch");
+  const lessonPkgMenu = document.getElementById("lesson-pkg-menu");
   const MC_LESSON_POOL = ["认识人工智能", "数据的奥秘", "图像识别初体验", "让机器听懂你", "智能小管家", "算法闯关", "机器学习入门", "人脸识别探秘", "语音助手小达人", "综合创作项目"];
   const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg>';
+  let mcCurrentPkg = null;
 
   function openMcLessons(pkg) {
     if (!pkg) return;
+    mcCurrentPkg = pkg;
     document.getElementById("lesson-page-title").textContent = pkg.names[0];
     document.getElementById("lesson-page-sub").textContent = `共 ${MC_LESSON_POOL.length} 课时 · ${pkg.klass}`;
+    // 课程包切换菜单
+    lessonPkgMenu.innerHTML = myPackages.map((p, i) =>
+      `<button class="fp-switch-opt${p === pkg ? " active" : ""}" data-pkgopt="${i}" type="button">${esc(p.names[0])}</button>`
+    ).join("");
     const taughtUpTo = 1; // 演示：已上到第 1 课时
     lessonRail.innerHTML = MC_LESSON_POOL.map((name, i) => {
       const no = i + 1;
@@ -1791,13 +1799,107 @@
     lessonRail.addEventListener("click", (e) => {
       const prep = e.target.closest("[data-prep]");
       const teach = e.target.closest("[data-teach]");
-      if (prep) showToast(`备课 · 第${prep.dataset.prep}课时（开发中）`);
+      if (prep) openPrep(parseInt(prep.dataset.prep, 10));
       else if (teach) showToast(`上课 · 第${teach.dataset.teach}课时（开发中）`);
     });
     document.getElementById("lesson-page-back").addEventListener("click", closeMcLessons);
     document.getElementById("rail-prev").addEventListener("click", () => lessonRail.scrollBy({ left: -320, behavior: "smooth" }));
     document.getElementById("rail-next").addEventListener("click", () => lessonRail.scrollBy({ left: 320, behavior: "smooth" }));
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden) closeMcLessons(); });
+    // 课程包切换
+    document.getElementById("lesson-pkg-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = lessonPkgMenu.hidden;
+      lessonPkgMenu.hidden = !open;
+      lessonPkgSwitch.classList.toggle("open", open);
+    });
+    lessonPkgMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-pkgopt]");
+      if (!opt) return;
+      lessonPkgMenu.hidden = true;
+      lessonPkgSwitch.classList.remove("open");
+      openMcLessons(myPackages[parseInt(opt.dataset.pkgopt, 10)]);
+    });
+    document.addEventListener("click", (e) => {
+      if (!lessonPkgSwitch.contains(e.target)) { lessonPkgMenu.hidden = true; lessonPkgSwitch.classList.remove("open"); }
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden && document.getElementById("prep-page").hidden) closeMcLessons(); });
+  }
+
+  // 备课：全屏页面
+  const prepPage = document.getElementById("prep-page");
+  const prepSectionsEl = document.getElementById("prep-sections");
+  const prepContentEl = document.getElementById("prep-content");
+  const prepLessonSwitch = document.getElementById("prep-lesson-switch");
+  const prepLessonMenu = document.getElementById("prep-lesson-menu");
+  const PREP_SECTIONS = ["课程简介", "指导手册", "材料准备", "新知讲解", "互动体验", "巩固练习", "课程回顾"];
+  let prepNo = 1;
+  let prepSection = "课程简介";
+
+  function lessonNameOf(no) { return MC_LESSON_POOL[(no - 1) % MC_LESSON_POOL.length]; }
+
+  function renderPrep() {
+    const name = lessonNameOf(prepNo);
+    document.getElementById("prep-title").textContent = `第${prepNo}课时 ${name}`;
+    prepLessonMenu.innerHTML = MC_LESSON_POOL.map((nm, i) =>
+      `<button class="fp-switch-opt${(i + 1) === prepNo ? " active" : ""}" data-lessonopt="${i + 1}" type="button">第${i + 1}课时 ${esc(nm)}</button>`
+    ).join("");
+    prepSectionsEl.innerHTML = PREP_SECTIONS.map((s) =>
+      `<button class="prep-sec${s === prepSection ? " active" : ""}" data-sec="${esc(s)}" type="button">${esc(s)}</button>`
+    ).join("");
+    if (prepSection === "课程简介") {
+      prepContentEl.innerHTML =
+        `<div class="pc-row"><span class="pc-key">课程名称：</span>${esc(name)}</div>` +
+        `<div class="pc-row"><span class="pc-key">时长：</span>26分32秒</div>` +
+        `<div class="pc-row"><span class="pc-key">课程流程：</span>课程导入 — 新知讲解 — 互动体验 — 巩固练习 — 课程回顾 — 课后成果</div>` +
+        `<h3>教学目标</h3><ol><li>了解本课时的核心概念与背景</li><li>掌握关键知识点与操作方法</li><li>能在真实情境中迁移运用</li><li>感受人工智能与生活的联系</li></ol>` +
+        `<h3>教学重难点</h3><ol><li>重点：核心概念的理解与应用</li><li>难点：从具体案例抽象出一般规律</li></ol>`;
+    } else {
+      prepContentEl.innerHTML = `<div class="pc-empty">「${esc(prepSection)}」环节内容开发中。</div>`;
+    }
+  }
+
+  function openPrep(no) {
+    prepNo = no;
+    prepSection = "课程简介";
+    renderPrep();
+    prepPage.hidden = false;
+    prepPage.scrollTop = 0;
+    document.body.classList.add("modal-open");
+  }
+  function closePrep() {
+    prepPage.hidden = true;
+    if (lessonPage.hidden) document.body.classList.remove("modal-open");
+  }
+
+  if (prepPage) {
+    document.getElementById("prep-back").addEventListener("click", closePrep);
+    prepSectionsEl.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-sec]");
+      if (!b) return;
+      prepSection = b.dataset.sec;
+      renderPrep();
+    });
+    document.getElementById("prep-prev").addEventListener("click", () => { if (prepNo > 1) { prepNo--; prepSection = "课程简介"; renderPrep(); } });
+    document.getElementById("prep-next").addEventListener("click", () => { if (prepNo < MC_LESSON_POOL.length) { prepNo++; prepSection = "课程简介"; renderPrep(); } });
+    document.getElementById("prep-lesson-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = prepLessonMenu.hidden;
+      prepLessonMenu.hidden = !open;
+      prepLessonSwitch.classList.toggle("open", open);
+    });
+    prepLessonMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-lessonopt]");
+      if (!opt) return;
+      prepLessonMenu.hidden = true;
+      prepLessonSwitch.classList.remove("open");
+      prepNo = parseInt(opt.dataset.lessonopt, 10);
+      prepSection = "课程简介";
+      renderPrep();
+    });
+    document.addEventListener("click", (e) => {
+      if (!prepLessonSwitch.contains(e.target)) { prepLessonMenu.hidden = true; prepLessonSwitch.classList.remove("open"); }
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !prepPage.hidden) closePrep(); });
   }
 
   renderTodaySchedule();

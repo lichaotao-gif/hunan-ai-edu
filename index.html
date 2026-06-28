@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=41">
+<link rel="stylesheet" href="css/style.css?v=43">
 </head>
 <body>
 <div class="app-shell">
@@ -695,7 +695,13 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <div class="fullpage-titles">
-      <h1 id="lesson-page-title">课程</h1>
+      <div class="fp-switch" id="lesson-pkg-switch">
+        <button class="fp-switch-trigger" id="lesson-pkg-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <h1 id="lesson-page-title">课程</h1>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="fp-switch-menu" id="lesson-pkg-menu" hidden></div>
+      </div>
       <span id="lesson-page-sub"></span>
     </div>
   </div>
@@ -714,7 +720,37 @@
   </div>
 </div>
 
+<!-- 备课：全屏页面 -->
+<div class="fullpage" id="prep-page" hidden>
+  <div class="fullpage-head">
+    <button class="fullpage-back" id="prep-back" type="button" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="fullpage-titles">
+      <div class="fp-switch" id="prep-lesson-switch">
+        <button class="fp-switch-trigger" id="prep-lesson-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <h1 id="prep-title">第1课时</h1>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="fp-switch-menu" id="prep-lesson-menu" hidden></div>
+      </div>
+    </div>
+    <div class="prep-nav">
+      <button id="prep-prev" type="button" aria-label="上一课时">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button id="prep-next" type="button" aria-label="下一课时">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fullpage-body prep-body">
+    <div class="prep-sections" id="prep-sections"></div>
+    <div class="prep-content" id="prep-content"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=39"></script>
+<script src="js/app.js?v=40"></script>
 </body>
 </html>
