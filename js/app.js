@@ -363,7 +363,6 @@
   });
   document.getElementById("dt-back").addEventListener("click", showDtList);
   document.getElementById("lesson-back").addEventListener("click", showDtDetail);
-  document.getElementById("package-create-class").addEventListener("click", openClassModal);
   dtLessons.addEventListener("click", (event) => {
     const card = event.target.closest(".lesson-card");
     if (!card) return;
