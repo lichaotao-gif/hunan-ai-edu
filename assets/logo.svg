@@ -1,20 +1,22 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人工智能通识教育平台标识">
   <defs>
-    <linearGradient id="bg" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0FAFA0"/>
+    <linearGradient id="lg-bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#12B8A6"/>
       <stop offset="1" stop-color="#22D3EE"/>
     </linearGradient>
   </defs>
 
-  <rect x="5" y="5" width="54" height="54" rx="15" fill="url(#bg)"/>
+  <!-- 底：渐变圆角方 -->
+  <rect x="5" y="5" width="54" height="54" rx="16" fill="url(#lg-bg)"/>
 
-  <path d="M18 22.5c0-2.2 1.8-4 4-4h8c3.2 0 5.8 2.6 5.8 5.8v20.2A8.4 8.4 0 0 0 29.8 42H22c-2.2 0-4-1.8-4-4V22.5Z" fill="#FFFFFF"/>
-  <path d="M46 18.5h-7.8c-3.2 0-5.8 2.6-5.8 5.8v20.2a8.4 8.4 0 0 1 6-2.5H46c2.2 0 4-1.8 4-4V22.5c0-2.2-1.8-4-4-4Z" fill="#E9FFFC"/>
+  <!-- AI 星芒：智能 -->
+  <path d="M32 14.5c.8 7 1.7 7.9 8.7 8.7-7 .8-7.9 1.7-8.7 8.7-.8-7-1.7-7.9-8.7-8.7 7-.8 7.9-1.7 8.7-8.7Z" fill="#FFFFFF"/>
+  <!-- 小星点缀 -->
+  <path d="M44 13.5c.35 3 .65 3.3 3.5 3.5-2.85.35-3.15.65-3.5 3.5-.35-2.85-.65-3.15-3.5-3.5 2.85-.35 3.15-.65 3.5-3.5Z" fill="#FFE08A"/>
 
-  <circle cx="32" cy="31" r="5.2" fill="none" stroke="#0C8C80" stroke-width="2.4"/>
-  <circle cx="32" cy="31" r="1.8" fill="#0C8C80"/>
-  <path d="M32 25.8v-4.2M36.5 33.6l3.7 2.2M27.5 33.6l-3.7 2.2" stroke="#0C8C80" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="32" cy="21.4" r="2" fill="#FFBE55"/>
-  <circle cx="41" cy="36.3" r="2" fill="#FFBE55"/>
-  <circle cx="23" cy="36.3" r="2" fill="#FFBE55"/>
+  <!-- 翻开的书：教育 -->
+  <path d="M32 35.5C26 32.7 18.5 32.7 13.4 34.6c-.7.26-1.1.92-1.1 1.65V47.8c0 .85.83 1.47 1.66 1.25C18.7 47.7 26.2 47.9 32 50.4Z" fill="#FFFFFF"/>
+  <path d="M32 35.5c6-2.8 13.5-2.8 18.6-.9.7.26 1.1.92 1.1 1.65V47.8c0 .85-.83 1.47-1.66 1.25C45.3 47.7 37.8 47.9 32 50.4Z" fill="#E6FBF8"/>
+  <!-- 书脊 -->
+  <path d="M32 35.5V50.4" stroke="#0C8C80" stroke-width="1.6" stroke-linecap="round" opacity=".25"/>
 </svg>
