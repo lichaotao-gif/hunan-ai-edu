@@ -507,26 +507,26 @@ ul { list-style: none; }
 .lesson-rail-wrap { position: relative; }
 .lesson-rail { display: flex; gap: var(--sp-5); overflow-x: auto; padding: var(--sp-2) 0 var(--sp-5); scroll-behavior: smooth; }
 .lesson-rail-card {
-  flex: 0 0 clamp(240px, 26vw, 300px); display: flex; flex-direction: column; gap: var(--sp-3);
+  flex: 0 0 clamp(300px, 32vw, 380px); display: flex; flex-direction: column; gap: var(--sp-4);
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-  box-shadow: var(--shadow-sm); padding: var(--sp-4); transition: transform .18s, box-shadow .18s;
+  box-shadow: var(--shadow-sm); padding: var(--sp-5); transition: transform .18s, box-shadow .18s;
 }
 .lesson-rail-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .lrc-cover { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-sm); overflow: hidden; }
 .lrc-cover img { width: 100%; height: 100%; object-fit: cover; }
 .lrc-num {
-  position: absolute; top: 10px; right: 10px; min-width: 36px; height: 36px; padding: 0 8px;
-  display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff;
-  border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); box-shadow: 0 4px 10px rgba(15, 175, 160, .3);
+  position: absolute; top: 12px; right: 12px; min-width: 42px; height: 42px; padding: 0 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #fff;
+  border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); box-shadow: 0 4px 10px rgba(15, 175, 160, .3);
 }
-.lrc-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
+.lrc-name { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
 .lrc-actions { display: flex; gap: var(--sp-3); margin-top: auto; }
-.lrc-actions button { flex: 1; min-height: 42px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; transition: filter .15s, transform .15s, background .15s, color .15s, border-color .15s; }
+.lrc-actions button { flex: 1; min-height: 48px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; transition: filter .15s, transform .15s, background .15s, color .15s, border-color .15s; }
 .lrc-prep { background: #fff; border: 1px solid var(--border); color: var(--text-main); }
 .lrc-prep:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
 .lrc-teach { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 6px 14px rgba(15, 175, 160, .26); }
 .lrc-teach:hover { filter: brightness(1.05); transform: translateY(-1px); }
-.lrc-progress { min-height: 20px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--primary-dark); }
+.lrc-progress { min-height: 22px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 13.5px; font-weight: 600; color: var(--primary-dark); }
 .lrc-progress svg { width: 14px; height: 14px; }
 .lesson-rail-nav { display: flex; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-1); }
 .lesson-rail-nav button { width: 40px; height: 40px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; color: var(--text-mid); display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s, background .15s; }
