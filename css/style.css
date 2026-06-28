@@ -620,6 +620,12 @@ ul { list-style: none; }
 
 /* 3. 课程包列表 */
 .pkg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-6); }
+/* 我的课程列表：更紧凑的小卡片 */
+#my-pkg-list { grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: var(--sp-5); }
+#my-pkg-list .pkg-cover { aspect-ratio: 16 / 10; }
+#my-pkg-list .pkg-info { gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) var(--sp-4); }
+#my-pkg-list .pkg-name { font-size: 14px; }
+#my-pkg-list .pkg-meta { font-size: 12px; }
 .pkg-card {
   display: flex; flex-direction: column;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
