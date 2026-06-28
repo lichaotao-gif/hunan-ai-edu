@@ -1910,38 +1910,60 @@
   const clsClassSwitch = document.getElementById("cls-class-switch");
   const clsClassMenu = document.getElementById("cls-class-menu");
   const CLS_ROLES = [
-    { name: "晓岚老师", color: "#22D3EE" },
-    { name: "子墨老师", color: "#6C8CFF" },
-    { name: "灵犀老师", color: "#FF9F6B" },
+    { name: "智雅", hair: "#39322b", dress: "#FFFFFF" },
+    { name: "晓墨", hair: "#2b2f3a", dress: "#EAF3FF" },
+    { name: "星辰", hair: "#4a2f2b", dress: "#FFF1E8" },
+    { name: "灵犀", hair: "#3a2b3f", dress: "#F4EAFF" },
   ];
   const CLS_COVERS = [
     IMG + "ai-course-spring-redesign.png", IMG + "ai-course-autumn-redesign.png",
     IMG + "robotics-kit.jpg", IMG + "computer-vision-experiment.jpg",
     IMG + "machine-learning-classroom.jpg", IMG + "online-lab-interface.jpg",
   ];
+  const CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>';
   let clsClassId = null;
   let clsRole = 0;
 
-  function teacherSVG(color) {
-    return `<svg viewBox="0 0 220 340" xmlns="http://www.w3.org/2000/svg">
-      <path d="M110 120 C150 120 168 150 176 196 L196 300 C198 312 190 322 178 322 L42 322 C30 322 22 312 24 300 L44 196 C52 150 70 120 110 120 Z" fill="${color}"/>
-      <path d="M110 132 L133 152 L110 252 L87 152 Z" fill="#ffffff" opacity=".95"/>
-      <path d="M110 150 L119 163 L114 216 L110 228 L106 216 L101 163 Z" fill="#0C8C80"/>
-      <rect x="96" y="104" width="28" height="30" rx="11" fill="#F4C9A0"/>
-      <circle cx="110" cy="78" r="46" fill="#FAD9B8"/>
-      <path d="M64 80 C64 44 156 44 156 80 C156 62 150 40 110 40 C70 40 64 62 64 80 Z" fill="#2E3A45"/>
-      <circle cx="94" cy="80" r="4.6" fill="#2E3A45"/>
-      <circle cx="126" cy="80" r="4.6" fill="#2E3A45"/>
-      <path d="M99 97 q11 9 22 0" stroke="#C98A5E" stroke-width="3" fill="none" stroke-linecap="round"/>
+  // 数字老师（女老师，连衣裙；可换发色/裙色）
+  function teacherSVG(role) {
+    const hair = role.hair, dress = role.dress;
+    return `<svg viewBox="0 0 200 440" xmlns="http://www.w3.org/2000/svg">
+      <path d="M68 66 C68 30 132 30 132 66 L135 168 C135 182 121 178 119 162 L116 92 C116 74 84 74 84 92 L81 162 C79 178 65 182 65 168 Z" fill="${hair}"/>
+      <path d="M91 94 h18 v22 q-9 6 -18 0 Z" fill="#EEC097"/>
+      <ellipse cx="100" cy="66" rx="27" ry="31" fill="#F7D3AE"/>
+      <path d="M72 64 C74 38 126 38 128 64 C120 50 110 47 100 47 C90 47 80 50 72 64 Z" fill="${hair}"/>
+      <ellipse cx="89" cy="66" rx="3.2" ry="4" fill="#3a322b"/>
+      <ellipse cx="111" cy="66" rx="3.2" ry="4" fill="#3a322b"/>
+      <path d="M93 80 q7 6 14 0" stroke="#C98A5E" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M100 112 C113 112 121 119 125 132 L150 302 C152 316 148 322 136 322 L64 322 C52 322 48 316 50 302 L75 132 C79 119 87 112 100 112 Z" fill="${dress}" stroke="#E2E7EE" stroke-width="1.5"/>
+      <path d="M100 112 L109 128 L100 146 L91 128 Z" fill="#EEF2F7"/>
+      <circle cx="100" cy="152" r="1.6" fill="#cdd4dc"/><circle cx="100" cy="170" r="1.6" fill="#cdd4dc"/><circle cx="100" cy="188" r="1.6" fill="#cdd4dc"/>
+      <path d="M74 196 Q100 206 126 196 L126 206 Q100 216 74 206 Z" fill="#9B6B3A"/>
+      <rect x="87" y="320" width="11" height="92" rx="5.5" fill="#EEC097"/>
+      <rect x="102" y="320" width="11" height="92" rx="5.5" fill="#EEC097"/>
+      <path d="M82 410 h15 v6 q0 5 -7.5 5 t-7.5 -5 Z" fill="#D9D2E6"/>
+      <path d="M103 410 h15 v6 q0 5 -7.5 5 t-7.5 -5 Z" fill="#D9D2E6"/>
+    </svg>`;
+  }
+
+  // 角色头像（圆形小脸）
+  function roleAvatarSVG(role) {
+    return `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" fill="#eaf3ff"/>
+      <path d="M14 40 C14 18 50 18 50 40 L50 58 L14 58 Z" fill="${role.hair}"/>
+      <ellipse cx="32" cy="34" rx="15" ry="17" fill="#F7D3AE"/>
+      <path d="M17 33 C18 18 46 18 47 33 C41 24 36 22 32 22 C28 22 23 24 17 33 Z" fill="${role.hair}"/>
+      <circle cx="26" cy="34" r="2" fill="#3a322b"/><circle cx="38" cy="34" r="2" fill="#3a322b"/>
+      <path d="M28 42 q4 3 8 0" stroke="#C98A5E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
     </svg>`;
   }
 
   function renderClsTeacher() {
     const role = CLS_ROLES[clsRole];
-    clsTeacherEl.innerHTML = teacherSVG(role.color);
-    clsStageName.textContent = role.name;
+    clsTeacherEl.innerHTML = teacherSVG(role);
+    clsStageName.innerHTML = esc(role.name) + CARET;
     clsRolesEl.innerHTML = CLS_ROLES.map((r, i) =>
-      `<button class="cls-role${i === clsRole ? " active" : ""}" data-role="${i}" type="button" style="--rc:${r.color}"><span class="cls-role-av">${r.name.charAt(0)}</span><span class="cls-role-name">${r.name}</span></button>`
+      `<button class="cls-role${i === clsRole ? " active" : ""}" data-role="${i}" type="button" title="${esc(r.name)}">${roleAvatarSVG(r)}</button>`
     ).join("");
   }
 
@@ -1954,13 +1976,10 @@
     }
     clsCourseListEl.innerHTML = courses.map((co, i) => {
       const total = 10;
-      const done = [3, 6, 1, 8, 10, 0][i % 6];
+      const done = [0, 3, 6, 1, 8, 0][i % 6];
       return `<div class="cls-course-card" data-clscourse="${i}">
-        <div class="cls-cc-cover"><img src="${CLS_COVERS[i % CLS_COVERS.length]}" alt="${esc(co.package)}"></div>
-        <div class="cls-cc-main">
-          <div class="cls-cc-title">${esc(co.package)}</div>
-          <div class="cls-cc-progress">已上 <b>${done}</b> / 共 ${total} 节</div>
-        </div>
+        <div class="cls-cc-cover"><img src="${CLS_COVERS[i % CLS_COVERS.length]}" alt="${esc(co.package)}"><span class="cls-cc-badge">${done}/${total}</span></div>
+        <div class="cls-cc-title">${esc(co.package)}</div>
       </div>`;
     }).join("");
   }
