@@ -500,8 +500,14 @@ ul { list-style: none; }
 .fullpage-titles h1 { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; color: var(--text-main); }
 .fullpage-titles span { font-size: 13.5px; color: var(--text-sub); }
 .fullpage-body { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 48px) clamp(24px, 4vw, 48px); }
-/* 课时列表页：卡片区在剩余空间内上下居中 */
-#lesson-page .fullpage-body { display: flex; flex-direction: column; justify-content: center; padding-top: 0; padding-bottom: clamp(24px, 4vw, 48px); }
+/* 课时列表页：左对齐标题、卡片区向右延伸到页面边缘（像从右侧滑出） */
+#lesson-page .fullpage-head { max-width: none; margin: 0; }
+#lesson-page .fullpage-body {
+  display: flex; flex-direction: column; justify-content: center;
+  max-width: none; margin: 0; padding-top: 0; padding-right: 0; padding-bottom: clamp(24px, 4vw, 48px);
+}
+/* 右侧导航箭头保留一点右边距 */
+#lesson-page .lesson-rail-nav { padding-right: clamp(20px, 4vw, 48px); }
 
 /* 我的课程：课时横排列表 */
 .lesson-rail-wrap { position: relative; }
