@@ -58,6 +58,7 @@
       if (typeof showResearchList === "function") showResearchList();
       if (typeof showMcHome === "function") showMcHome();
       if (typeof showMyexpList === "function") showMyexpList();
+      if (typeof showGuideList === "function") showGuideList();
       if (item.dataset.target === "my-data" && typeof renderDataSection === "function") renderDataSection();
       setSidebarOpen(false);
     });
@@ -803,7 +804,7 @@
   }
   function closeCourseModal() {
     courseModal.hidden = true;
-    document.body.classList.remove("modal-open");
+    if (!classroomPage || classroomPage.hidden) document.body.classList.remove("modal-open");
     editingPlanCourseId = null;
     setMsOpen(false);
   }
@@ -857,6 +858,7 @@
         saveClasses();
         renderCourseModal();
         renderClassTable();
+        if (classroomPage && !classroomPage.hidden) renderClassroom();
         showToast("已删除课程");
       }, "确定移除");
     }
@@ -885,6 +887,7 @@
     saveClasses();
     renderCourseModal();
     renderClassTable();
+    if (classroomPage && !classroomPage.hidden) renderClassroom();
     showToast(added > 0 ? `已添加 ${added} 门课程` : "所选课程已存在");
   });
 
@@ -1221,7 +1224,6 @@
     cover: p.cover,
     course: p.names[0],
     name: p.names[0] + " 实验包",
-    klass: p.klass,
   }));
 
   const expListEl = document.getElementById("my-exp-list");
@@ -1265,7 +1267,6 @@
             <div class="pkg-names"><span class="pkg-name">${p.name}</span></div>
           </div>
           <div class="pkg-meta"><span class="k">配套课程：</span><span class="klass">${p.course}</span></div>
-          <div class="pkg-meta"><span class="k">上课班级：</span><span class="klass">${p.klass}</span></div>
         </div>
       </article>`).join("");
 
@@ -1677,6 +1678,136 @@
     document.getElementById("upload-btn").addEventListener("click", () => showToast("上传文件（开发中）"));
   }
 
+  // ===== 帮助指南 =====
+  const guideIcons = {
+    rocket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>',
+    teacher: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>',
+    flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>',
+    cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  };
+
+  const guides = [
+    {
+      id: "prepare", icon: "rocket", num: "准备工作",
+      title: "使用前准备：绑定学校 · 创建班级 · 添加课程",
+      summary: "首次使用按此流程完成基础设置，即可开始授课。",
+      intro: "首次登录后，请先完成「绑定学校 → 创建班级 → 添加课程」三步基础设置，之后才能正常排课与上课。",
+      steps: [
+        { h: "绑定学校", p: "进入 <span class=\"path\">班级管理</span>，点击绑定学校，搜索并选择所在学校提交。审核通过后即可在该校下创建班级。" },
+        { h: "创建班级", p: "在 <span class=\"path\">班级管理</span> 点击「创建班级」，填写年级、班级名称与学生人数，保存后班级出现在列表中。" },
+        { h: "添加课程", p: "在班级所在行点击「添加」，从课程库中选择课程包（如人工智能·春季）加入该班级，即完成基础配置。" },
+        { h: "开始授课", p: "完成以上三步后，可在 <span class=\"path\">我的课程</span> 看到课程包，点击「双师AI课堂」即可进入课堂。" },
+      ],
+      tip: "学校绑定需管理员审核，若长时间未通过可联系平台客服协助处理。",
+    },
+    {
+      id: "dual-class", icon: "teacher", num: "上课",
+      title: "开启一堂双师AI课",
+      summary: "进入沉浸式课堂、切换AI虚拟老师与授课班级。",
+      intro: "双师AI课堂由 AI 虚拟老师在线主讲、本校老师线下辅导。以下是开课的常用操作。",
+      steps: [
+        { h: "进入课堂", p: "在 <span class=\"path\">我的课程</span> 顶部点击「双师AI课堂」横幅，或在课程包中点击进入，即可打开全屏沉浸式课堂。" },
+        { h: "选择授课班级", p: "课堂左上角点击「切换班级」，选择本节课要上课的班级。" },
+        { h: "切换AI老师", p: "点击虚拟老师下方的名字（如「智雅」），可切换不同形象与风格的 AI 虚拟老师。" },
+        { h: "选择课程开始", p: "右侧「我的课程」列表显示各课程学习进度，点击对应课程封面即可开始本节课。" },
+      ],
+      tip: "退出课堂点击左上角返回按钮即可，学习进度会自动保存。",
+    },
+    {
+      id: "experiment", icon: "flask", num: "实验",
+      title: "开展 AI 实验（线上 / 线下）",
+      summary: "在 AI 实验室与我的AI实验中查看并组织实验。",
+      intro: "实验分为线上实验与线下实验：线下实验带「线下实验」标签，需配合教具在课堂完成；线上实验可直接在平台体验。",
+      steps: [
+        { h: "浏览实验包", p: "进入 <span class=\"path\">AI实验室</span>，按课程包（如人工智能八下）查看其包含的全部实验。" },
+        { h: "区分实验类型", p: "封面带「线下实验」标签的为线下实践活动；无标签的为线上互动实验。" },
+        { h: "在我的AI实验中管理", p: "已加入班级的实验包会出现在 <span class=\"path\">我的AI实验</span>，可查看实验数量与所属班级。" },
+      ],
+      tip: "线下实验建议提前准备好对应教具与材料，确保课堂顺利开展。",
+    },
+    {
+      id: "resource", icon: "cloud", num: "资源",
+      title: "管理教学数字资源（云盘）",
+      summary: "新建文件夹、上传任意格式文件、在线预览与下载。",
+      intro: "数字资源是教学资源云盘，可按文件夹分类管理课件、试题、图片、视频等任意格式文件。",
+      steps: [
+        { h: "新建文件夹", p: "在 <span class=\"path\">数字资源</span> 点击「新建文件夹」，按学段或用途分类整理资源。" },
+        { h: "上传文件", p: "点击「上传文件」，支持 Word、PPT、Excel、PDF、图片、视频等任意格式。" },
+        { h: "预览与下载", p: "Office 文档、PDF、图片、视频可点「预览」在线查看；任意文件均可「下载」到本地。" },
+      ],
+      tip: "建议为每个年级或单元单独建文件夹，方便上课时快速调取资源。",
+    },
+    {
+      id: "class", icon: "users", num: "班级",
+      title: "班级与学生管理",
+      summary: "管理所授班级、学生名单与班级课程。",
+      intro: "在班级管理中可维护所有任教班级的学生名单，并为班级添加 / 调整课程。",
+      steps: [
+        { h: "查看班级", p: "进入 <span class=\"path\">班级管理</span>，列表展示各班级人数、班主任等信息。" },
+        { h: "为班级添加课程", p: "在班级所在行点击「添加」，选择课程包加入该班级。" },
+        { h: "管理课程", p: "在 <span class=\"path\">我的课程</span> 的课程包卡片上点击「···」，可编辑或删除已添加的课程。" },
+      ],
+      tip: "一个班级可添加多个不同年级的课程包，按实际教学安排灵活配置。",
+    },
+    {
+      id: "account", icon: "lock", num: "账号",
+      title: "登录与账号",
+      summary: "验证码登录、密码登录与忘记密码。",
+      intro: "平台支持验证码与密码两种登录方式，无需注册，验证手机号后自动创建账号。",
+      steps: [
+        { h: "验证码登录", p: "输入手机号，获取并填写 6 位验证码即可登录；未注册的手机号将自动创建账号。" },
+        { h: "密码登录", p: "切换到「密码登录」标签，输入账号 / 手机号与密码登录。" },
+        { h: "忘记密码", p: "在密码登录页点击「忘记密码？」，通过手机号验证后设置新密码。" },
+      ],
+      tip: "若忘记账号或无法接收验证码，请联系学校管理员或平台客服协助。",
+    },
+  ];
+
+  const guideListEl = document.getElementById("guide-list");
+  const guideDetailEl = document.getElementById("guide-detail");
+  const guideCardsEl = document.getElementById("guide-cards");
+
+  if (guideCardsEl) {
+    guideCardsEl.innerHTML = guides.map((g) => `
+      <button class="guide-card" data-guide="${g.id}">
+        <span class="g-icon">${guideIcons[g.icon]}</span>
+        <span class="g-body">
+          <span class="g-num">${g.num}</span>
+          <h3>${g.title}</h3>
+          <p>${g.summary}</p>
+        </span>
+      </button>`).join("");
+  }
+
+  function showGuideList() {
+    if (!guideDetailEl) return;
+    guideDetailEl.classList.remove("active");
+    guideListEl.classList.add("active");
+  }
+
+  function openGuide(id) {
+    const g = guides.find((x) => x.id === id);
+    if (!g) return;
+    document.getElementById("guide-title").textContent = g.title;
+    document.getElementById("guide-intro").textContent = g.intro;
+    document.getElementById("guide-steps").innerHTML = g.steps.map((s) => `
+      <li><h4>${s.h}</h4><p>${s.p}</p></li>`).join("");
+    document.getElementById("guide-tip").innerHTML = g.tip || "";
+    guideListEl.classList.remove("active");
+    guideDetailEl.classList.add("active");
+    document.querySelector(".content").scrollTop = 0;
+  }
+
+  if (guideCardsEl) {
+    guideCardsEl.addEventListener("click", (e) => {
+      const card = e.target.closest(".guide-card");
+      if (card) openGuide(card.dataset.guide);
+    });
+    document.getElementById("guide-back").addEventListener("click", showGuideList);
+  }
+
   const dualBanner = document.getElementById("dual-banner");
   if (dualBanner) dualBanner.addEventListener("click", () => openClassroom());
 
@@ -1910,10 +2041,15 @@
   const clsClassSwitch = document.getElementById("cls-class-switch");
   const clsClassMenu = document.getElementById("cls-class-menu");
   const CLS_ROLES = [
-    { name: "智雅", hair: "#39322b", dress: "#FFFFFF" },
-    { name: "晓墨", hair: "#2b2f3a", dress: "#EAF3FF" },
-    { name: "星辰", hair: "#4a2f2b", dress: "#FFF1E8" },
-    { name: "灵犀", hair: "#3a2b3f", dress: "#F4EAFF" },
+    {
+      name: "智雅",
+      actions: [
+        IMG + "digital-human-action-1.gif",
+        IMG + "digital-human-action-2.gif",
+        IMG + "digital-human-action-3.gif",
+        IMG + "digital-human-action-4.gif",
+      ],
+    },
   ];
   const CLS_COVERS = [
     IMG + "ai-course-spring-redesign.png", IMG + "ai-course-autumn-redesign.png",
@@ -1923,55 +2059,43 @@
   const CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>';
   let clsClassId = null;
   let clsRole = 0;
+  let clsAction = 0;
+  let clsActionTimer = null;
 
-  // 数字老师（女老师，连衣裙；可换发色/裙色）
-  function teacherSVG(role) {
-    const hair = role.hair, dress = role.dress;
-    return `<svg viewBox="0 0 200 440" xmlns="http://www.w3.org/2000/svg">
-      <path d="M68 66 C68 30 132 30 132 66 L135 168 C135 182 121 178 119 162 L116 92 C116 74 84 74 84 92 L81 162 C79 178 65 182 65 168 Z" fill="${hair}"/>
-      <path d="M91 94 h18 v22 q-9 6 -18 0 Z" fill="#EEC097"/>
-      <ellipse cx="100" cy="66" rx="27" ry="31" fill="#F7D3AE"/>
-      <path d="M72 64 C74 38 126 38 128 64 C120 50 110 47 100 47 C90 47 80 50 72 64 Z" fill="${hair}"/>
-      <ellipse cx="89" cy="66" rx="3.2" ry="4" fill="#3a322b"/>
-      <ellipse cx="111" cy="66" rx="3.2" ry="4" fill="#3a322b"/>
-      <path d="M93 80 q7 6 14 0" stroke="#C98A5E" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <path d="M100 112 C113 112 121 119 125 132 L150 302 C152 316 148 322 136 322 L64 322 C52 322 48 316 50 302 L75 132 C79 119 87 112 100 112 Z" fill="${dress}" stroke="#E2E7EE" stroke-width="1.5"/>
-      <path d="M100 112 L109 128 L100 146 L91 128 Z" fill="#EEF2F7"/>
-      <circle cx="100" cy="152" r="1.6" fill="#cdd4dc"/><circle cx="100" cy="170" r="1.6" fill="#cdd4dc"/><circle cx="100" cy="188" r="1.6" fill="#cdd4dc"/>
-      <path d="M74 196 Q100 206 126 196 L126 206 Q100 216 74 206 Z" fill="#9B6B3A"/>
-      <rect x="87" y="320" width="11" height="92" rx="5.5" fill="#EEC097"/>
-      <rect x="102" y="320" width="11" height="92" rx="5.5" fill="#EEC097"/>
-      <path d="M82 410 h15 v6 q0 5 -7.5 5 t-7.5 -5 Z" fill="#D9D2E6"/>
-      <path d="M103 410 h15 v6 q0 5 -7.5 5 t-7.5 -5 Z" fill="#D9D2E6"/>
-    </svg>`;
-  }
-
-  // 角色头像（圆形小脸）
-  function roleAvatarSVG(role) {
-    return `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <rect width="64" height="64" fill="#eaf3ff"/>
-      <path d="M14 40 C14 18 50 18 50 40 L50 58 L14 58 Z" fill="${role.hair}"/>
-      <ellipse cx="32" cy="34" rx="15" ry="17" fill="#F7D3AE"/>
-      <path d="M17 33 C18 18 46 18 47 33 C41 24 36 22 32 22 C28 22 23 24 17 33 Z" fill="${role.hair}"/>
-      <circle cx="26" cy="34" r="2" fill="#3a322b"/><circle cx="38" cy="34" r="2" fill="#3a322b"/>
-      <path d="M28 42 q4 3 8 0" stroke="#C98A5E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    </svg>`;
+  function teacherAvatar(role, className) {
+    const actions = role.actions || [];
+    const src = actions[clsAction % Math.max(actions.length, 1)] || "";
+    return `<img class="${className}" src="${src}" alt="${esc(role.name)}数字老师" loading="eager">`;
   }
 
   function renderClsTeacher() {
     const role = CLS_ROLES[clsRole];
-    clsTeacherEl.innerHTML = teacherSVG(role);
+    clsTeacherEl.innerHTML = teacherAvatar(role, "cls-teacher-img");
     clsStageName.innerHTML = esc(role.name) + CARET;
     clsRolesEl.innerHTML = CLS_ROLES.map((r, i) =>
-      `<button class="cls-role${i === clsRole ? " active" : ""}" data-role="${i}" type="button" title="${esc(r.name)}">${roleAvatarSVG(r)}</button>`
+      `<button class="cls-role${i === clsRole ? " active" : ""}" data-role="${i}" type="button" title="${esc(r.name)}">${teacherAvatar(r, "cls-role-img")}</button>`
     ).join("");
+  }
+
+  function startClsActionLoop() {
+    if (clsActionTimer) clearInterval(clsActionTimer);
+    clsActionTimer = setInterval(() => {
+      const role = CLS_ROLES[clsRole];
+      const actions = (role && role.actions) || [];
+      if (actions.length < 2 || classroomPage.hidden) return;
+      clsAction = (clsAction + 1) % actions.length;
+      renderClsTeacher();
+    }, 8000);
   }
 
   function renderClsCourses() {
     const cls = classStore.find((c) => c.id === clsClassId);
     const courses = (cls && cls.courses) || [];
     if (!courses.length) {
-      clsCourseListEl.innerHTML = '<div class="cls-courses-empty">该班级暂无课程，请先在班级管理中添加。</div>';
+      clsCourseListEl.innerHTML = `<div class="cls-courses-empty">
+        <p>该班级暂无课程，请先添加课程。</p>
+        <button class="primary-action cls-add-course" data-cls-add-course type="button">添加课程</button>
+      </div>`;
       return;
     }
     clsCourseListEl.innerHTML = courses.map((co, i) => {
@@ -2001,14 +2125,20 @@
   function openClassroom() {
     if (!classStore.length) { showToast("请先在班级管理创建班级"); return; }
     if (!classStore.find((c) => c.id === clsClassId)) clsClassId = classStore[0].id;
+    clsAction = 0;
     renderClassroom();
     classroomPage.hidden = false;
     classroomPage.scrollTop = 0;
     document.body.classList.add("modal-open");
+    startClsActionLoop();
   }
   function closeClassroom() {
     classroomPage.hidden = true;
     document.body.classList.remove("modal-open");
+    if (clsActionTimer) {
+      clearInterval(clsActionTimer);
+      clsActionTimer = null;
+    }
   }
 
   if (classroomPage) {
@@ -2017,9 +2147,16 @@
       const b = e.target.closest("[data-role]");
       if (!b) return;
       clsRole = parseInt(b.dataset.role, 10);
+      clsAction = 0;
       renderClsTeacher();
+      startClsActionLoop();
     });
     clsCourseListEl.addEventListener("click", (e) => {
+      const addBtn = e.target.closest("[data-cls-add-course]");
+      if (addBtn) {
+        openCourseModal(clsClassId);
+        return;
+      }
       const card = e.target.closest("[data-clscourse]");
       if (!card) return;
       const cls = classStore.find((c) => c.id === clsClassId);
