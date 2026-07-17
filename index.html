@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=59">
+<link rel="stylesheet" href="css/style.css?v=64">
 </head>
 <body>
 <div class="app-shell">
@@ -12,7 +12,7 @@
   <!-- 顶部栏 -->
   <header class="topbar">
     <div class="logo-mark">
-      <img class="logo-icon" src="assets/logo.svg?v=3" alt="平台标识">
+      <img class="logo-icon" src="assets/logo.svg?v=5" alt="平台标识">
       <div class="logo-text">
         <span class="name">人工智能通识教育平台</span>
         <span class="sub">Hunan Edu · AI</span>
@@ -140,6 +140,7 @@
             <p class="page-sub">请选择课程进入学习</p>
           </div>
 
+          <div class="page-panel">
           <div class="course-grid">
             <article class="course-card" data-course="spring">
               <div class="course-cover">
@@ -154,6 +155,7 @@
               </div>
               <h3 class="course-title">人工智能 · 秋季</h3>
             </article>
+          </div>
           </div>
         </div>
 
@@ -224,7 +226,7 @@
             <h1 class="page-title">AI实验室</h1>
             <p class="page-sub">精选人工智能课程包，包含线上与线下实验，点击进入查看实验内容</p>
           </div>
-          <div class="course-grid" id="lab-packages"></div>
+          <div class="page-panel"><div class="course-grid" id="lab-packages"></div></div>
         </div>
 
         <!-- 课程包详情（实验列表） -->
@@ -238,7 +240,7 @@
             <h1 class="detail-title" id="lab-title">人工智能（八下）</h1>
             <span class="detail-sub" id="lab-sub">共 8 个实验 · 线上 / 线下</span>
           </div>
-          <div class="exp-grid" id="lab-experiments"></div>
+          <div class="page-panel"><div class="exp-grid" id="lab-experiments"></div></div>
         </div>
 
       </section>
@@ -262,13 +264,15 @@
                 </div>
               </button>
 
-              <!-- 我的课程 -->
-              <div class="mc-section-head">
-                <div class="block-head"><span class="bar"></span>我的课程</div>
-                <span class="mc-count" id="mc-course-count"></span>
+              <!-- 我的课程（白底面板） -->
+              <div class="mc-panel">
+                <div class="mc-section-head">
+                  <div class="block-head"><span class="bar"></span>我的课程</div>
+                  <span class="mc-count" id="mc-course-count"></span>
+                </div>
+                <div class="class-tabs" id="mc-class-tabs"></div>
+                <div class="mc-course-list" id="mc-course-list"></div>
               </div>
-              <div class="class-tabs" id="mc-class-tabs"></div>
-              <div class="mc-course-list" id="mc-course-list"></div>
             </div>
 
             <!-- 右侧栏 -->
@@ -330,7 +334,7 @@
             <h1 class="page-title">我的AI实验</h1>
             <p class="page-sub">实验包与你的课程一一对应，点击进入查看线上 / 线下实验</p>
           </div>
-          <div class="pkg-list" id="my-exp-list"></div>
+          <div class="page-panel"><div class="pkg-list" id="my-exp-list"></div></div>
         </div>
 
         <!-- 实验包详情（实验列表） -->
@@ -344,7 +348,14 @@
             <h1 class="detail-title" id="myexp-title">实验包</h1>
             <span class="detail-sub" id="myexp-sub"></span>
           </div>
-          <div class="exp-grid" id="myexp-experiments"></div>
+          <div class="page-panel">
+            <div class="exp-filter" id="myexp-filter">
+              <button class="class-tab active" data-filter="all" type="button">全部</button>
+              <button class="class-tab" data-filter="online" type="button">线上实验</button>
+              <button class="class-tab" data-filter="offline" type="button">线下实验</button>
+            </div>
+            <div class="exp-grid" id="myexp-experiments"></div>
+          </div>
         </div>
 
       </section>
@@ -357,7 +368,7 @@
             <h1 class="page-title">学科教研</h1>
             <p class="page-sub">请选择科目，查看示范课视频与教师培训</p>
           </div>
-          <div class="course-grid" id="research-subjects"></div>
+          <div class="page-panel"><div class="course-grid" id="research-subjects"></div></div>
         </div>
 
         <!-- 科目详情：视频板块 -->
@@ -371,11 +382,15 @@
             <h1 class="detail-title" id="research-title">人工智能</h1>
           </div>
 
-          <div class="block-head"><span class="bar"></span>示范课视频</div>
-          <div class="video-grid" id="research-demo" style="margin-bottom:var(--sp-8)"></div>
+          <div class="page-panel">
+            <div class="block-head"><span class="bar"></span>示范课视频</div>
+            <div class="video-grid" id="research-demo"></div>
+          </div>
 
-          <div class="block-head"><span class="bar"></span>教师培训</div>
-          <div class="video-grid" id="research-train"></div>
+          <div class="page-panel">
+            <div class="block-head"><span class="bar"></span>教师培训</div>
+            <div class="video-grid" id="research-train"></div>
+          </div>
         </div>
 
       </section>
@@ -497,7 +512,7 @@
             <h1 class="page-title">帮助指南</h1>
             <p class="page-sub">按使用流程整理的操作说明，点击查看详细步骤</p>
           </div>
-          <div class="guide-grid" id="guide-cards"></div>
+          <div class="page-panel"><div class="guide-grid" id="guide-cards"></div></div>
         </div>
 
         <!-- 指南详情 -->
@@ -510,9 +525,11 @@
             <span class="detail-divider"></span>
             <h1 class="detail-title" id="guide-title">使用前准备</h1>
           </div>
-          <p class="guide-intro" id="guide-intro"></p>
-          <ol class="guide-steps" id="guide-steps"></ol>
-          <div class="guide-tip" id="guide-tip"></div>
+          <div class="page-panel">
+            <p class="guide-intro" id="guide-intro"></p>
+            <ol class="guide-steps" id="guide-steps"></ol>
+            <div class="guide-tip" id="guide-tip"></div>
+          </div>
         </div>
 
       </section>
@@ -828,6 +845,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=47"></script>
+<script src="js/app.js?v=49"></script>
 </body>
 </html>

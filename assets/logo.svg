@@ -1,8 +1,8 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人工智能通识教育平台标识">
   <defs>
     <linearGradient id="lg-bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#12B8A6"/>
-      <stop offset="1" stop-color="#22D3EE"/>
+      <stop offset="0" stop-color="#5ECBF2"/>
+      <stop offset="1" stop-color="#269ED8"/>
     </linearGradient>
   </defs>
 
@@ -12,11 +12,11 @@
   <!-- AI 星芒：智能 -->
   <path d="M32 14.5c.8 7 1.7 7.9 8.7 8.7-7 .8-7.9 1.7-8.7 8.7-.8-7-1.7-7.9-8.7-8.7 7-.8 7.9-1.7 8.7-8.7Z" fill="#FFFFFF"/>
   <!-- 小星点缀 -->
-  <path d="M44 13.5c.35 3 .65 3.3 3.5 3.5-2.85.35-3.15.65-3.5 3.5-.35-2.85-.65-3.15-3.5-3.5 2.85-.35 3.15-.65 3.5-3.5Z" fill="#FFE08A"/>
+  <path d="M44 13.5c.35 3 .65 3.3 3.5 3.5-2.85.35-3.15.65-3.5 3.5-.35-2.85-.65-3.15-3.5-3.5 2.85-.35 3.15-.65 3.5-3.5Z" fill="#D6ECF9"/>
 
   <!-- 翻开的书：教育 -->
   <path d="M32 35.5C26 32.7 18.5 32.7 13.4 34.6c-.7.26-1.1.92-1.1 1.65V47.8c0 .85.83 1.47 1.66 1.25C18.7 47.7 26.2 47.9 32 50.4Z" fill="#FFFFFF"/>
-  <path d="M32 35.5c6-2.8 13.5-2.8 18.6-.9.7.26 1.1.92 1.1 1.65V47.8c0 .85-.83 1.47-1.66 1.25C45.3 47.7 37.8 47.9 32 50.4Z" fill="#E6FBF8"/>
+  <path d="M32 35.5c6-2.8 13.5-2.8 18.6-.9.7.26 1.1.92 1.1 1.65V47.8c0 .85-.83 1.47-1.66 1.25C45.3 47.7 37.8 47.9 32 50.4Z" fill="#EEF8FE"/>
   <!-- 书脊 -->
-  <path d="M32 35.5V50.4" stroke="#0C8C80" stroke-width="1.6" stroke-linecap="round" opacity=".25"/>
+  <path d="M32 35.5V50.4" stroke="#1685C7" stroke-width="1.6" stroke-linecap="round" opacity=".25"/>
 </svg>

@@ -652,6 +652,7 @@
     if (!selectedClassId) selectedClassId = newId;
     saveClasses();
     renderClassTable();
+    if (typeof refreshMcClasses === "function") refreshMcClasses();
     closeClassForm();
     showToast("班级已创建，请为班级添加课程");
     // 引导：创建后直接打开该班级的课程弹窗去选课程
@@ -669,6 +670,7 @@
       if (selectedClassId === id) selectedClassId = classStore[0] && classStore[0].id;
       saveClasses();
       renderClassTable();
+      if (typeof refreshMcClasses === "function") refreshMcClasses();
       showToast("已删除班级");
     }, "确定删除");
   }
@@ -1191,15 +1193,22 @@
     if (myexpDetail) myexpDetail.classList.remove("active");
     if (myexpList) myexpList.classList.add("active");
   }
-  function openMyexpDetail(idx) {
-    const p = myExpPackages[idx];
-    if (!p) return;
-    document.getElementById("myexp-title").textContent = p.name;
-    document.getElementById("myexp-sub").textContent = `共 ${experiments.length} 个实验 · 线上 / 线下`;
-    myexpExperimentsEl.innerHTML = experiments.map((e, i) => `
+  // 实验类型筛选：all / online / offline
+  let myexpFilter = "all";
+  const myexpFilterEl = document.getElementById("myexp-filter");
+
+  function renderMyexpExperiments() {
+    const list = experiments
+      .map((e, i) => ({ ...e, photo: expPhotos[i % expPhotos.length] }))
+      .filter((e) => myexpFilter === "all" || (myexpFilter === "offline" ? e.offline : !e.offline));
+    if (!list.length) {
+      myexpExperimentsEl.innerHTML = '<div class="mc-empty">暂无该类型的实验</div>';
+      return;
+    }
+    myexpExperimentsEl.innerHTML = list.map((e) => `
       <article class="exp-card">
         <div class="exp-cover">
-          <img src="${expPhotos[i % expPhotos.length]}" alt="${e.title}">
+          <img src="${e.photo}" alt="${e.title}">
           ${e.offline ? '<span class="exp-tag">线下实验</span>' : ""}
         </div>
         <div class="exp-body">
@@ -1207,9 +1216,33 @@
           <div class="desc">${e.desc}</div>
         </div>
       </article>`).join("");
+  }
+
+  function openMyexpDetail(idx) {
+    const p = myExpPackages[idx];
+    if (!p) return;
+    document.getElementById("myexp-title").textContent = p.name;
+    document.getElementById("myexp-sub").textContent = `共 ${experiments.length} 个实验 · 线上 / 线下`;
+    myexpFilter = "all";
+    if (myexpFilterEl) {
+      myexpFilterEl.querySelectorAll("[data-filter]").forEach((b) =>
+        b.classList.toggle("active", b.dataset.filter === "all"));
+    }
+    renderMyexpExperiments();
     myexpList.classList.remove("active");
     myexpDetail.classList.add("active");
     document.querySelector(".content").scrollTop = 0;
+  }
+
+  if (myexpFilterEl) {
+    myexpFilterEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]");
+      if (!btn) return;
+      myexpFilter = btn.dataset.filter;
+      myexpFilterEl.querySelectorAll("[data-filter]").forEach((b) =>
+        b.classList.toggle("active", b === btn));
+      renderMyexpExperiments();
+    });
   }
 
   if (expListEl) {
@@ -1852,7 +1885,19 @@
     if (!mcClassTabsEl) return;
     mcClassTabsEl.innerHTML = classStore.map((cls) =>
       `<button class="class-tab${cls.id === mcActiveClassId ? " active" : ""}" data-class-id="${cls.id}" type="button">${esc(cls.name)}</button>`
-    ).join("");
+    ).join("") +
+      `<button class="class-tab class-tab-add" id="mc-create-class" type="button" title="创建班级">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>创建班级
+      </button>`;
+  }
+
+  // 供创建/删除班级后同步「我的课程」的班级 Tab 与课程列表
+  function refreshMcClasses() {
+    if (!classStore.find((c) => c.id === mcActiveClassId)) {
+      mcActiveClassId = classStore.length ? classStore[0].id : null;
+    }
+    renderMcClassTabs();
+    renderMcCourseList();
   }
 
   function renderMcCourseList() {
@@ -1886,6 +1931,7 @@
     renderMcClassTabs();
     renderMcCourseList();
     mcClassTabsEl.addEventListener("click", (e) => {
+      if (e.target.closest("#mc-create-class")) { openClassForm(); return; }
       const tab = e.target.closest("[data-class-id]");
       if (tab) selectMcClass(tab.dataset.classId);
     });
