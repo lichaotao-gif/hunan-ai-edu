@@ -412,6 +412,10 @@ ul { list-style: none; }
 .page-sub { font-size: 13.5px; color: var(--text-sub); }
 
 /* ===== 我的课程 ===== */
+/* 主列 / 右侧栏 两栏布局 */
+.mc-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--sp-6); align-items: start; }
+.mc-main { min-width: 0; }
+
 /* 1. 双师AI课堂 banner */
 .dual-banner {
   position: relative; display: flex; align-items: stretch; width: 100%; min-height: 210px; text-align: left;
@@ -429,13 +433,89 @@ ul { list-style: none; }
 }
 .dual-banner:hover { transform: translateY(-2px); box-shadow: 0 16px 38px rgba(15, 175, 160, .28); }
 .dual-banner-text { position: relative; z-index: 1; flex: 1; padding: var(--sp-8); display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
-.dual-banner-tag { background: rgba(255,255,255,.22); font-size: 12px; font-weight: 600; padding: 3px 12px; border-radius: 12px; }
 .dual-banner-text h2 { font-size: 24px; font-weight: 700; margin-top: var(--sp-1); }
 .dual-banner-text p { font-size: 13.5px; opacity: .92; line-height: 1.7; max-width: 460px; }
 .dual-banner-go { display: inline-flex; align-items: center; gap: 4px; margin-top: var(--sp-3); background: #fff; color: var(--primary-dark); font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 22px; }
 .dual-banner-go svg { width: 15px; height: 15px; }
-.dual-banner-art { display: none; }
-.dual-banner-art img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 我的课程：标题行 + 班级筛选 + 横向课程卡 */
+.mc-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.mc-section-head .block-head { margin-bottom: 0; }
+.mc-count { font-size: 12.5px; color: var(--text-sub); }
+
+.class-tabs { display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-5); }
+.class-tab {
+  padding: 9px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--text-mid);
+  background: var(--bg-card); border: 1px solid var(--border); transition: border-color .15s, color .15s, background .15s;
+}
+.class-tab:hover { border-color: var(--primary); color: var(--primary-dark); }
+.class-tab.active { background: var(--primary-light); border-color: transparent; color: var(--primary-dark); }
+
+.mc-course-list { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-8); }
+.mcc {
+  display: flex; align-items: center; gap: var(--sp-5);
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-5); box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.mcc:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.mcc-cover { width: 128px; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; flex-shrink: 0; }
+.mcc-cover img { width: 100%; height: 100%; object-fit: cover; }
+.mcc-body { flex: 1; min-width: 0; }
+.mcc-body h4 { font-size: 15.5px; font-weight: 700; color: var(--text-main); margin-bottom: 7px; }
+.mcc-tags { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.mcc-tags span { font-size: 12px; color: var(--text-sub); background: var(--bg); padding: 3px 10px; border-radius: 8px; }
+.mcc-enter {
+  flex-shrink: 0; padding: 10px 20px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff;
+  font-size: 13.5px; font-weight: 700; transition: filter .15s, transform .15s;
+}
+.mcc-enter:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.mc-empty {
+  padding: var(--sp-8); text-align: center; color: var(--text-sub); font-size: 13.5px;
+  background: var(--bg-card); border: 1px dashed var(--border); border-radius: var(--radius); margin-bottom: var(--sp-8);
+}
+
+/* 右侧栏 */
+.mc-rail { display: flex; flex-direction: column; gap: var(--sp-5); }
+.rail-shortcut {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5); background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 14.5px; font-weight: 700; color: var(--text-main);
+  box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s;
+}
+.rail-shortcut:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.rail-shortcut-icon {
+  width: 34px; height: 34px; border-radius: 10px; background: var(--primary-light); color: var(--primary-dark);
+  display: flex; align-items: center; justify-content: center;
+}
+.rail-shortcut-icon svg { width: 18px; height: 18px; }
+.rail-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-5); box-shadow: var(--shadow-sm); }
+.rail-card .block-head { margin-bottom: var(--sp-4); }
+.rail-card .today-list { margin-bottom: 0; }
+.rail-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.rail-cal-head .block-head { margin-bottom: 0; }
+.rail-cal-head-right { display: flex; align-items: center; gap: var(--sp-3); }
+.mini-cal-month { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+.rail-cal-more { font-size: 12px; font-weight: 600; color: var(--primary-dark); }
+.rail-cal-more:hover { text-decoration: underline; }
+
+.mini-cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 6px; }
+.mini-cal-weekdays span { text-align: center; font-size: 11.5px; color: var(--text-sub); font-weight: 600; }
+.mini-cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.mini-cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;
+  font-size: 12.5px; color: var(--text-main); border-radius: 8px; transition: background .15s;
+}
+.mini-cal-day.empty { visibility: hidden; }
+.mini-cal-day:hover:not(.empty) { background: var(--bg); }
+.mini-cal-day.today { background: var(--primary); color: #fff; font-weight: 700; }
+.mini-cal-day.has-class:not(.today) { color: #EF4444; font-weight: 700; }
+.mini-cal-day.has-class:not(.today)::after {
+  content: ""; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%; background: #EF4444;
+}
+.mini-cal-hint { font-size: 11.5px; color: var(--text-sub); line-height: 1.6; margin-top: var(--sp-3); }
 
 /* 区块标题栏（左标题 + 右操作） */
 .section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
@@ -475,6 +555,11 @@ ul { list-style: none; }
 .ti-main b { font-size: 15px; font-weight: 700; color: var(--text-main); }
 .ti-main span { font-size: 13px; color: var(--text-sub); }
 .ti-go { flex-shrink: 0; }
+
+/* 右侧栏空间较窄，今日课表卡片改为纵向排列 */
+.rail-card .today-item { flex-direction: column; align-items: stretch; gap: var(--sp-2); padding: var(--sp-4); }
+.rail-card .ti-date { flex-direction: row; align-items: baseline; gap: 6px; min-width: 0; }
+.rail-card .ti-go { align-self: flex-start; }
 
 /* 课程日历 */
 .cal-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 22px; margin-bottom: var(--sp-4); }
@@ -704,14 +789,8 @@ ul { list-style: none; }
 .data-table-card .rank-row .rank-name { color: var(--primary-dark); font-weight: 600; }
 .data-table-card .rank-row td .rank-go { color: var(--text-sub); font-size: 12px; margin-left: 4px; }
 
-/* 3. 课程包列表 */
+/* 3. 课程包列表（我的AI实验沿用） */
 .pkg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-6); }
-/* 我的课程列表：主内容卡片 */
-#my-pkg-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-6); }
-#my-pkg-list .pkg-cover { aspect-ratio: 16 / 9; }
-#my-pkg-list .pkg-info { gap: var(--sp-3); padding: var(--sp-5); }
-#my-pkg-list .pkg-name { font-size: 16px; line-height: 1.45; }
-#my-pkg-list .pkg-meta { font-size: 13.5px; }
 .pkg-card {
   display: flex; flex-direction: column;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -1523,6 +1602,7 @@ tbody tr:hover { background: #FAFCFD; }
 /* responsive */
 /* 中等宽度：课时详情提前堆叠，避免标题/正文被挤成竖排 */
 @media (max-width: 1024px) {
+  .mc-grid { grid-template-columns: 1fr; }
   .package-hero { grid-template-columns: 1fr; gap: var(--sp-5); }
   .package-title-row { flex-direction: column; align-items: stretch; gap: var(--sp-3); }
   .package-create-btn { align-self: flex-start; }

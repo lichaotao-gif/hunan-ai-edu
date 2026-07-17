@@ -1148,75 +1148,31 @@
   });
   document.getElementById("lab-back").addEventListener("click", showLabList);
 
-  // ===== 我的课程：课程包板块 =====
-  const myPackages = [
-    { cover: IMG + "ai-course-spring-redesign.png", names: ["人工智能（一上）"], status: "未开始", klass: "一年级(2)班" },
-    { cover: IMG + "ai-course-autumn-redesign.png", names: ["人工智能（二上）"], status: "未开始", klass: "二年级(1)班" },
-    { cover: IMG + "robotics-kit.jpg", names: ["人工智能（三上）"], status: "未开始", klass: "三年级(4)班" },
-    { cover: IMG + "computer-vision-experiment.jpg", names: ["人工智能（七下）"], status: "未开始", klass: "七年级(3)班" },
-    { cover: IMG + "machine-learning-classroom.jpg", names: ["人工智能（八下）"], status: "未开始", klass: "八年级(2)班" },
-  ];
-
-  const pkgListEl = document.getElementById("my-pkg-list");
-  if (pkgListEl) {
-    pkgListEl.innerHTML = myPackages.map((p, i) => `
-      <article class="pkg-card pkg-clickable" data-pkg-idx="${i}">
-        <div class="pkg-cover">
-          <img src="${p.cover}" alt="${p.names[0]}">
-          <span class="pkg-status">${p.status}</span>
-        </div>
-        <div class="pkg-info">
-          <div class="pkg-title-row">
-            <div class="pkg-names">${p.names.map((n) => `<span class="pkg-name">${n}</span>`).join("")}</div>
-            <div class="pkg-more">
-              <button class="pkg-more-btn" data-more="${i}" aria-label="更多操作">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-              </button>
-              <div class="pkg-menu" data-menu="${i}">
-                <button data-act="edit">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-                  编辑
-                </button>
-                <button data-act="delete" class="danger">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="pkg-meta"><span class="k">上课班级：</span><span class="klass">${p.klass}</span></div>
-          <div class="pkg-meta"><span class="k">计划授课：</span>暂无计划</div>
-        </div>
-      </article>`).join("");
-
-    function closeAllPkgMenus() {
-      pkgListEl.querySelectorAll(".pkg-menu.open").forEach((m) => m.classList.remove("open"));
-    }
-    pkgListEl.addEventListener("click", (e) => {
-      const moreBtn = e.target.closest(".pkg-more-btn");
-      if (moreBtn) {
-        const menu = pkgListEl.querySelector(`.pkg-menu[data-menu="${moreBtn.dataset.more}"]`);
-        const isOpen = menu.classList.contains("open");
-        closeAllPkgMenus();
-        if (!isOpen) menu.classList.add("open");
-        return;
-      }
-      const actBtn = e.target.closest(".pkg-menu button");
-      if (actBtn) {
-        showToast(actBtn.dataset.act === "edit" ? "编辑课程包（开发中）" : "删除课程包（开发中）");
-        closeAllPkgMenus();
-        return;
-      }
-      const plan = e.target.closest("[data-plan]");
-      if (plan) { e.preventDefault(); showToast("授课计划（开发中）"); return; }
-      // 点击课程卡片本体 -> 进入课时列表
-      const card = e.target.closest("[data-pkg-idx]");
-      if (card) openMcLessons(myPackages[parseInt(card.dataset.pkgIdx, 10)]);
-    });
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".pkg-more")) closeAllPkgMenus();
-    });
+  // ===== 我的课程：课程包数据（由「班级管理」的真实班级/课程派生） =====
+  function coverForPackage(name) {
+    const all = [...courses.spring.lessons, ...courses.autumn.lessons];
+    const found = all.find((l) => l.name === name);
+    return found ? found.img : IMG + "ai-classroom-students.jpg";
   }
+  function periodsForPackage(name) {
+    const all = [...courses.spring.lessons, ...courses.autumn.lessons];
+    const found = all.find((l) => l.name === name);
+    return found ? found.periods : "10课时";
+  }
+
+  const myPackages = [];
+  classStore.forEach((cls) => {
+    (cls.courses || []).forEach((co) => {
+      myPackages.push({
+        cover: coverForPackage(co.package),
+        names: [co.package],
+        status: "未开始",
+        klass: cls.name,
+        classId: cls.id,
+        periods: periodsForPackage(co.package),
+      });
+    });
+  });
 
   // ===== 我的AI实验：实验包与课程一一对应，无编辑/删除，可进入实验列表 =====
   // 由「我的课程」(myPackages) 派生：课程有什么，配套实验包就有什么
@@ -1886,6 +1842,107 @@
   function showMcHome() { mcShow(mcHome); }
   function showMcCalendar() { mcShow(mcCalendar); renderCalWeek(calWeekOffset); }
 
+  // ===== 我的课程首页：班级筛选 + 课程列表 + 迷你月历 =====
+  const mcClassTabsEl = document.getElementById("mc-class-tabs");
+  const mcCourseListEl = document.getElementById("mc-course-list");
+  const mcCourseCountEl = document.getElementById("mc-course-count");
+  let mcActiveClassId = classStore.length ? classStore[0].id : null;
+
+  function renderMcClassTabs() {
+    if (!mcClassTabsEl) return;
+    mcClassTabsEl.innerHTML = classStore.map((cls) =>
+      `<button class="class-tab${cls.id === mcActiveClassId ? " active" : ""}" data-class-id="${cls.id}" type="button">${esc(cls.name)}</button>`
+    ).join("");
+  }
+
+  function renderMcCourseList() {
+    if (!mcCourseListEl) return;
+    const list = myPackages.filter((p) => p.classId === mcActiveClassId);
+    if (mcCourseCountEl) mcCourseCountEl.textContent = `当前班级共 ${list.length} 门课程`;
+    if (!list.length) {
+      mcCourseListEl.innerHTML = '<div class="mc-empty">该班级暂无课程，可前往「班级管理」为其添加课程包</div>';
+      return;
+    }
+    mcCourseListEl.innerHTML = list.map((p) => {
+      const idx = myPackages.indexOf(p);
+      return `<article class="mcc" data-pkg-idx="${idx}">
+        <div class="mcc-cover"><img src="${p.cover}" alt="${esc(p.names[0])}"></div>
+        <div class="mcc-body">
+          <h4>${esc(p.names[0])}</h4>
+          <div class="mcc-tags"><span>AI互动课程</span><span>共 ${esc(p.periods)}</span></div>
+        </div>
+        <button class="mcc-enter" type="button">进入课程</button>
+      </article>`;
+    }).join("");
+  }
+
+  function selectMcClass(classId) {
+    mcActiveClassId = classId;
+    renderMcClassTabs();
+    renderMcCourseList();
+  }
+
+  if (mcClassTabsEl) {
+    renderMcClassTabs();
+    renderMcCourseList();
+    mcClassTabsEl.addEventListener("click", (e) => {
+      const tab = e.target.closest("[data-class-id]");
+      if (tab) selectMcClass(tab.dataset.classId);
+    });
+  }
+  if (mcCourseListEl) {
+    mcCourseListEl.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-pkg-idx]");
+      if (card) openMcLessons(myPackages[parseInt(card.dataset.pkgIdx, 10)]);
+    });
+  }
+
+  const mcAffairsBtn = document.getElementById("mc-affairs-btn");
+  if (mcAffairsBtn) {
+    mcAffairsBtn.addEventListener("click", () => {
+      const target = document.querySelector('.menu-item[data-target="class-management"]');
+      if (target) target.click();
+    });
+  }
+
+  // 右侧迷你月历：标红当天有课的日期，点击某天跳转到对应周的课程日历
+  function renderMiniCal() {
+    const el = document.getElementById("mini-cal");
+    const monthLabel = document.getElementById("mini-cal-month");
+    if (!el) return;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    if (monthLabel) monthLabel.textContent = `${year}年${month + 1}月`;
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstWeekday = (firstDay.getDay() + 6) % 7; // 0=周一
+    let html = '<div class="mini-cal-weekdays">' + ["一", "二", "三", "四", "五", "六", "日"].map((w) => `<span>${w}</span>`).join("") + '</div><div class="mini-cal-days">';
+    for (let i = 0; i < firstWeekday; i++) html += '<span class="mini-cal-day empty"></span>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const wd = date.getDay();
+      const hasClass = !!weekSchedule[wd];
+      const isToday = d === now.getDate();
+      const cls = ["mini-cal-day", isToday ? "today" : "", (hasClass && !isToday) ? "has-class" : ""].filter(Boolean).join(" ");
+      html += `<button type="button" class="${cls}" data-date="${year}-${pad2(month + 1)}-${pad2(d)}">${d}</button>`;
+    }
+    el.innerHTML = html + "</div>";
+    el.querySelectorAll("[data-date]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const clicked = new Date(btn.dataset.date);
+        const day = clicked.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        const clickedMonday = new Date(clicked);
+        clickedMonday.setDate(clicked.getDate() + diff);
+        clickedMonday.setHours(0, 0, 0, 0);
+        const thisMonday = mondayOf(0);
+        calWeekOffset = Math.round((clickedMonday - thisMonday) / (7 * 24 * 3600 * 1000));
+        showMcCalendar();
+      });
+    });
+  }
+
   // 课时列表：全屏页面（覆盖菜单与顶栏，原页面不关闭）
   const lessonPage = document.getElementById("lesson-page");
   const lessonRail = document.getElementById("mc-lessons-rail");
@@ -2186,6 +2243,7 @@
   }
 
   renderTodaySchedule();
+  renderMiniCal();
 
   const calBtn = document.getElementById("course-calendar-btn");
   if (calBtn) calBtn.addEventListener("click", showMcCalendar);

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=55">
+<link rel="stylesheet" href="css/style.css?v=59">
 </head>
 <body>
 <div class="app-shell">
@@ -245,39 +245,60 @@
 
       <section class="content-section" id="sec-my-courses">
 
-        <!-- 主页视图 -->
+        <!-- 主页视图：主列（双师入口 + 我的课程） + 右侧栏（教务管理 / 今日课表 / 课程日历） -->
         <div class="subview active" id="mc-home">
-          <!-- 1. 双师AI课堂入口 banner -->
-          <button class="dual-banner" id="dual-banner">
-            <div class="dual-banner-text">
-              <h2>双师AI课堂</h2>
-              <p>AI虚拟老师在线主讲 · 真人老师辅导答疑，一键进入沉浸式课堂</p>
-              <span class="dual-banner-go">进入课堂
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-            <div class="dual-banner-art">
-              <img src="assets/img/realistic-ai-classroom-banner.jpg" alt="双师AI课堂">
-            </div>
-          </button>
+          <div class="mc-grid">
 
-          <!-- 2. 今日课表 -->
-          <div class="section-bar">
-            <div class="block-head"><span class="bar"></span>今日课表</div>
-            <div class="section-actions">
-              <button class="ghost-btn" id="course-calendar-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                课程日历
+            <!-- 主列 -->
+            <div class="mc-main">
+              <!-- 双师AI课堂入口 banner -->
+              <button class="dual-banner" id="dual-banner" type="button">
+                <div class="dual-banner-text">
+                  <h2>双师AI课堂</h2>
+                  <p>AI虚拟老师在线主讲 · 真人老师辅导答疑，一键进入沉浸式课堂</p>
+                  <span class="dual-banner-go">进入课堂
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="9 18 15 12 9 6"/></svg>
+                  </span>
+                </div>
               </button>
-            </div>
-          </div>
-          <div class="today-list" id="today-list"></div>
 
-          <!-- 3. 我的课程包 -->
-          <div class="section-bar">
-            <div class="block-head"><span class="bar"></span>我的课程</div>
+              <!-- 我的课程 -->
+              <div class="mc-section-head">
+                <div class="block-head"><span class="bar"></span>我的课程</div>
+                <span class="mc-count" id="mc-course-count"></span>
+              </div>
+              <div class="class-tabs" id="mc-class-tabs"></div>
+              <div class="mc-course-list" id="mc-course-list"></div>
+            </div>
+
+            <!-- 右侧栏 -->
+            <aside class="mc-rail">
+              <button class="rail-shortcut" id="mc-affairs-btn" type="button">
+                <span>教务管理</span>
+                <span class="rail-shortcut-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+              </button>
+
+              <div class="rail-card">
+                <div class="block-head"><span class="bar"></span>今日课表</div>
+                <div class="today-list" id="today-list"></div>
+              </div>
+
+              <div class="rail-card">
+                <div class="rail-cal-head">
+                  <div class="block-head"><span class="bar"></span>课程日历</div>
+                  <div class="rail-cal-head-right">
+                    <span class="mini-cal-month" id="mini-cal-month"></span>
+                    <button class="rail-cal-more" id="course-calendar-btn" type="button">周课表</button>
+                  </div>
+                </div>
+                <div id="mini-cal"></div>
+                <p class="mini-cal-hint">红色日期表示当天有课程，点击查看周课表</p>
+              </div>
+            </aside>
+
           </div>
-          <div class="pkg-list" id="my-pkg-list"></div>
         </div>
 
         <!-- 课程日历视图 -->
@@ -807,6 +828,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=46"></script>
+<script src="js/app.js?v=47"></script>
 </body>
 </html>
