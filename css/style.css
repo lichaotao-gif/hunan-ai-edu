@@ -15,8 +15,8 @@
   --border: #E4ECEF;
   --danger: #EF5350;
 
-  --radius-lg: 20px;
-  --radius: 14px;
+  --radius-lg: 22px;
+  --radius: 16px;
   --radius-sm: 10px;
   --shadow-sm: 0 2px 8px rgba(20, 58, 64, 0.05);
   --shadow: 0 10px 30px rgba(20, 58, 64, 0.07);
@@ -342,10 +342,11 @@ ul { list-style: none; }
 .app-body {
   flex: 1; display: flex; overflow: hidden;
   background:
-    radial-gradient(760px 460px at 6% 2%, rgba(38, 158, 216, .12), transparent 58%),
-    radial-gradient(720px 520px at 100% 20%, rgba(139, 92, 246, .10), transparent 55%),
-    radial-gradient(680px 520px at 72% 108%, rgba(20, 184, 166, .10), transparent 55%),
-    radial-gradient(600px 420px at 40% 60%, rgba(245, 158, 11, .06), transparent 60%),
+    radial-gradient(720px 460px at 4% 0%, rgba(56, 189, 248, .22), transparent 58%),
+    radial-gradient(680px 500px at 100% 12%, rgba(167, 139, 250, .20), transparent 56%),
+    radial-gradient(620px 480px at 78% 104%, rgba(45, 212, 191, .18), transparent 55%),
+    radial-gradient(560px 420px at 26% 92%, rgba(244, 114, 182, .14), transparent 58%),
+    radial-gradient(520px 380px at 52% 44%, rgba(253, 186, 116, .10), transparent 62%),
     var(--bg);
 }
 .content { background: transparent; }
@@ -355,14 +356,16 @@ ul { list-style: none; }
   background: rgba(20, 58, 64, .32); z-index: 25;
 }
 
-/* sidebar（液态玻璃） */
+/* sidebar（悬浮玻璃面板） */
 .sidebar {
   width: 240px; flex-shrink: 0;
-  background: rgba(255, 255, 255, .58);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  backdrop-filter: blur(30px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, .6);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, .5);
+  margin: var(--sp-4) 0 var(--sp-4) var(--sp-4);
+  background: rgba(255, 255, 255, .82);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .85);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 14px 34px rgba(20, 58, 64, .09), inset 0 1px 0 rgba(255, 255, 255, .8);
   display: flex; flex-direction: column; padding: var(--sp-5) var(--sp-3);
 }
 .sidebar-profile {
@@ -382,7 +385,7 @@ ul { list-style: none; }
 .sidebar-profile .greet { font-size: 15px; font-weight: 700; color: var(--text-main); margin-top: var(--sp-1); }
 .sidebar-profile .role { font-size: 12.5px; color: var(--text-sub); }
 
-.menu { flex: 1; display: flex; flex-direction: column; gap: var(--sp-1); overflow-y: auto; }
+.menu { flex: 1; display: flex; flex-direction: column; gap: var(--sp-2); overflow-y: auto; }
 .menu::-webkit-scrollbar { width: 6px; }
 .menu::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -397,10 +400,10 @@ ul { list-style: none; }
   padding: 8px var(--sp-3); border-radius: var(--radius-sm);
   font-size: 14px; font-weight: 500; color: var(--text-mid);
   width: 100%; text-align: left;
-  /* 默认：淡玻璃按钮形态 */
-  background: rgba(255, 255, 255, .42);
-  border: 1px solid rgba(255, 255, 255, .55);
-  box-shadow: 0 2px 6px rgba(20, 58, 64, .05), inset 0 1px 0 rgba(255, 255, 255, .6);
+  /* 默认：浅白芯片形态（柔影浮起） */
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid rgba(228, 238, 244, .9);
+  box-shadow: 0 1px 3px rgba(20, 58, 64, .05);
   transition: background .2s, color .2s, box-shadow .2s, border-color .2s;
 }
 /* 彩色圆角图标块（iOS 风格） */
@@ -442,12 +445,19 @@ ul { list-style: none; }
 .submenu.open { display: flex; }
 .submenu .menu-item { font-size: 13.5px; padding: 9px var(--sp-3); }
 
-.sidebar-help { border-top: 1px solid var(--border); padding-top: var(--sp-3); margin-top: var(--sp-3); }
+.sidebar-help { padding-top: var(--sp-3); margin-top: var(--sp-3); }
 
 /* content */
-.content { flex: 1; overflow-y: auto; padding: var(--sp-8); }
+.content { flex: 1; overflow-y: auto; padding: var(--sp-8) var(--sp-8) var(--sp-4); display: flex; flex-direction: column; }
 .content-section { display: none; }
 .content-section.active { display: block; animation: fade .25s ease; }
+/* 双师AI课 / 学科教研：内容面板拉伸至底部，与左侧菜单底边对齐 */
+#sec-dual-teacher.content-section.active,
+#sec-subject-research.content-section.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#sec-dual-teacher > .subview.active,
+#sec-subject-research > #research-list.subview.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#sec-dual-teacher #dt-list .page-panel,
+#sec-subject-research #research-list .page-panel { flex: 1; margin-bottom: 0; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 .page-head { margin-bottom: var(--sp-6); }
@@ -473,21 +483,31 @@ ul { list-style: none; }
   position: relative; display: flex; align-items: stretch; width: 100%; min-height: 210px; text-align: left;
   border-radius: var(--radius); overflow: hidden; margin-bottom: var(--sp-8);
   background:
-    linear-gradient(90deg, rgba(12, 76, 118, .68) 0%, rgba(22, 133, 199, .48) 42%, rgba(22, 133, 199, .08) 72%),
+    linear-gradient(100deg, rgba(79, 70, 229, .72) 0%, rgba(14, 165, 233, .52) 34%, rgba(45, 212, 191, .30) 58%, rgba(236, 72, 153, .16) 78%, transparent 92%),
     url("../assets/img/dual-teacher-banner-bg.png") center / cover no-repeat,
     linear-gradient(120deg, var(--primary) 0%, #3FAFE4 70%, var(--accent) 130%);
   color: #fff; box-shadow: var(--shadow); transition: transform .18s, box-shadow .18s;
 }
 .dual-banner::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.03));
-  pointer-events: none;
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 90% at 12% 0%, rgba(255, 255, 255, .22), transparent 60%),
+    radial-gradient(50% 80% at 88% 100%, rgba(125, 211, 252, .20), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(0, 0, 0, .04));
 }
 .dual-banner:hover { transform: translateY(-2px); box-shadow: 0 16px 38px rgba(38, 158, 216, .28); }
 .dual-banner-text { position: relative; z-index: 1; flex: 1; padding: var(--sp-8); display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
 .dual-banner-text h2 { font-size: 24px; font-weight: 700; margin-top: var(--sp-1); }
 .dual-banner-text p { font-size: 13.5px; opacity: .92; line-height: 1.7; max-width: 460px; }
-.dual-banner-go { display: inline-flex; align-items: center; gap: 4px; margin-top: var(--sp-3); background: #fff; color: var(--primary-dark); font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 22px; }
+.dual-banner-go {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: var(--sp-3);
+  background: rgba(255, 255, 255, .88);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .9);
+  color: var(--primary-dark); font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 22px;
+  box-shadow: 0 6px 16px rgba(12, 46, 74, .18);
+}
 .dual-banner-go svg { width: 15px; height: 15px; }
 
 /* 我的课程：标题行 + 班级筛选 + 横向课程卡 */
@@ -520,27 +540,31 @@ ul { list-style: none; }
 
 /* 我的课程：液态玻璃面板 */
 .mc-panel {
-  background: rgba(255, 255, 255, .55);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, .7); border-radius: var(--radius);
+  background: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .85); border-radius: var(--radius);
   padding: var(--sp-6);
-  box-shadow: 0 12px 34px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .75);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 12px 30px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .8);
 }
 .mc-panel .mc-course-list { margin-bottom: 0; }
-.mc-panel .class-tab { background: rgba(255, 255, 255, .5); border-color: transparent; }
+.mc-panel .class-tab {
+  background: rgba(255, 255, 255, .62);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(150%);
+  border-color: rgba(255, 255, 255, .8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+}
 .mc-panel .class-tab:hover { background: rgba(234, 243, 250, .8); color: var(--primary-dark); }
 .mc-panel .class-tab.active { background: var(--primary-light); color: var(--primary-dark); }
 .mc-panel .class-tab-add { background: transparent; border: 1px dashed #A9D9F3; }
 .mc-panel .class-tab-add:hover { background: var(--primary-light); }
 /* 课程卡：半透明玻璃，hover 提亮浮起 */
 .mc-panel .mcc {
-  background: rgba(255, 255, 255, .5);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, .7); box-shadow: none;
+  background: rgba(255, 255, 255, .8);
+  border: 1px solid rgba(228, 238, 244, .9); box-shadow: 0 1px 3px rgba(20, 58, 64, .04);
 }
-.mc-panel .mcc:hover { background: rgba(255, 255, 255, .82); box-shadow: 0 12px 28px rgba(20, 58, 64, .12); }
+.mc-panel .mcc:hover { background: #fff; box-shadow: 0 12px 28px rgba(20, 58, 64, .12); }
 
 .mc-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
 .mc-section-head .block-head { margin-bottom: 0; }
@@ -576,10 +600,16 @@ ul { list-style: none; }
 .mcc-tags span { font-size: 12px; color: var(--text-sub); background: var(--bg); padding: 3px 10px; border-radius: 8px; }
 .mcc-enter {
   flex-shrink: 0; padding: 10px 20px; border-radius: 10px;
-  background: var(--primary); color: #fff;
-  font-size: 13.5px; font-weight: 700; transition: background .15s, transform .15s;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 55%), var(--primary);
+  border: 1px solid rgba(255, 255, 255, .35);
+  color: #fff; font-size: 13.5px; font-weight: 700;
+  box-shadow: 0 6px 14px rgba(38, 158, 216, .28), inset 0 1px 0 rgba(255, 255, 255, .45);
+  transition: background .15s, transform .15s, box-shadow .15s;
 }
-.mcc-enter:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.mcc-enter:hover {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, 0) 55%), var(--primary-dark);
+  transform: translateY(-1px); box-shadow: 0 10px 20px rgba(38, 158, 216, .34), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
 .mc-empty {
   padding: var(--sp-8); text-align: center; color: var(--text-sub); font-size: 13.5px;
   background: var(--bg-card); border: 1px dashed var(--border); border-radius: var(--radius); margin-bottom: var(--sp-8);
@@ -588,11 +618,11 @@ ul { list-style: none; }
 /* 右侧栏 */
 .mc-rail { display: flex; flex-direction: column; gap: var(--sp-5); }
 .rail-card {
-  background: rgba(255, 255, 255, .55);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, .7); border-radius: var(--radius); padding: var(--sp-5);
-  box-shadow: 0 12px 34px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .75);
+  background: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .85); border-radius: var(--radius); padding: var(--sp-5);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 12px 30px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .8);
 }
 .rail-card .block-head { margin-bottom: var(--sp-4); }
 .rail-card .today-list { margin-bottom: 0; }
@@ -695,38 +725,29 @@ ul { list-style: none; }
   background: linear-gradient(180deg, var(--primary-light), var(--bg) 38%);
 }
 .fullpage[hidden] { display: none; }
-.fullpage-head { display: flex; align-items: center; gap: var(--sp-4); padding: clamp(20px, 3vw, 36px) clamp(20px, 4vw, 48px) var(--sp-5); width: 100%; max-width: 1180px; margin: 0 auto; }
-.fullpage-back {
-  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: #fff; color: var(--primary-dark); box-shadow: var(--shadow-sm);
-  transition: background .15s, transform .15s;
-}
-.fullpage-back:hover { background: var(--primary-light); transform: translateX(-2px); }
-.fullpage-back svg { width: 24px; height: 24px; }
-.fullpage-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.fullpage-titles h1 { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; color: var(--text-main); }
-.fullpage-titles span { font-size: 13.5px; color: var(--text-sub); }
-.fullpage-body { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 48px) clamp(24px, 4vw, 48px); }
-/* 课时列表页：通栏（不收窄）、随页面宽度自适应 */
-#lesson-page .fullpage-head {
+/* 全屏页（课时列表 / 课时资源 / 备课）统一：顶栏通栏、标题一行、主题色返回键 */
+.fullpage-head {
+  display: flex; align-items: center; gap: var(--sp-4); width: 100%;
   max-width: none; margin: 0;
   padding: var(--sp-4) clamp(16px, 2.4vw, 32px);
 }
-/* 标题 + 副标题并成一行 */
-#lesson-page .fullpage-titles { flex-direction: row; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
-#lesson-page .fullpage-titles h1 { font-size: clamp(19px, 2vw, 23px); }
-/* 返回按钮：主题色醒目 */
-#lesson-page .fullpage-back {
-  width: 44px; height: 44px; border-radius: var(--radius-sm);
+.fullpage-back {
+  width: 44px; height: 44px; border-radius: var(--radius-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
   background: var(--primary); color: #fff;
   box-shadow: 0 6px 14px rgba(38, 158, 216, .30);
+  transition: background .15s, transform .15s;
 }
-#lesson-page .fullpage-back:hover { background: var(--primary-dark); transform: translateX(-2px); }
-#lesson-page .fullpage-body {
-  display: flex; flex-direction: column; max-width: none; margin: 0;
-  padding: 0 clamp(16px, 2.4vw, 32px) clamp(24px, 4vw, 48px);
+.fullpage-back:hover { background: var(--primary-dark); transform: translateX(-2px); }
+.fullpage-back svg { width: 24px; height: 24px; }
+.fullpage-titles { display: flex; flex-direction: row; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; min-width: 0; }
+.fullpage-titles h1 { font-size: clamp(19px, 2vw, 23px); font-weight: 800; color: var(--text-main); }
+.fullpage-titles span { font-size: 13.5px; color: var(--text-sub); }
+.fullpage-body {
+  flex: 1; width: 100%; max-width: none; margin: 0;
+  padding: var(--sp-5) clamp(16px, 2.4vw, 32px) clamp(24px, 4vw, 48px);
 }
+#lesson-page .fullpage-body { display: flex; flex-direction: column; }
 /* 单元内课时卡：随宽度增多列 */
 #lesson-page .lesson-unit-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
 
@@ -1880,10 +1901,10 @@ tbody tr:hover { background: #FAFCFD; }
 }
 /* 下拉面板 / 悬浮菜单：半透明白 + 高斯模糊 */
 .profile-pop, .fp-switch-menu, .dc-menu, .pkg-menu {
-  background: rgba(255, 255, 255, .80);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  backdrop-filter: blur(22px) saturate(180%);
-  border-color: rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .92);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  border-color: rgba(255, 255, 255, .7);
 }
 /* 全屏页顶部：吸顶玻璃条 */
 .fullpage-head {
@@ -1978,24 +1999,30 @@ body {
 .prep-sections, .prep-content, .stat-strip, .pkg-card, .drive-card,
 .video-card, .guide-card, .exp-card, .feature-card, .course-card,
 .intro-card, .lesson-card, .package-hero, .package-panel, .table-card,
-.mcc, .mc-empty, .today-empty, .book-modal {
-  background: rgba(255, 255, 255, .62);
-  -webkit-backdrop-filter: blur(26px) saturate(170%);
-  backdrop-filter: blur(26px) saturate(170%);
-  border-color: rgba(255, 255, 255, .65);
-  box-shadow: 0 10px 30px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .78);
+.mcc, .mc-empty, .today-empty, .book-modal, .school-banner, .lesson-unit {
+  background: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border-color: rgba(255, 255, 255, .85);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 12px 30px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .8);
 }
 
-/* 玻璃面板内的嵌套卡片：更透一档，悬停时“凝固”变实 */
+/* 玻璃面板内的嵌套卡片：独立毛玻璃块，悬停时“凝固”变实并浮起 */
 .page-panel .course-card, .page-panel .pkg-card, .page-panel .exp-card,
 .page-panel .video-card, .page-panel .guide-card, .mc-panel .mcc {
-  background: rgba(255, 255, 255, .48);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .70);
+  background: rgba(255, 255, 255, .62);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, .78);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 8px 22px rgba(20, 58, 64, .07), inset 0 1px 0 rgba(255, 255, 255, .8);
+  transition: background .2s, box-shadow .2s, transform .2s, border-color .2s;
 }
 .page-panel .course-card:hover, .page-panel .pkg-card:hover, .page-panel .exp-card:hover,
 .page-panel .video-card:hover, .page-panel .guide-card:hover, .mc-panel .mcc:hover {
-  background: rgba(255, 255, 255, .92);
-  box-shadow: 0 12px 30px rgba(20, 58, 64, .12);
+  background: rgba(255, 255, 255, .94);
+  border-color: rgba(255, 255, 255, .95);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(20, 58, 64, .14), inset 0 1px 0 rgba(255, 255, 255, .9);
 }
 .page-panel .class-tab, .mc-panel .class-tab { background: rgba(244, 248, 250, .70); }
 

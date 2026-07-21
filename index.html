@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=76">
+<title>湖南省中小学人工智能通识教育平台</title>
+<link rel="stylesheet" href="css/style.css?v=85">
 </head>
 <body>
 <div class="app-shell">
@@ -14,7 +14,7 @@
     <div class="logo-mark">
       <img class="logo-icon" src="assets/logo.svg?v=5" alt="平台标识">
       <div class="logo-text">
-        <span class="name">人工智能通识教育平台</span>
+        <span class="name">湖南省中小学人工智能通识教育平台</span>
       </div>
     </div>
     <div class="topbar-actions">
@@ -81,7 +81,7 @@
       </div>
 
       <div class="menu">
-        <button class="menu-item active" data-target="dual-teacher">
+        <button class="menu-item" data-target="dual-teacher">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
           <span>双师AI课</span>
         </button>
@@ -93,7 +93,7 @@
 
         <div class="menu-section-label">我的</div>
 
-        <button class="menu-item" data-target="my-courses">
+        <button class="menu-item active" data-target="my-courses">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span>我的课程</span>
         </button>
@@ -126,7 +126,7 @@
     <!-- 右侧内容 -->
     <main class="content">
 
-      <section class="content-section active" id="sec-dual-teacher">
+      <section class="content-section" id="sec-dual-teacher">
 
         <!-- 课程列表视图 -->
         <div class="subview active" id="dt-list">
@@ -240,7 +240,7 @@
 
       </section>
 
-      <section class="content-section" id="sec-my-courses">
+      <section class="content-section active" id="sec-my-courses">
 
         <!-- 主页视图：主列（双师入口 + 我的课程） + 右侧栏（教务管理 / 今日课表 / 课程日历） -->
         <div class="subview active" id="mc-home">
@@ -820,6 +820,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=54"></script>
+<script src="js/app.js?v=55"></script>
 </body>
 </html>
