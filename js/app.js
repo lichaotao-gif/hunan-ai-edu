@@ -81,7 +81,7 @@
 
   const courses = {
     spring: {
-      title: "人工智能 · 春季",
+      title: "人工智能 · 下册",
       desc: introText,
       coverImg: IMG + "ai-course-spring-redesign.png",
       lessons: [
@@ -94,7 +94,7 @@
       ],
     },
     autumn: {
-      title: "人工智能 · 秋季",
+      title: "人工智能 · 上册",
       desc: introText,
       coverImg: IMG + "ai-course-autumn-redesign.png",
       lessons: [
@@ -174,7 +174,7 @@
   function saveClasses() { localStorage.setItem(CLASS_KEY, JSON.stringify(classStore)); }
 
   let classStore = loadClasses();
-  let activeCourseKey = "spring";
+  let activeCourseKey = "autumn";
   let activeLessonName = "";
   let selectedClassId = classStore[0] && classStore[0].id;
 
@@ -433,6 +433,8 @@
   const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>';
   const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
   const ICON_QR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="14.5" x2="14" y2="21"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="17.5" y1="21" x2="21" y2="21"/></svg>';
+  const ICON_USERS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+  const ICON_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
@@ -547,6 +549,7 @@
     saveSchool(schoolSelection);
     renderSchoolBanner();
     renderProfileSchool();
+    if (typeof refreshMcClasses === "function") refreshMcClasses();
     closeSchoolModal();
     showToast("已绑定 " + schoolSelection);
   });
@@ -860,6 +863,8 @@
         saveClasses();
         renderCourseModal();
         renderClassTable();
+        if (typeof rebuildMyPackages === "function") rebuildMyPackages();
+        if (typeof refreshMcClasses === "function") refreshMcClasses();
         if (classroomPage && !classroomPage.hidden) renderClassroom();
         showToast("已删除课程");
       }, "确定移除");
@@ -889,6 +894,8 @@
     saveClasses();
     renderCourseModal();
     renderClassTable();
+    if (added > 0 && typeof rebuildMyPackages === "function") rebuildMyPackages();
+    if (added > 0 && typeof refreshMcClasses === "function") refreshMcClasses();
     if (classroomPage && !classroomPage.hidden) renderClassroom();
     showToast(added > 0 ? `已添加 ${added} 门课程` : "所选课程已存在");
   });
@@ -1152,29 +1159,34 @@
 
   // ===== 我的课程：课程包数据（由「班级管理」的真实班级/课程派生） =====
   function coverForPackage(name) {
-    const all = [...courses.spring.lessons, ...courses.autumn.lessons];
+    const all = [...courses.autumn.lessons, ...courses.spring.lessons];
     const found = all.find((l) => l.name === name);
     return found ? found.img : IMG + "ai-classroom-students.jpg";
   }
   function periodsForPackage(name) {
-    const all = [...courses.spring.lessons, ...courses.autumn.lessons];
+    const all = [...courses.autumn.lessons, ...courses.spring.lessons];
     const found = all.find((l) => l.name === name);
     return found ? found.periods : "10课时";
   }
 
   const myPackages = [];
-  classStore.forEach((cls) => {
-    (cls.courses || []).forEach((co) => {
-      myPackages.push({
-        cover: coverForPackage(co.package),
-        names: [co.package],
-        status: "未开始",
-        klass: cls.name,
-        classId: cls.id,
-        periods: periodsForPackage(co.package),
+  // 从 classStore 重建「我的课程」课程包（新增/删除课程后调用以保持同步）
+  function rebuildMyPackages() {
+    myPackages.length = 0;
+    classStore.forEach((cls) => {
+      (cls.courses || []).forEach((co) => {
+        myPackages.push({
+          cover: coverForPackage(co.package),
+          names: [co.package],
+          status: "未开始",
+          klass: cls.name,
+          classId: cls.id,
+          periods: periodsForPackage(co.package),
+        });
       });
     });
-  });
+  }
+  rebuildMyPackages();
 
   // ===== 我的AI实验：实验包与课程一一对应，无编辑/删除，可进入实验列表 =====
   // 由「我的课程」(myPackages) 派生：课程有什么，配套实验包就有什么
@@ -1512,7 +1524,7 @@
       ],
     },
     {
-      id: "ai-autumn", title: "人工智能 · 秋季", cover: IMG + "ai-course-autumn-redesign.png",
+      id: "ai-autumn", title: "人工智能 · 上册", cover: IMG + "ai-course-autumn-redesign.png",
       demo: [
         { cover: IMG + "robotics-kit.jpg", title: "机器人编程跨学科融合示范课", dur: "44:18", tag: "示范课", views: "297" },
         { cover: IMG + "online-lab-interface.jpg", title: "生成式AI创作课堂教学实录", dur: "36:09", tag: "示范课", views: "613" },
@@ -1691,21 +1703,38 @@
     cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
     users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10.5 13.5l3 3M15 12l-4.5 4.5L9 17l.5-1.5z"/></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
   };
 
   const guides = [
     {
-      id: "prepare", icon: "rocket", num: "准备工作",
-      title: "使用前准备：绑定学校 · 创建班级 · 添加课程",
-      summary: "首次使用按此流程完成基础设置，即可开始授课。",
-      intro: "首次登录后，请先完成「绑定学校 → 创建班级 → 添加课程」三步基础设置，之后才能正常排课与上课。",
+      id: "prepare", icon: "rocket", num: "第一步 · 准备",
+      title: "快速上手：绑定学校 · 创建班级 · 添加课程",
+      summary: "首次使用按此三步完成基础设置，即可开始授课。",
+      intro: "首次使用请依次完成「绑定学校 → 创建班级 → 添加课程」。「我的课程」会根据你的进度自动提示下一步，也可在此按引导逐步完成。",
       steps: [
-        { h: "绑定学校", p: "进入 <span class=\"path\">班级管理</span>，点击绑定学校，搜索并选择所在学校提交。审核通过后即可在该校下创建班级。" },
-        { h: "创建班级", p: "在 <span class=\"path\">班级管理</span> 点击「创建班级」，填写年级、班级名称与学生人数，保存后班级出现在列表中。" },
-        { h: "添加课程", p: "在班级所在行点击「添加」，从课程库中选择课程包（如人工智能·春季）加入该班级，即完成基础配置。" },
-        { h: "开始授课", p: "完成以上三步后，可在 <span class=\"path\">我的课程</span> 看到课程包，点击「双师AI课堂」即可进入课堂。" },
+        { h: "绑定学校", p: "首次进入 <span class=\"path\">我的课程</span> 或 <span class=\"path\">班级管理</span>，点击「绑定学校」，搜索并选择所在学校。" },
+        { h: "创建班级", p: "绑定学校后点击「创建班级」，选择行政班（年级 + 班级）或兴趣班（自定义名称），保存后班级即出现在列表中。" },
+        { h: "添加课程", p: "为班级添加课程包（如人工智能·四下）：可在 <span class=\"path\">我的课程</span> 空状态点「添加课程」，或在 <span class=\"path\">班级管理</span> 对应班级点「添加」。" },
+        { h: "排课（可选）", p: "在课程的「编辑授课计划」中开启并选择每周上课日，今日课表与课程日历会自动显示对应安排。" },
       ],
-      tip: "学校绑定需管理员审核，若长时间未通过可联系平台客服协助处理。",
+      tip: "「我的课程」会依据是否已绑定学校 / 是否有班级 / 班级是否有课程，自动给出下一步引导。",
+    },
+    {
+      id: "my-courses", icon: "book", num: "教学主页",
+      title: "认识「我的课程」首页",
+      summary: "集中查看班级、课程、今日课表与课程日历。",
+      intro: "「我的课程」是日常教学的主页，左侧按班级切换课程，右侧汇总今日课表与课程日历。",
+      steps: [
+        { h: "切换班级", p: "顶部班级 Tab 可在不同班级间切换，分别查看各班已添加的课程包；点末尾「＋ 创建班级」可新建班级。" },
+        { h: "进入课程", p: "点击课程卡片的「进入课程」，打开该课程的课时列表（按单元分组）。" },
+        { h: "今日课表", p: "右侧「今日课表」显示当天排课，点「进入」可直达对应课堂。" },
+        { h: "课程日历", p: "右侧「课程日历」用红点标出有课的日期，点击某天可查看该周课表。" },
+      ],
+      tip: "顶部「双师AI课堂」横幅可一键进入沉浸式课堂。",
     },
     {
       id: "dual-class", icon: "teacher", num: "上课",
@@ -1713,12 +1742,36 @@
       summary: "进入沉浸式课堂、切换AI虚拟老师与授课班级。",
       intro: "双师AI课堂由 AI 虚拟老师在线主讲、本校老师线下辅导。以下是开课的常用操作。",
       steps: [
-        { h: "进入课堂", p: "在 <span class=\"path\">我的课程</span> 顶部点击「双师AI课堂」横幅，或在课程包中点击进入，即可打开全屏沉浸式课堂。" },
+        { h: "进入课堂", p: "在 <span class=\"path\">我的课程</span> 顶部点击「双师AI课堂」横幅，即可打开全屏沉浸式课堂。" },
         { h: "选择授课班级", p: "课堂左上角点击「切换班级」，选择本节课要上课的班级。" },
         { h: "切换AI老师", p: "点击虚拟老师下方的名字（如「智雅」），可切换不同形象与风格的 AI 虚拟老师。" },
-        { h: "选择课程开始", p: "右侧「我的课程」列表显示各课程学习进度，点击对应课程封面即可开始本节课。" },
+        { h: "选择课程开始", p: "右侧课程列表显示各课程学习进度，点击对应课程封面即可开始本节课。" },
       ],
       tip: "退出课堂点击左上角返回按钮即可，学习进度会自动保存。",
+    },
+    {
+      id: "prepare-lesson", icon: "edit", num: "备课",
+      title: "课前备课",
+      summary: "查看每个课时的教学目标、重难点与各环节安排。",
+      intro: "每个课时都提供备课资料，帮助你在上课前熟悉教学目标、重难点与课堂各环节。",
+      steps: [
+        { h: "打开备课页", p: "在 <span class=\"path\">我的课程</span> 进入课程后，在课时卡片上点击「备课」。" },
+        { h: "按环节查看", p: "左侧可在「课程简介 / 指导手册 / 材料准备 / 新知讲解 / 互动体验 / 巩固练习 / 课程回顾」之间切换。" },
+        { h: "切换课时", p: "顶部标题处可下拉切换到其他课时，或用「上一课时 / 下一课时」按钮翻页。" },
+      ],
+      tip: "「课程简介」含教学目标与教学重难点，建议课前先浏览一遍。",
+    },
+    {
+      id: "resource", icon: "cloud", num: "资源",
+      title: "查看课时教学资源",
+      summary: "每个课时配套课件、教案、素材等，可在线预览与下载。",
+      intro: "每个课时都配有平台统一配置的教学资源（课件、教案、素材、练习等），在课时列表中即可查看。",
+      steps: [
+        { h: "打开课时列表", p: "在 <span class=\"path\">我的课程</span> 点击课程「进入课程」，打开课时列表。" },
+        { h: "查看课时资源", p: "在课时卡片上点击「资源」按钮，即可浏览该课时的全部资源，支持多级文件夹。" },
+        { h: "预览与下载", p: "文档、PDF、图片、视频可点「预览」在线查看；任意文件均可「下载」到本地。" },
+      ],
+      tip: "课时资源由平台统一配置与更新，无需自行上传。",
     },
     {
       id: "experiment", icon: "flask", num: "实验",
@@ -1728,45 +1781,59 @@
       steps: [
         { h: "浏览实验包", p: "进入 <span class=\"path\">AI实验室</span>，按课程包（如人工智能八下）查看其包含的全部实验。" },
         { h: "区分实验类型", p: "封面带「线下实验」标签的为线下实践活动；无标签的为线上互动实验。" },
-        { h: "在我的AI实验中管理", p: "已加入班级的实验包会出现在 <span class=\"path\">我的AI实验</span>，可查看实验数量与所属班级。" },
+        { h: "在我的AI实验中查看", p: "已加入班级的课程会自动生成配套实验包，出现在 <span class=\"path\">我的AI实验</span>，可进入查看线上 / 线下实验。" },
       ],
       tip: "线下实验建议提前准备好对应教具与材料，确保课堂顺利开展。",
     },
     {
-      id: "resource", icon: "cloud", num: "资源",
-      title: "查看课时教学资源",
-      summary: "每个课时配套课件、教案、素材等资源，可在线预览与下载。",
-      intro: "每个课时都配有平台统一配置的教学资源（课件、教案、素材、练习等），在课时列表中即可查看。",
+      id: "research", icon: "video", num: "教研",
+      title: "学科教研：示范课与教师培训",
+      summary: "按科目观看优秀课堂实录与教师培训视频。",
+      intro: "学科教研提供各科目的示范课与教师培训视频，供备课参考与专业提升。",
       steps: [
-        { h: "打开课时列表", p: "在 <span class=\"path\">我的课程</span> 点击课程「进入课程」，打开课时列表。" },
-        { h: "查看课时资源", p: "在课时卡片上点击「资源」按钮，即可浏览该课时的全部资源，支持多级文件夹。" },
-        { h: "预览与下载", p: "Office 文档、PDF、图片、视频可点「预览」在线查看；任意文件均可「下载」到本地。" },
+        { h: "选择科目", p: "进入 <span class=\"path\">学科教研</span>，点击科目卡片（如小学人工智能）进入。" },
+        { h: "观看示范课", p: "「示范课 / 课例」板块为优秀课堂教学实录，可用于观摩学习。" },
+        { h: "参加教师培训", p: "「教师培训」板块为教学法、实验安全等专题培训视频。" },
       ],
-      tip: "课时资源由运营后台统一配置与更新，无需自行上传。",
+      tip: "每个视频都标有时长与观看量，可按需选择学习。",
     },
     {
       id: "class", icon: "users", num: "班级",
       title: "班级与学生管理",
-      summary: "管理所授班级、学生名单与班级课程。",
-      intro: "在班级管理中可维护所有任教班级的学生名单，并为班级添加 / 调整课程。",
+      summary: "维护学校、班级、学生名单与班级课程。",
+      intro: "在 <span class=\"path\">班级管理</span> 可维护所有任教班级：绑定学校、增删班级、管理学生名单并为班级配置课程。",
       steps: [
-        { h: "查看班级", p: "进入 <span class=\"path\">班级管理</span>，列表展示各班级人数、班主任等信息。" },
-        { h: "为班级添加课程", p: "在班级所在行点击「添加」，选择课程包加入该班级。" },
-        { h: "管理课程", p: "在 <span class=\"path\">我的课程</span> 的课程包卡片上点击「···」，可编辑或删除已添加的课程。" },
+        { h: "绑定 / 修改学校", p: "顶部点「绑定学校」完成绑定；已绑定后可点「修改学校」更换。" },
+        { h: "创建 / 编辑班级", p: "点「创建班级」新增，或在班级行点「编辑班级」修改信息，「删除班级」移除。" },
+        { h: "导入学生", p: "在班级行点「导入学生」维护名单；点班级名旁的二维码可生成班级码供学生加入。" },
+        { h: "添加课程与排课", p: "在班级行点「添加」加入课程包；在课程的「编辑授课计划」中设置每周上课日。" },
       ],
       tip: "一个班级可添加多个不同年级的课程包，按实际教学安排灵活配置。",
     },
     {
-      id: "account", icon: "lock", num: "账号",
-      title: "登录与账号",
-      summary: "验证码登录、密码登录与忘记密码。",
-      intro: "平台支持验证码与密码两种登录方式，无需注册，验证手机号后自动创建账号。",
+      id: "data", icon: "chart", num: "数据",
+      title: "查看教学数据",
+      summary: "按班级或全部班级掌握课程与上课进度。",
+      intro: "「我的数据」汇总各班级的课程与上课进度，便于掌握整体教学情况。",
       steps: [
-        { h: "验证码登录", p: "输入手机号，获取并填写 6 位验证码即可登录；未注册的手机号将自动创建账号。" },
-        { h: "密码登录", p: "切换到「密码登录」标签，输入账号 / 手机号与密码登录。" },
-        { h: "忘记密码", p: "在密码登录页点击「忘记密码？」，通过手机号验证后设置新密码。" },
+        { h: "选择范围", p: "进入 <span class=\"path\">我的数据</span>，顶部可在「全部班级」与某个具体班级之间切换。" },
+        { h: "查看总览", p: "「全部班级」下展示班级数量、课程总数、总 / 已上课时、平均上课率与班级排名。" },
+        { h: "查看班级明细", p: "选择某个班级后，可查看该班课程数量、上课率、首次上课时间与逐课时进度。" },
       ],
-      tip: "若忘记账号或无法接收验证码，请联系学校管理员或平台客服协助。",
+      tip: "数据会随上课与排课进度自动更新。",
+    },
+    {
+      id: "account", icon: "lock", num: "账号",
+      title: "账号与个人中心",
+      summary: "登录方式、找回密码与个人信息管理。",
+      intro: "平台支持验证码与密码两种登录方式，无需注册；登录后可在个人中心管理账号信息。",
+      steps: [
+        { h: "登录", p: "输入手机号获取并填写 6 位验证码登录，未注册手机号将自动创建账号；也可切「密码登录」。" },
+        { h: "忘记密码", p: "在密码登录页点击「忘记密码？」，通过手机号验证后设置新密码。" },
+        { h: "个人中心", p: "点击右上角头像打开个人中心，可修改姓名、头像、手机号、密码，或切换所属学校。" },
+        { h: "退出登录", p: "在个人中心底部点击「退出登录」即可安全退出。" },
+      ],
+      tip: "若无法接收验证码或忘记账号，请联系学校管理员或平台客服协助。",
     },
   ];
 
@@ -1899,12 +1966,29 @@
 
   function renderMcClassTabs() {
     if (!mcClassTabsEl) return;
+    // 没有班级时隐藏班级筛选行，由课程区的引导卡片负责绑定学校 / 创建班级
+    if (classStore.length === 0) {
+      mcClassTabsEl.hidden = true;
+      mcClassTabsEl.innerHTML = "";
+      return;
+    }
+    mcClassTabsEl.hidden = false;
     mcClassTabsEl.innerHTML = classStore.map((cls) =>
       `<button class="class-tab${cls.id === mcActiveClassId ? " active" : ""}" data-class-id="${cls.id}" type="button">${esc(cls.name)}</button>`
     ).join("") +
       `<button class="class-tab class-tab-add" id="mc-create-class" type="button" title="创建班级">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>创建班级
       </button>`;
+  }
+
+  // 引导空状态卡片：图标 + 标题 + 说明 + 主按钮
+  function mcGuideHTML(o) {
+    return `<div class="mc-empty"><div class="mc-guide">
+      <div class="empty-icon">${o.icon}</div>
+      <h3>${o.title}</h3>
+      <p>${o.desc}</p>
+      <button class="primary-action" data-mc-guide="${o.action}" type="button">${ICON_PLUS}${o.btnText}</button>
+    </div></div>`;
   }
 
   // 供创建/删除班级后同步「我的课程」的班级 Tab 与课程列表
@@ -1918,10 +2002,35 @@
 
   function renderMcCourseList() {
     if (!mcCourseListEl) return;
+    // 场景一：没有任何班级 → 引导绑定学校 / 创建班级
+    if (classStore.length === 0) {
+      if (mcCourseCountEl) mcCourseCountEl.textContent = "";
+      const school = loadSchool();
+      if (!school) {
+        mcCourseListEl.innerHTML = mcGuideHTML({
+          icon: ICON_SCHOOL, action: "bind", btnText: "绑定学校",
+          title: "先绑定所在学校",
+          desc: "绑定学校后即可创建班级、为班级添加课程，开始排课与上课。",
+        });
+      } else {
+        mcCourseListEl.innerHTML = mcGuideHTML({
+          icon: ICON_USERS, action: "create", btnText: "创建班级",
+          title: "创建你的第一个班级",
+          desc: `已绑定「${esc(school)}」，现在创建班级并为它添加课程。`,
+        });
+      }
+      return;
+    }
     const list = myPackages.filter((p) => p.classId === mcActiveClassId);
     if (mcCourseCountEl) mcCourseCountEl.textContent = `当前班级共 ${list.length} 门课程`;
+    // 场景二：班级无课程 → 引导为该班级添加课程
     if (!list.length) {
-      mcCourseListEl.innerHTML = '<div class="mc-empty">该班级暂无课程，可前往「班级管理」为其添加课程包</div>';
+      const cls = classStore.find((c) => c.id === mcActiveClassId);
+      mcCourseListEl.innerHTML = mcGuideHTML({
+        icon: ICON_BOOK, action: "addcourse", btnText: "添加课程",
+        title: "该班级还没有课程",
+        desc: `为「${esc(cls ? cls.name : "该班级")}」添加课程包，即可开始排课与上课。`,
+      });
       return;
     }
     mcCourseListEl.innerHTML = list.map((p) => {
@@ -1954,6 +2063,14 @@
   }
   if (mcCourseListEl) {
     mcCourseListEl.addEventListener("click", (e) => {
+      const guide = e.target.closest("[data-mc-guide]");
+      if (guide) {
+        const act = guide.dataset.mcGuide;
+        if (act === "bind") openSchoolModal();
+        else if (act === "create") openClassForm();
+        else if (act === "addcourse" && mcActiveClassId) openCourseModal(mcActiveClassId);
+        return;
+      }
       const card = e.target.closest("[data-pkg-idx]");
       if (card) openMcLessons(myPackages[parseInt(card.dataset.pkgIdx, 10)]);
     });
