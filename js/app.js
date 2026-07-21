@@ -1554,31 +1554,30 @@
   });
   document.getElementById("research-back").addEventListener("click", showResearchList);
 
-  // ===== 数字资源：教学资源云盘 =====
-  const driveRoot = {
-    name: "全部资源",
-    children: [
-      { type: "folder", name: "一年级教案", children: [
-        { type: "file", name: "认识人工智能-教学设计.docx", ext: "docx", size: "1.8 MB", date: "2024-06-18" },
-        { type: "file", name: "第一课课件.pptx", ext: "pptx", size: "5.2 MB", date: "2024-06-18" },
-      ] },
-      { type: "folder", name: "课件素材", children: [
-        { type: "file", name: "机器人插图.png", ext: "png", size: "820 KB", date: "2024-06-15" },
-        { type: "file", name: "课堂演示动画.mp4", ext: "mp4", size: "48 MB", date: "2024-06-12" },
-      ] },
-      { type: "folder", name: "试题与作业", children: [
-        { type: "file", name: "单元测试卷.pdf", ext: "pdf", size: "640 KB", date: "2024-06-10" },
-        { type: "file", name: "成绩统计.xlsx", ext: "xlsx", size: "210 KB", date: "2024-06-10" },
-      ] },
-      { type: "file", name: "认识人工智能.pptx", ext: "pptx", size: "6.4 MB", date: "2024-06-20" },
-      { type: "file", name: "图像识别教学设计.docx", ext: "docx", size: "2.1 MB", date: "2024-06-19" },
-      { type: "file", name: "班级成绩统计表.xlsx", ext: "xlsx", size: "186 KB", date: "2024-06-19" },
-      { type: "file", name: "AI伦理讨论资料.pdf", ext: "pdf", size: "1.1 MB", date: "2024-06-17" },
-      { type: "file", name: "课堂实录.mp4", ext: "mp4", size: "126 MB", date: "2024-06-16" },
-      { type: "file", name: "机器人课堂照片.jpg", ext: "jpg", size: "2.4 MB", date: "2024-06-14" },
-      { type: "file", name: "教具清单.txt", ext: "txt", size: "3 KB", date: "2024-06-13" },
-    ],
-  };
+  // ===== 课时资源（原数字资源云盘，移入课时内；内容由运营后台配置，仅浏览） =====
+  function buildLessonResources(no, name) {
+    return {
+      name: "全部资源",
+      children: [
+        { type: "folder", name: "课件", children: [
+          { type: "file", name: `${name}-授课课件.pptx`, ext: "pptx", size: "5.2 MB", date: "2024-06-18" },
+          { type: "file", name: "互动演示动画.mp4", ext: "mp4", size: "48 MB", date: "2024-06-12" },
+        ] },
+        { type: "folder", name: "教案与学案", children: [
+          { type: "file", name: `${name}-教学设计.docx`, ext: "docx", size: "1.8 MB", date: "2024-06-18" },
+          { type: "file", name: "学生活动学案.pdf", ext: "pdf", size: "860 KB", date: "2024-06-16" },
+        ] },
+        { type: "folder", name: "素材与练习", children: [
+          { type: "file", name: "配图素材.png", ext: "png", size: "820 KB", date: "2024-06-15" },
+          { type: "file", name: "随堂练习.pdf", ext: "pdf", size: "640 KB", date: "2024-06-10" },
+          { type: "file", name: "拓展阅读资料.docx", ext: "docx", size: "1.2 MB", date: "2024-06-09" },
+        ] },
+        { type: "file", name: `${name}-课堂实录.mp4`, ext: "mp4", size: "126 MB", date: "2024-06-16" },
+        { type: "file", name: "教具清单.txt", ext: "txt", size: "3 KB", date: "2024-06-13" },
+      ],
+    };
+  }
+  let driveRoot = buildLessonResources(1, "认识人工智能");
 
   const fileIcons = {
     folder: { cls: "folder", svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>' },
@@ -1603,7 +1602,8 @@
   function renderDrive() {
     const current = drivePath[drivePath.length - 1];
 
-    breadcrumbEl.innerHTML = drivePath.map((f, i) => {
+    // 根目录不显示面包屑，进入子文件夹后才出现（根节点为「全部资源」）
+    breadcrumbEl.innerHTML = drivePath.length === 1 ? "" : drivePath.map((f, i) => {
       const isLast = i === drivePath.length - 1;
       const cls = isLast ? "crumb current" : "crumb link";
       const node = `<span class="${cls}" data-depth="${i}">${f.name}</span>`;
@@ -1644,8 +1644,24 @@
     }).join("");
   }
 
-  if (driveListEl) {
+  const resourcePage = document.getElementById("resource-page");
+
+  function openLessonRes(no, name) {
+    driveRoot = buildLessonResources(no, name);
+    drivePath = [driveRoot];
+    document.getElementById("resource-page-title").textContent = `第${no}课时 · ${name}`;
+    document.getElementById("resource-page-sub").textContent = "";
     renderDrive();
+    resourcePage.hidden = false;
+    resourcePage.scrollTop = 0;
+    document.body.classList.add("modal-open");
+  }
+  function closeLessonRes() {
+    resourcePage.hidden = true;
+    if (lessonPage && lessonPage.hidden) document.body.classList.remove("modal-open");
+  }
+
+  if (driveListEl) {
     driveListEl.addEventListener("click", (e) => {
       const folderRow = e.target.closest("[data-folder]");
       const actBtn = e.target.closest("[data-act]");
@@ -1663,8 +1679,8 @@
       const crumb = e.target.closest(".crumb.link");
       if (crumb) { drivePath = drivePath.slice(0, Number(crumb.dataset.depth) + 1); renderDrive(); }
     });
-    document.getElementById("new-folder-btn").addEventListener("click", () => showToast("新建文件夹（开发中）"));
-    document.getElementById("upload-btn").addEventListener("click", () => showToast("上传文件（开发中）"));
+    document.getElementById("resource-page-back").addEventListener("click", closeLessonRes);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !resourcePage.hidden) closeLessonRes(); });
   }
 
   // ===== 帮助指南 =====
@@ -1718,15 +1734,15 @@
     },
     {
       id: "resource", icon: "cloud", num: "资源",
-      title: "管理教学数字资源（云盘）",
-      summary: "新建文件夹、上传任意格式文件、在线预览与下载。",
-      intro: "数字资源是教学资源云盘，可按文件夹分类管理课件、试题、图片、视频等任意格式文件。",
+      title: "查看课时教学资源",
+      summary: "每个课时配套课件、教案、素材等资源，可在线预览与下载。",
+      intro: "每个课时都配有平台统一配置的教学资源（课件、教案、素材、练习等），在课时列表中即可查看。",
       steps: [
-        { h: "新建文件夹", p: "在 <span class=\"path\">数字资源</span> 点击「新建文件夹」，按学段或用途分类整理资源。" },
-        { h: "上传文件", p: "点击「上传文件」，支持 Word、PPT、Excel、PDF、图片、视频等任意格式。" },
+        { h: "打开课时列表", p: "在 <span class=\"path\">我的课程</span> 点击课程「进入课程」，打开课时列表。" },
+        { h: "查看课时资源", p: "在课时卡片上点击「资源」按钮，即可浏览该课时的全部资源，支持多级文件夹。" },
         { h: "预览与下载", p: "Office 文档、PDF、图片、视频可点「预览」在线查看；任意文件均可「下载」到本地。" },
       ],
-      tip: "建议为每个年级或单元单独建文件夹，方便上课时快速调取资源。",
+      tip: "课时资源由运营后台统一配置与更新，无需自行上传。",
     },
     {
       id: "class", icon: "users", num: "班级",
@@ -1943,13 +1959,6 @@
     });
   }
 
-  const mcAffairsBtn = document.getElementById("mc-affairs-btn");
-  if (mcAffairsBtn) {
-    mcAffairsBtn.addEventListener("click", () => {
-      const target = document.querySelector('.menu-item[data-target="class-management"]');
-      if (target) target.click();
-    });
-  }
 
   // 右侧迷你月历：标红当天有课的日期，点击某天跳转到对应周的课程日历
   function renderMiniCal() {
@@ -1994,7 +2003,20 @@
   const lessonRail = document.getElementById("mc-lessons-rail");
   const lessonPkgSwitch = document.getElementById("lesson-pkg-switch");
   const lessonPkgMenu = document.getElementById("lesson-pkg-menu");
-  const MC_LESSON_POOL = ["认识人工智能", "数据的奥秘", "图像识别初体验", "让机器听懂你", "智能小管家", "算法闯关", "机器学习入门", "人脸识别探秘", "语音助手小达人", "综合创作项目"];
+  const MC_LESSON_POOL = ["认识人工智能", "数据的奥秘", "图像识别初体验", "让机器听懂你", "智能小管家", "算法闯关", "机器学习入门", "人脸识别探秘", "语音助手小达人", "综合创作项目", "神经网络初探", "智能出行", "AI与艺术创作", "聊天机器人工坊", "智慧农场", "无人驾驶体验", "AI伦理小课堂", "期末成果展示"];
+  // 课时封面：每课时一张，避免整片重复
+  const MC_LESSON_COVERS = [
+    "assets/img/ai-classroom-students.jpg",
+    "assets/img/ai-app-modules.jpg",
+    "assets/img/computer-vision-experiment.jpg",
+    "assets/img/online-lab-interface.jpg",
+    "assets/img/robotics-kit.jpg",
+    "assets/img/python-coding.jpg",
+    "assets/img/machine-learning-classroom.jpg",
+    "assets/img/realistic-ai-gallery-course.jpg",
+    "assets/img/pbl-teaching.jpg",
+    "assets/img/realistic-ai-ocean-lab.jpg",
+  ];
   const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg>';
   let mcCurrentPkg = null;
 
@@ -2008,17 +2030,32 @@
       `<button class="fp-switch-opt${p === pkg ? " active" : ""}" data-pkgopt="${i}" type="button">${esc(p.names[0])}</button>`
     ).join("");
     const taughtUpTo = 1; // 演示：已上到第 1 课时
-    lessonRail.innerHTML = MC_LESSON_POOL.map((name, i) => {
-      const no = i + 1;
+    // 单元分组：标题 + 覆盖的课时范围
+    const MC_UNITS = [
+      { title: "第1-2单元 · 走进人工智能", from: 1, to: 3 },
+      { title: "第3-4单元 · 感知与识别", from: 4, to: 7 },
+      { title: "第5-6单元 · 智能应用与创作", from: 8, to: 10 },
+      { title: "第7-8单元 · 机器如何思考", from: 11, to: 13 },
+      { title: "第9-10单元 · AI与生活", from: 14, to: 16 },
+      { title: "第11-12单元 · 伦理与展望", from: 17, to: 18 },
+    ];
+    function lessonCard(name, no) {
       const progress = no === taughtUpTo ? `<div class="lrc-progress">${ICON_UP}上到这里</div>` : '<div class="lrc-progress"></div>';
       return `<div class="lesson-rail-card">
-        <div class="lrc-cover"><img src="${pkg.cover}" alt="${esc(name)}"><span class="lrc-num">${no}</span></div>
+        <div class="lrc-cover"><img src="${MC_LESSON_COVERS[(no - 1) % MC_LESSON_COVERS.length]}" alt="${esc(name)}"><span class="lrc-num">${no}</span></div>
         <h4 class="lrc-name">${esc(name)}</h4>
-        <div class="lrc-actions"><button class="lrc-prep" data-prep="${no}" type="button">备课</button><button class="lrc-teach" data-teach="${no}" type="button">上课</button></div>
+        <div class="lrc-actions"><button class="lrc-res" data-res="${no}" type="button">资源</button><button class="lrc-prep" data-prep="${no}" type="button">备课</button><button class="lrc-teach" data-teach="${no}" type="button">上课</button></div>
         ${progress}
       </div>`;
+    }
+    lessonRail.innerHTML = MC_UNITS.map((u) => {
+      const cards = MC_LESSON_POOL.slice(u.from - 1, u.to)
+        .map((name, i) => lessonCard(name, u.from + i)).join("");
+      return `<div class="lesson-unit">
+        <div class="lesson-unit-head"><span class="lu-title">${u.title}</span><span class="lu-range">第${u.from}-${u.to}课时</span></div>
+        <div class="lesson-unit-grid">${cards}</div>
+      </div>`;
     }).join("");
-    lessonRail.scrollLeft = 0;
     lessonPage.hidden = false;
     lessonPage.scrollTop = 0;
     document.body.classList.add("modal-open");
@@ -2030,14 +2067,17 @@
 
   if (lessonRail) {
     lessonRail.addEventListener("click", (e) => {
+      const res = e.target.closest("[data-res]");
       const prep = e.target.closest("[data-prep]");
       const teach = e.target.closest("[data-teach]");
-      if (prep) openPrep(parseInt(prep.dataset.prep, 10));
+      if (res) {
+        const no = parseInt(res.dataset.res, 10);
+        openLessonRes(no, MC_LESSON_POOL[no - 1]);
+      }
+      else if (prep) openPrep(parseInt(prep.dataset.prep, 10));
       else if (teach) showToast(`上课 · 第${teach.dataset.teach}课时（开发中）`);
     });
     document.getElementById("lesson-page-back").addEventListener("click", closeMcLessons);
-    document.getElementById("rail-prev").addEventListener("click", () => lessonRail.scrollBy({ left: -320, behavior: "smooth" }));
-    document.getElementById("rail-next").addEventListener("click", () => lessonRail.scrollBy({ left: 320, behavior: "smooth" }));
     // 课程包切换
     document.getElementById("lesson-pkg-btn").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -2055,7 +2095,7 @@
     document.addEventListener("click", (e) => {
       if (!lessonPkgSwitch.contains(e.target)) { lessonPkgMenu.hidden = true; lessonPkgSwitch.classList.remove("open"); }
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden && document.getElementById("prep-page").hidden) closeMcLessons(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden && document.getElementById("prep-page").hidden && resourcePage.hidden) closeMcLessons(); });
   }
 
   // 备课：全屏页面

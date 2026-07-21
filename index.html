@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=64">
+<link rel="stylesheet" href="css/style.css?v=76">
 </head>
 <body>
 <div class="app-shell">
@@ -15,7 +15,6 @@
       <img class="logo-icon" src="assets/logo.svg?v=5" alt="平台标识">
       <div class="logo-text">
         <span class="name">人工智能通识教育平台</span>
-        <span class="sub">Hunan Edu · AI</span>
       </div>
     </div>
     <div class="topbar-actions">
@@ -105,10 +104,6 @@
         <button class="menu-item" data-target="subject-research">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <span>学科教研</span>
-        </button>
-        <button class="menu-item" data-target="digital-resources">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <span>数字资源</span>
         </button>
         <button class="menu-item" data-target="my-data">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -277,13 +272,6 @@
 
             <!-- 右侧栏 -->
             <aside class="mc-rail">
-              <button class="rail-shortcut" id="mc-affairs-btn" type="button">
-                <span>教务管理</span>
-                <span class="rail-shortcut-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </span>
-              </button>
-
               <div class="rail-card">
                 <div class="block-head"><span class="bar"></span>今日课表</div>
                 <div class="today-list" id="today-list"></div>
@@ -395,36 +383,6 @@
 
       </section>
 
-      <section class="content-section" id="sec-digital-resources">
-        <div class="page-head">
-          <h1 class="page-title">数字资源</h1>
-          <p class="page-sub">教学资源云盘 · 支持任意格式文件，可在线预览与下载</p>
-        </div>
-
-        <div class="drive-toolbar">
-          <nav class="drive-breadcrumb" id="drive-breadcrumb"></nav>
-          <div class="drive-actions">
-            <button class="ghost-btn" id="new-folder-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-              新建文件夹
-            </button>
-            <button class="solid-btn" id="upload-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              上传文件
-            </button>
-          </div>
-        </div>
-
-        <div class="drive-card">
-          <div class="drive-head">
-            <span class="col-name">名称</span>
-            <span class="col-size">大小</span>
-            <span class="col-date">修改时间</span>
-            <span class="col-act">操作</span>
-          </div>
-          <div id="drive-list"></div>
-        </div>
-      </section>
 
       <section class="content-section" id="sec-my-data">
         <div class="page-head">
@@ -755,16 +713,33 @@
     </div>
   </div>
   <div class="fullpage-body">
-    <div class="lesson-rail-wrap">
-      <div class="lesson-rail" id="mc-lessons-rail"></div>
-      <div class="lesson-rail-nav">
-        <button id="rail-prev" type="button" aria-label="左滑">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button id="rail-next" type="button" aria-label="右滑">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+    <div class="lesson-flow" id="mc-lessons-rail"></div>
+  </div>
+</div>
+
+<!-- 课时资源：全屏页面（内容由运营后台配置，仅浏览/预览/下载） -->
+<div class="fullpage" id="resource-page" hidden>
+  <div class="fullpage-head">
+    <button class="fullpage-back" id="resource-page-back" type="button" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="fullpage-titles">
+      <h1 id="resource-page-title">课时资源</h1>
+      <span id="resource-page-sub"></span>
+    </div>
+  </div>
+  <div class="fullpage-body">
+    <div class="drive-toolbar">
+      <nav class="drive-breadcrumb" id="drive-breadcrumb"></nav>
+    </div>
+    <div class="drive-card">
+      <div class="drive-head">
+        <span class="col-name">名称</span>
+        <span class="col-size">大小</span>
+        <span class="col-date">更新时间</span>
+        <span class="col-act">操作</span>
       </div>
+      <div id="drive-list"></div>
     </div>
   </div>
 </div>
@@ -845,6 +820,6 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=49"></script>
+<script src="js/app.js?v=54"></script>
 </body>
 </html>
