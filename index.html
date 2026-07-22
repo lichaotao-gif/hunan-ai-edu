@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=90">
+<link rel="stylesheet" href="css/style.css?v=93">
 </head>
 <body>
 <div class="app-shell">
@@ -18,12 +18,30 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <button class="onboard-btn" id="onboard-btn" type="button" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>
+        <span>新手引导</span>
+      </button>
       <button class="icon-btn" id="refresh-btn" aria-label="刷新" title="刷新">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
-      <button class="icon-btn" id="settings-btn" aria-label="设置" title="设置">
+      <button class="icon-btn" id="settings-btn" aria-label="设置" title="设置" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
+
+      <!-- 设置下拉面板（含演示状态切换） -->
+      <div class="settings-pop" id="settings-pop" hidden>
+        <div class="sp-section-label">演示 · 数据状态</div>
+        <button class="sp-row" id="settings-empty" type="button">
+          <span class="sp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg></span>
+          <span class="sp-row-text"><b>体验新手状态</b><i>清空学校与班级，查看无数据引导</i></span>
+        </button>
+        <button class="sp-row" id="settings-demo" type="button">
+          <span class="sp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+          <span class="sp-row-text"><b>恢复演示数据</b><i>还原班级与课程示例</i></span>
+        </button>
+      </div>
+
       <span class="divider-v"></span>
       <button class="topbar-avatar" id="topbar-avatar" title="个人中心" aria-haspopup="true" aria-expanded="false">
         <span class="av" id="topbar-av">陈</span>
@@ -774,6 +792,68 @@
   </div>
 </div>
 
+<!-- 课时上课：片段式沉浸课堂 -->
+<div class="teach-page" id="teach-page" hidden>
+  <div class="teach-backdrop" id="teach-backdrop"></div>
+
+  <header class="teach-chrome teach-topbar" id="teach-topbar">
+    <button class="teach-glass-btn teach-back" id="teach-back" type="button" aria-label="返回课时列表">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>返回</span>
+    </button>
+    <div class="teach-heading">
+      <strong id="teach-lesson-title">第1课时 认识人工智能</strong>
+      <span id="teach-segment-title">课程导入</span>
+    </div>
+    <div class="teach-segments" id="teach-segments" aria-label="课堂片段进度"></div>
+  </header>
+
+  <main class="teach-content" id="teach-content" tabindex="-1"></main>
+
+  <aside class="teach-chrome teach-tools" id="teach-tools" aria-label="上课辅助工具">
+    <div class="teach-tools-main" id="teach-tools-main"></div>
+    <div class="teach-tools-more" id="teach-tools-more" hidden></div>
+    <button class="teach-tool teach-tool-toggle" id="teach-tools-toggle" type="button" aria-expanded="false" title="展开更多工具">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span>更多</span>
+    </button>
+    <span class="teach-tool-line"></span>
+    <button class="teach-tool" id="teach-help" type="button" title="帮助">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>帮助</span>
+    </button>
+  </aside>
+
+  <div class="teach-chrome teach-player" id="teach-player">
+    <button class="teach-play" id="teach-play" type="button" aria-label="播放视频">
+      <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+    </button>
+    <div class="teach-time"><span id="teach-time-now">00:00</span><span>/</span><span id="teach-time-total">03:20</span></div>
+    <div class="teach-video-progress"><span id="teach-video-progress"></span></div>
+    <button class="teach-sound" id="teach-sound" type="button" aria-label="静音" title="静音">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M18 6.5a8 8 0 0 1 0 11"/></svg>
+    </button>
+    <button class="teach-screen" id="teach-screen" type="button" aria-label="全屏" title="全屏">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 3 3 3 3 8"/><polyline points="16 3 21 3 21 8"/><polyline points="8 21 3 21 3 16"/><polyline points="16 21 21 21 21 16"/></svg>
+    </button>
+  </div>
+
+  <nav class="teach-chrome teach-step-nav" aria-label="片段切换">
+    <button id="teach-prev" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>上一步</span>
+    </button>
+    <span class="teach-step-count" id="teach-step-count">1 / 7</span>
+    <button class="primary" id="teach-next" type="button">
+      <span>下一步</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </nav>
+
+  <div class="teach-hint" id="teach-hint">移动鼠标显示课堂控制</div>
+</div>
+
 <!-- 双师AI课堂：沉浸式全屏页面 -->
 <div class="fullpage classroom-page" id="classroom-page" hidden>
   <div class="cls-grid">
@@ -820,6 +900,27 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/app.js?v=58"></script>
+<!-- 新手引导弹窗（三步前置：绑定学校 / 创建班级 / 添加课程） -->
+<div class="modal-backdrop" id="onboard-modal" hidden>
+  <div class="onboard-dialog">
+    <button class="ob-close" id="ob-close" type="button" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="ob-hero">
+      <span class="ob-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>
+      </span>
+      <h2>欢迎使用，3 步开始您的第一堂课</h2>
+      <p id="ob-sub">完成以下设置即可排课与上课</p>
+      <div class="ob-progress"><span id="ob-bar"></span></div>
+    </div>
+    <div class="ob-steps" id="ob-steps"></div>
+    <div class="ob-foot">
+      <button class="ob-later" id="ob-later" type="button">稍后设置</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js?v=62"></script>
 </body>
 </html>

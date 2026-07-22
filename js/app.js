@@ -411,6 +411,8 @@
       selected.courses.push({ id: "co-" + Date.now(), package: activeLessonName, plan: { on: false, days: [] } });
       saveClasses();
       renderClassTable();
+      if (typeof refreshMcClasses === "function") refreshMcClasses();
+      if (typeof renderOnboard === "function") renderOnboard();
     }
     showToast(`已添加到${selected.name}`);
     closeClassModal();
@@ -550,6 +552,7 @@
     renderSchoolBanner();
     renderProfileSchool();
     if (typeof refreshMcClasses === "function") refreshMcClasses();
+    if (typeof renderOnboard === "function") renderOnboard();
     closeSchoolModal();
     showToast("已绑定 " + schoolSelection);
   });
@@ -656,6 +659,7 @@
     saveClasses();
     renderClassTable();
     if (typeof refreshMcClasses === "function") refreshMcClasses();
+    if (typeof renderOnboard === "function") renderOnboard();
     closeClassForm();
     showToast("班级已创建，请为班级添加课程");
     // 引导：创建后直接打开该班级的课程弹窗去选课程
@@ -1906,10 +1910,19 @@
     return d;
   }
 
+  // 是否已有可排课的数据（有班级且班级下有课程）
+  function hasScheduleData() {
+    return classStore.some((c) => Array.isArray(c.courses) && c.courses.length > 0);
+  }
+
   // 今日课表：取今天的排课，周末则用周一示例兜底
   function renderTodaySchedule() {
     const listEl = document.getElementById("today-list");
     if (!listEl) return;
+    if (!hasScheduleData()) {
+      listEl.innerHTML = '<div class="today-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>今日暂无排课</p></div>';
+      return;
+    }
     const now = new Date();
     const wd = now.getDay();
     const items = weekSchedule[wd] || weekSchedule[1]; // 周末用周一示例
@@ -1937,7 +1950,7 @@
     for (let i = 0; i < 5; i++) {
       const date = new Date(monday); date.setDate(monday.getDate() + i);
       const isToday = sameDay(date, today);
-      const items = weekSchedule[i + 1] || [];
+      const items = hasScheduleData() ? (weekSchedule[i + 1] || []) : [];
       const body = items.length
         ? items.map((it) => `<div class="cal-class"><b>${it.course}</b><span class="cc-klass">${it.klass}</span></div>`).join("")
         : '<div class="cal-empty">无课</div>';
@@ -1998,6 +2011,9 @@
     }
     renderMcClassTabs();
     renderMcCourseList();
+    if (typeof renderTodaySchedule === "function") renderTodaySchedule();
+    if (typeof renderMiniCal === "function") renderMiniCal();
+    if (typeof renderCalWeek === "function") renderCalWeek(calWeekOffset);
   }
 
   function renderMcCourseList() {
@@ -2094,7 +2110,7 @@
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
       const wd = date.getDay();
-      const hasClass = !!weekSchedule[wd];
+      const hasClass = hasScheduleData() && !!weekSchedule[wd];
       const isToday = d === now.getDate();
       const cls = ["mini-cal-day", isToday ? "today" : "", (hasClass && !isToday) ? "has-class" : ""].filter(Boolean).join(" ");
       html += `<button type="button" class="${cls}" data-date="${year}-${pad2(month + 1)}-${pad2(d)}">${d}</button>`;
@@ -2192,7 +2208,7 @@
         openLessonRes(no, MC_LESSON_POOL[no - 1]);
       }
       else if (prep) openPrep(parseInt(prep.dataset.prep, 10));
-      else if (teach) showToast(`上课 · 第${teach.dataset.teach}课时（开发中）`);
+      else if (teach) openTeach(parseInt(teach.dataset.teach, 10));
     });
     document.getElementById("lesson-page-back").addEventListener("click", closeMcLessons);
     // 课程包切换
@@ -2212,7 +2228,7 @@
     document.addEventListener("click", (e) => {
       if (!lessonPkgSwitch.contains(e.target)) { lessonPkgMenu.hidden = true; lessonPkgSwitch.classList.remove("open"); }
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden && document.getElementById("prep-page").hidden && resourcePage.hidden) closeMcLessons(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !lessonPage.hidden && document.getElementById("prep-page").hidden && document.getElementById("teach-page").hidden && resourcePage.hidden) closeMcLessons(); });
   }
 
   // 备课：全屏页面
@@ -2290,6 +2306,288 @@
       if (!prepLessonSwitch.contains(e.target)) { prepLessonMenu.hidden = true; prepLessonSwitch.classList.remove("open"); }
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !prepPage.hidden) closePrep(); });
+  }
+
+  // ===== 片段式双师AI课：沉浸视频、互动与课堂报告 =====
+  const teachPage = document.getElementById("teach-page");
+  const teachContent = document.getElementById("teach-content");
+  const teachSegmentsEl = document.getElementById("teach-segments");
+  const teachBackdrop = document.getElementById("teach-backdrop");
+  const teachPlayer = document.getElementById("teach-player");
+  const teachTools = document.getElementById("teach-tools");
+  const teachStepNav = document.querySelector(".teach-step-nav");
+  const teachToolsMain = document.getElementById("teach-tools-main");
+  const teachToolsMore = document.getElementById("teach-tools-more");
+  const teachToolsToggle = document.getElementById("teach-tools-toggle");
+  const TEACH_SEGMENTS = [
+    { type: "video", title: "课程导入", detail: "人工智能就在身边", duration: 200, cover: "assets/img/ai-classroom-students.jpg" },
+    { type: "quiz", title: "快速问答", detail: "判断生活中的人工智能", duration: 90 },
+    { type: "image", title: "图片观察", detail: "发现智能感知线索", duration: 120 },
+    { type: "video", title: "新知讲解", detail: "人工智能如何学习", duration: 320, cover: "assets/img/machine-learning-classroom.jpg" },
+    { type: "game", title: "算法闯关", detail: "给机器人排好指令", duration: 150 },
+    { type: "quiz", title: "巩固挑战", detail: "小组抢答", duration: 100 },
+    { type: "report", title: "课堂报告", detail: "本节课学习总结", duration: 0 },
+  ];
+  const TEACH_ICON = {
+    pk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4v6H5zM15 14h4v6h-4z"/><path d="M9 7h3a4 4 0 0 1 4 4v3M15 17h-3a4 4 0 0 1-4-4v-3"/></svg>',
+    ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="14" height="11" rx="4"/><path d="M12 3v4M8 12h.01M16 12h.01M9 15h6"/></svg>',
+    group: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5M15 15c3 0 5 1.5 5 4"/></svg>',
+    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z"/><path d="m14 7 3 3"/></svg>',
+    cheer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V5a2 2 0 0 1 4 0v5-7a2 2 0 0 1 4 0v7-5a2 2 0 0 1 4 0v9c0 4-3 7-7 7h-1c-3 0-5-1-7-4l-2-3a2 2 0 0 1 3-2l2 2"/></svg>',
+    timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>',
+    cast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M7 9a5 5 0 0 1 5 5M7 12a2 2 0 0 1 2 2"/></svg>',
+    ask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7M12 17h.01"/></svg>',
+  };
+  const TEACH_TOOLS = [
+    { key: "pk", label: "PK" }, { key: "ai", label: "AI教学" }, { key: "group", label: "分组PK" },
+    { key: "pen", label: "画笔" }, { key: "cheer", label: "喝彩" },
+    { key: "timer", label: "倒计时", more: true }, { key: "cast", label: "投屏", more: true }, { key: "ask", label: "抽问", more: true },
+  ];
+  let teachNo = 1;
+  let teachIndex = 0;
+  let teachCompleted = new Set();
+  let teachChromeTimer = null;
+  let teachPlayTimer = null;
+  let teachSeconds = 0;
+  let teachPlaying = false;
+  let teachRankTab = "group";
+
+  function toolButton(tool) {
+    return `<button class="teach-tool" type="button" data-teach-tool="${tool.key}" title="${tool.label}">${TEACH_ICON[tool.key]}<span>${tool.label}</span></button>`;
+  }
+  if (teachToolsMain) {
+    teachToolsMain.innerHTML = TEACH_TOOLS.filter((tool) => !tool.more).map(toolButton).join("");
+    teachToolsMore.innerHTML = TEACH_TOOLS.filter((tool) => tool.more).map(toolButton).join("");
+  }
+
+  function formatTeachTime(seconds) {
+    const value = Math.max(0, Math.floor(seconds));
+    return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
+  }
+
+  function renderTeachSegments() {
+    teachSegmentsEl.innerHTML = TEACH_SEGMENTS.map((segment, index) => {
+      const classes = ["teach-segment", segment.type === "video" ? "video" : "interaction", teachCompleted.has(index) ? "learned" : "", index === teachIndex ? "current" : ""].filter(Boolean).join(" ");
+      const state = teachCompleted.has(index) ? "已学" : "未学";
+      return `<button class="${classes}" style="--segment-flex:${segment.type === "video" ? 1.45 : 1}" type="button" data-teach-segment="${index}" aria-label="${index + 1}. ${segment.title}，${state}" aria-current="${index === teachIndex ? "step" : "false"}"><span class="teach-segment-tip">${segment.title} · ${state}</span></button>`;
+    }).join("");
+  }
+
+  function coinIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFC83D"/><circle cx="12" cy="12" r="7" fill="none" stroke="#D99A16" stroke-width="1.5"/><path d="M12 7.5v9M9.4 10c0-1 1-1.7 2.6-1.7s2.6.7 2.6 1.7-.9 1.4-2.6 1.7-2.6.8-2.6 1.8 1 1.7 2.6 1.7 2.6-.7 2.6-1.7" fill="none" stroke="#D99A16" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  }
+
+  function renderRankList(tab) {
+    const data = {
+      group: [["星河探索队", 1280], ["未来创造队", 1160], ["智慧先锋队", 980], ["数字梦想队", 860]],
+      lesson: [["未来创造队", 460], ["星河探索队", 420], ["数字梦想队", 380], ["智慧先锋队", 340]],
+      total: [["星河探索队", 9860], ["智慧先锋队", 9240], ["未来创造队", 8910], ["数字梦想队", 8350]],
+    }[tab];
+    const medalNames = ["金", "银", "铜"];
+    const medalClasses = ["gold", "silver", "bronze"];
+    return data.map((row, index) => `<div class="teach-rank-row"><span class="teach-medal ${medalClasses[index] || ""}">${medalNames[index] || index + 1}</span><span class="teach-rank-name">${row[0]}</span><span class="teach-rank-coins">${coinIcon()}${row[1]}</span></div>`).join("");
+  }
+
+  function renderTeachReport() {
+    return `<section class="teach-report">
+      <div class="teach-report-head"><div><h2>课堂总结报告</h2><p>第${teachNo}课时 · ${esc(lessonNameOf(teachNo))}</p></div><div class="teach-report-actions"><button type="button" data-report-back>返回课程</button><button class="primary" type="button" data-report-replay>再次学习</button></div></div>
+      <div class="teach-report-stats">
+        <div class="teach-report-stat"><span>课堂表现</span><strong>优秀</strong></div>
+        <div class="teach-report-stat"><span>累计获得缤果币</span><strong>1,280</strong></div>
+        <div class="teach-report-stat"><span>参与答题次数</span><strong>36 次</strong></div>
+        <div class="teach-report-stat"><span>平均答题正确率</span><strong>86%</strong></div>
+      </div>
+      <div class="teach-report-grid">
+        <article class="teach-report-card"><h3>本节课程收获</h3><div class="teach-gains"><div class="teach-gain"><i>1</i><span>能够识别生活中常见的人工智能应用，并说明它们解决的问题。</span></div><div class="teach-gain"><i>2</i><span>理解人工智能通过数据学习规律，再完成识别与判断的基本过程。</span></div><div class="teach-gain"><i>3</i><span>能用清晰、有序的指令完成一次简单的算法任务。</span></div></div></article>
+        <article class="teach-report-card"><h3>课堂排行</h3><div class="teach-rank-tabs"><button class="teach-rank-tab${teachRankTab === "group" ? " active" : ""}" data-rank-tab="group" type="button">分组排行</button><button class="teach-rank-tab${teachRankTab === "lesson" ? " active" : ""}" data-rank-tab="lesson" type="button">本节排行</button><button class="teach-rank-tab${teachRankTab === "total" ? " active" : ""}" data-rank-tab="total" type="button">总排行</button></div><div class="teach-rank-list" id="teach-rank-list">${renderRankList(teachRankTab)}</div></article>
+      </div>
+    </section>`;
+  }
+
+  function renderTeachInteractive(segment) {
+    if (segment.type === "quiz") {
+      const isFinalQuiz = teachIndex > 4;
+      const question = isFinalQuiz ? "要让机器人准确完成任务，哪一种指令更合适？" : "下面哪一项属于人工智能在生活中的应用？";
+      const options = isFinalQuiz ? ["帮我整理一下", "把红色积木从左到右排成一行", "做得更好看", "随便放一放"] : ["自动识别人脸解锁", "普通纸质直尺", "没有电池的橡皮", "手动铅笔刀"];
+      return `<section class="teach-interactive"><span class="teach-kicker">答题互动</span><h2>${question}</h2><p>请选择一个答案，教师端会同步显示班级作答结果。</p><div class="teach-quiz-options">${options.map((option, index) => `<button class="teach-answer" data-teach-answer="${index}" type="button"><span class="teach-answer-letter">${String.fromCharCode(65 + index)}</span><span>${option}</span></button>`).join("")}</div><div class="teach-answer-feedback" id="teach-answer-feedback"></div></section>`;
+    }
+    if (segment.type === "image") {
+      return `<section class="teach-interactive"><span class="teach-kicker">图片互动</span><h2>图中哪些信息能帮助机器识别课堂场景？</h2><p>点击右侧线索，和学生一起观察图像中的关键信息。</p><div class="teach-image-task"><img src="assets/img/computer-vision-experiment.jpg" alt="学生进行计算机视觉实验的课堂场景"><div class="teach-image-points"><button class="teach-image-point" type="button">人物与面部特征</button><button class="teach-image-point" type="button">桌面物品与设备</button><button class="teach-image-point" type="button">空间位置与动作</button></div></div></section>`;
+    }
+    return `<section class="teach-interactive"><span class="teach-kicker">游戏互动</span><h2>给机器人排出正确的执行顺序</h2><p>依次点击指令，完成“找到蓝色积木并放入收纳盒”的任务。</p><div class="teach-sort"><button class="teach-sort-item" type="button">识别蓝色积木</button><button class="teach-sort-item" type="button">移动到积木旁</button><button class="teach-sort-item" type="button">抓取积木</button><button class="teach-sort-item" type="button">放入收纳盒</button></div><div class="teach-game-result">已选择 0 / 4 步，按执行顺序点击即可。</div></section>`;
+  }
+
+  function stopTeachVideo() {
+    teachPlaying = false;
+    teachPage.classList.remove("is-playing");
+    if (teachPlayTimer) { clearInterval(teachPlayTimer); teachPlayTimer = null; }
+  }
+
+  function updateTeachPlayer() {
+    const segment = TEACH_SEGMENTS[teachIndex];
+    document.getElementById("teach-time-now").textContent = formatTeachTime(teachSeconds);
+    document.getElementById("teach-time-total").textContent = formatTeachTime(segment.duration);
+    document.getElementById("teach-video-progress").style.width = `${segment.duration ? Math.min(100, teachSeconds / segment.duration * 100) : 0}%`;
+  }
+
+  function showTeachChrome() {
+    if (!teachPage || teachPage.hidden) return;
+    teachPage.classList.remove("chrome-hidden");
+    if (teachChromeTimer) clearTimeout(teachChromeTimer);
+    if (TEACH_SEGMENTS[teachIndex].type === "video") {
+      teachChromeTimer = setTimeout(() => teachPage.classList.add("chrome-hidden"), 2400);
+    }
+  }
+
+  function renderTeach() {
+    const segment = TEACH_SEGMENTS[teachIndex];
+    stopTeachVideo();
+    teachSeconds = 0;
+    document.getElementById("teach-lesson-title").textContent = `第${teachNo}课时 ${lessonNameOf(teachNo)}`;
+    document.getElementById("teach-segment-title").textContent = `${segment.title} · ${segment.detail}`;
+    document.getElementById("teach-step-count").textContent = `${teachIndex + 1} / ${TEACH_SEGMENTS.length}`;
+    document.getElementById("teach-prev").disabled = teachIndex === 0;
+    document.querySelector("#teach-next span").textContent = teachIndex === TEACH_SEGMENTS.length - 2 ? "查看报告" : "下一步";
+    renderTeachSegments();
+    teachContent.className = "teach-content";
+    teachPlayer.hidden = segment.type !== "video";
+    teachTools.hidden = segment.type === "report";
+    teachStepNav.hidden = segment.type === "report";
+    teachPage.classList.remove("chrome-hidden");
+
+    if (segment.type === "video") {
+      teachBackdrop.style.backgroundImage = `url("${segment.cover || MC_LESSON_COVERS[(teachNo - 1) % MC_LESSON_COVERS.length]}")`;
+      teachBackdrop.style.filter = "none";
+      teachContent.innerHTML = "";
+      updateTeachPlayer();
+      showTeachChrome();
+    } else if (segment.type === "report") {
+      teachCompleted = new Set(TEACH_SEGMENTS.slice(0, -1).map((_, index) => index));
+      renderTeachSegments();
+      teachBackdrop.style.backgroundImage = "none";
+      teachContent.classList.add("is-report");
+      teachContent.innerHTML = renderTeachReport();
+      teachContent.scrollTop = 0;
+    } else {
+      teachBackdrop.style.backgroundImage = "none";
+      teachContent.classList.add("is-interactive");
+      teachContent.innerHTML = renderTeachInteractive(segment);
+      teachContent.scrollTop = 0;
+    }
+    teachContent.focus({ preventScroll: true });
+  }
+
+  function moveTeachTo(index) {
+    if (index < 0 || index >= TEACH_SEGMENTS.length || index === teachIndex) return;
+    if (index > teachIndex) teachCompleted.add(teachIndex);
+    teachIndex = index;
+    renderTeach();
+  }
+
+  function openTeach(no) {
+    teachNo = no || 1;
+    teachIndex = 0;
+    teachCompleted = new Set();
+    teachRankTab = "group";
+    teachPage.hidden = false;
+    document.body.classList.add("modal-open");
+    renderTeach();
+  }
+
+  function closeTeach() {
+    stopTeachVideo();
+    if (teachChromeTimer) clearTimeout(teachChromeTimer);
+    teachPage.hidden = true;
+    teachPage.classList.remove("chrome-hidden");
+    if (lessonPage.hidden) document.body.classList.remove("modal-open");
+  }
+
+  if (teachPage) {
+    document.getElementById("teach-back").addEventListener("click", closeTeach);
+    document.getElementById("teach-prev").addEventListener("click", () => moveTeachTo(teachIndex - 1));
+    document.getElementById("teach-next").addEventListener("click", () => moveTeachTo(teachIndex + 1));
+    document.getElementById("teach-play").addEventListener("click", () => {
+      if (teachPlaying) { stopTeachVideo(); return; }
+      teachPlaying = true;
+      teachPage.classList.add("is-playing");
+      teachPlayTimer = setInterval(() => {
+        const segment = TEACH_SEGMENTS[teachIndex];
+        teachSeconds++;
+        if (teachSeconds >= segment.duration) {
+          teachSeconds = segment.duration;
+          teachCompleted.add(teachIndex);
+          renderTeachSegments();
+          stopTeachVideo();
+          showTeachChrome();
+        }
+        updateTeachPlayer();
+      }, 1000);
+      showTeachChrome();
+    });
+    document.getElementById("teach-sound").addEventListener("click", () => showToast("已切换课堂声音"));
+    document.getElementById("teach-screen").addEventListener("click", () => {
+      if (!document.fullscreenElement && teachPage.requestFullscreen) teachPage.requestFullscreen();
+      else if (document.exitFullscreen) document.exitFullscreen();
+    });
+    teachSegmentsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-teach-segment]");
+      if (button) moveTeachTo(parseInt(button.dataset.teachSegment, 10));
+    });
+    teachToolsToggle.addEventListener("click", () => {
+      const open = teachToolsMore.hidden;
+      teachToolsMore.hidden = !open;
+      teachToolsToggle.classList.toggle("open", open);
+      teachToolsToggle.setAttribute("aria-expanded", String(open));
+      teachToolsToggle.title = open ? "收起更多工具" : "展开更多工具";
+      showTeachChrome();
+    });
+    teachTools.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-teach-tool]");
+      if (!button) return;
+      button.classList.toggle("active");
+      const tool = TEACH_TOOLS.find((item) => item.key === button.dataset.teachTool);
+      showToast(`${tool.label}${button.classList.contains("active") ? "已开启" : "已关闭"}`);
+      showTeachChrome();
+    });
+    document.getElementById("teach-help").addEventListener("click", () => showToast("课堂帮助：移动鼠标显示控制，点击顶部片段可快速切换"));
+    teachContent.addEventListener("click", (event) => {
+      const answer = event.target.closest("[data-teach-answer]");
+      if (answer) {
+        teachContent.querySelectorAll(".teach-answer").forEach((button) => button.classList.remove("selected", "correct"));
+        answer.classList.add("selected");
+        const correctIndex = teachIndex > 4 ? 1 : 0;
+        const isCorrect = parseInt(answer.dataset.teachAnswer, 10) === correctIndex;
+        if (isCorrect) answer.classList.add("correct");
+        document.getElementById("teach-answer-feedback").textContent = isCorrect ? "回答正确，缤果币 +20" : "再想一想：清晰、具体的信息更容易被机器理解。";
+        if (isCorrect) teachCompleted.add(teachIndex);
+        renderTeachSegments();
+      }
+      const point = event.target.closest(".teach-image-point");
+      if (point) { point.classList.toggle("active"); teachCompleted.add(teachIndex); renderTeachSegments(); }
+      const sortItem = event.target.closest(".teach-sort-item");
+      if (sortItem && !sortItem.classList.contains("active")) {
+        sortItem.classList.add("active");
+        const count = teachContent.querySelectorAll(".teach-sort-item.active").length;
+        teachContent.querySelector(".teach-game-result").textContent = count === 4 ? "挑战完成，指令顺序清晰，缤果币 +30" : `已选择 ${count} / 4 步，继续完成任务。`;
+        if (count === 4) { teachCompleted.add(teachIndex); renderTeachSegments(); }
+      }
+      const rankTab = event.target.closest("[data-rank-tab]");
+      if (rankTab) {
+        teachRankTab = rankTab.dataset.rankTab;
+        teachContent.querySelectorAll(".teach-rank-tab").forEach((button) => button.classList.toggle("active", button === rankTab));
+        document.getElementById("teach-rank-list").innerHTML = renderRankList(teachRankTab);
+      }
+      if (event.target.closest("[data-report-back]")) closeTeach();
+      if (event.target.closest("[data-report-replay]")) { teachIndex = 0; teachCompleted = new Set(); renderTeach(); }
+    });
+    ["mousemove", "pointerdown", "keydown"].forEach((eventName) => teachPage.addEventListener(eventName, showTeachChrome));
+    document.addEventListener("keydown", (event) => {
+      if (teachPage.hidden) return;
+      if (event.key === "Escape" && !document.fullscreenElement) closeTeach();
+      if (event.key === "ArrowLeft") moveTeachTo(teachIndex - 1);
+      if (event.key === "ArrowRight") moveTeachTo(teachIndex + 1);
+      if (event.key === " " && TEACH_SEGMENTS[teachIndex].type === "video") { event.preventDefault(); document.getElementById("teach-play").click(); }
+    });
   }
 
   // ===== 双师AI课堂：沉浸式页面 =====
@@ -2464,9 +2762,112 @@
   document.getElementById("refresh-btn").addEventListener("click", () => {
     showToast("已刷新");
   });
-  document.getElementById("settings-btn").addEventListener("click", () => {
-    showToast("设置功能开发中");
-  });
+  // ===== 设置下拉：演示数据状态切换 =====
+  const settingsBtn = document.getElementById("settings-btn");
+  const settingsPop = document.getElementById("settings-pop");
+  if (settingsBtn && settingsPop) {
+    settingsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = settingsPop.hidden;
+      settingsPop.hidden = !open;
+      settingsBtn.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", (e) => {
+      if (!settingsPop.hidden && !settingsPop.contains(e.target) && e.target !== settingsBtn) {
+        settingsPop.hidden = true; settingsBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+    // 体验新手状态：清空学校 + 班级（置空数组，避免重新播种）
+    document.getElementById("settings-empty").addEventListener("click", () => {
+      localStorage.removeItem(SCHOOL_KEY);
+      localStorage.setItem(CLASS_KEY, "[]");
+      showToast("已切换到新手无数据状态");
+      setTimeout(() => location.reload(), 500);
+    });
+    // 恢复演示数据：清空学校 + 移除班级（下次加载自动播种示例）
+    document.getElementById("settings-demo").addEventListener("click", () => {
+      localStorage.removeItem(SCHOOL_KEY);
+      localStorage.removeItem(CLASS_KEY);
+      showToast("已恢复演示数据");
+      setTimeout(() => location.reload(), 500);
+    });
+  }
+
+  // ===== 新手引导弹窗（绑定学校 → 创建班级 → 添加课程） =====
+  const onboardModal = document.getElementById("onboard-modal");
+  const onboardBtn = document.getElementById("onboard-btn");
+  const obStepsEl = document.getElementById("ob-steps");
+  const obBar = document.getElementById("ob-bar");
+  const obSub = document.getElementById("ob-sub");
+
+  function onboardState() {
+    const hasSchool = !!loadSchool();
+    const hasClass = classStore.length > 0;
+    const hasCourse = classStore.some((c) => Array.isArray(c.courses) && c.courses.length > 0);
+    return [
+      { key: "school", done: hasSchool, title: "绑定学校", desc: "选择所在学校，审核通过后即可创建班级", btn: "去绑定", act: () => openSchoolModal() },
+      { key: "class", done: hasClass, title: "创建班级", desc: "填写年级与班级名称，建立你的第一个班级", btn: "去创建", act: () => openClassForm(), locked: !hasSchool },
+      { key: "course", done: hasCourse, title: "添加课程", desc: "为班级选择课程包，即可排课与上课", btn: "去添加", act: () => { const t = document.querySelector('.menu-item[data-target="class-management"]'); if (t) t.click(); }, locked: !hasClass },
+    ];
+  }
+  function onboardDone() { return onboardState().every((s) => s.done); }
+
+  function fillOnboardSteps() {
+    const steps = onboardState();
+    const doneCount = steps.filter((s) => s.done).length;
+    if (obBar) obBar.style.width = `${(doneCount / steps.length) * 100}%`;
+    if (obSub) obSub.textContent = `已完成 ${doneCount} / ${steps.length} 步，完成后即可排课与上课`;
+    if (obStepsEl) obStepsEl.innerHTML = steps.map((s, i) => {
+      const num = s.done
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+        : (i + 1);
+      const action = s.done
+        ? '<span class="ob-done">已完成</span>'
+        : `<button class="ob-go${s.locked ? " locked" : ""}" data-ob="${s.key}"${s.locked ? " disabled" : ""}>${s.btn}</button>`;
+      return `<div class="ob-step${s.done ? " done" : ""}${s.locked ? " locked" : ""}">
+        <span class="ob-num">${num}</span>
+        <span class="ob-step-text"><b>${s.title}</b><i>${s.desc}</i></span>
+        ${action}
+      </div>`;
+    }).join("");
+  }
+
+  function openOnboard() {
+    if (!onboardModal) return;
+    fillOnboardSteps();
+    onboardModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+  function closeOnboard() {
+    if (!onboardModal) return;
+    onboardModal.hidden = true;
+    if (!document.querySelector('.modal-backdrop:not([hidden]), .fullpage:not([hidden])')) {
+      document.body.classList.remove("modal-open");
+    }
+  }
+  // 完成态 → 隐藏顶部按钮；未完成 → 显示顶部按钮供随时呼出
+  function renderOnboard() {
+    const done = onboardDone();
+    if (onboardBtn) onboardBtn.hidden = done;
+    if (done) { closeOnboard(); return; }
+    if (onboardModal && !onboardModal.hidden) fillOnboardSteps();
+  }
+
+  if (onboardModal) {
+    obStepsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-ob]");
+      if (!btn) return;
+      const step = onboardState().find((s) => s.key === btn.dataset.ob);
+      if (step && !step.locked) { closeOnboard(); step.act(); }
+    });
+    document.getElementById("ob-close").addEventListener("click", closeOnboard);
+    document.getElementById("ob-later").addEventListener("click", closeOnboard);
+    onboardModal.addEventListener("click", (e) => { if (e.target === onboardModal) closeOnboard(); });
+    if (onboardBtn) onboardBtn.addEventListener("click", openOnboard);
+    // 首次进入：未完成前置链则自动弹出
+    renderOnboard();
+    if (!onboardDone()) openOnboard();
+  }
   // ===== 个人中心下拉面板 =====
   const profilePop = document.getElementById("profile-pop");
   const avatarBtn = document.getElementById("topbar-avatar");
