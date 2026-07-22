@@ -2369,7 +2369,7 @@
     teachSegmentsEl.innerHTML = TEACH_SEGMENTS.map((segment, index) => {
       const classes = ["teach-segment", segment.type === "video" ? "video" : "interaction", teachCompleted.has(index) ? "learned" : "", index === teachIndex ? "current" : ""].filter(Boolean).join(" ");
       const state = teachCompleted.has(index) ? "已学" : "未学";
-      return `<button class="${classes}" style="--segment-flex:${segment.type === "video" ? 1.45 : 1}" type="button" data-teach-segment="${index}" aria-label="${index + 1}. ${segment.title}，${state}" aria-current="${index === teachIndex ? "step" : "false"}"><span class="teach-segment-tip">${segment.title} · ${state}</span></button>`;
+      return `<button class="${classes}" style="--segment-flex:${segment.type === "video" ? 1.45 : 1}" type="button" data-teach-segment="${index}" aria-label="${index + 1}. ${segment.title}，${state}" aria-current="${index === teachIndex ? "step" : "false"}" title="${segment.title} · ${state}"><span class="teach-segment-name">${segment.title}</span><span class="teach-segment-track" aria-hidden="true"></span></button>`;
     }).join("");
   }
 
@@ -2385,21 +2385,40 @@
     }[tab];
     const medalNames = ["金", "银", "铜"];
     const medalClasses = ["gold", "silver", "bronze"];
-    return data.map((row, index) => `<div class="teach-rank-row"><span class="teach-medal ${medalClasses[index] || ""}">${medalNames[index] || index + 1}</span><span class="teach-rank-name">${row[0]}</span><span class="teach-rank-coins">${coinIcon()}${row[1]}</span></div>`).join("");
+    return data.map((row, index) => `<div class="teach-rank-row${medalClasses[index] ? " r-" + medalClasses[index] : ""}"><span class="teach-medal ${medalClasses[index] || ""}">${medalNames[index] || index + 1}</span><span class="teach-rank-name">${row[0]}</span><span class="teach-rank-coins">${coinIcon()}${row[1]}</span></div>`).join("");
   }
 
   function renderTeachReport() {
+    const stats = [
+      { cls: "s-perf", label: "课堂表现", value: "优秀", icon: '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>' },
+      { cls: "s-coin", label: "累计获得星芒币", value: "1,280", icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1 1.3-1.5 3-1.5s3 .6 3 1.7c0 2.3-6 1.3-6 3.6 0 1.1 1.3 1.7 3 1.7s3-.5 3-1.5"/>' },
+      { cls: "s-count", label: "参与答题次数", value: "36 次", icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+      { cls: "s-acc", label: "平均答题正确率", value: "86%", icon: '<path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L7 14"/>' },
+    ];
+    const statHtml = stats.map((s) => `
+      <div class="teach-report-stat ${s.cls}">
+        <span class="trs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg></span>
+        <span class="trs-label">${s.label}</span>
+        <strong>${s.value}</strong>
+      </div>`).join("");
+    const gains = [
+      "能够识别生活中常见的人工智能应用，并说明它们解决的问题。",
+      "理解人工智能通过数据学习规律，再完成识别与判断的基本过程。",
+      "能用清晰、有序的指令完成一次简单的算法任务。",
+    ];
+    const gainHtml = gains.map((g, i) => `<div class="teach-gain g${i}"><i>${i + 1}</i><span>${g}</span></div>`).join("");
     return `<section class="teach-report">
-      <div class="teach-report-head"><div><h2>课堂总结报告</h2><p>第${teachNo}课时 · ${esc(lessonNameOf(teachNo))}</p></div><div class="teach-report-actions"><button type="button" data-report-back>返回课程</button><button class="primary" type="button" data-report-replay>再次学习</button></div></div>
-      <div class="teach-report-stats">
-        <div class="teach-report-stat"><span>课堂表现</span><strong>优秀</strong></div>
-        <div class="teach-report-stat"><span>累计获得缤果币</span><strong>1,280</strong></div>
-        <div class="teach-report-stat"><span>参与答题次数</span><strong>36 次</strong></div>
-        <div class="teach-report-stat"><span>平均答题正确率</span><strong>86%</strong></div>
+      <div class="teach-report-head">
+        <div class="trh-title">
+          <span class="trh-trophy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
+          <div><h2>课堂总结报告</h2><p>第${teachNo}课时 · ${esc(lessonNameOf(teachNo))}</p></div>
+        </div>
+        <div class="teach-report-actions"><button type="button" data-report-back>返回课程</button><button class="primary" type="button" data-report-replay>再次学习</button></div>
       </div>
+      <div class="teach-report-stats">${statHtml}</div>
       <div class="teach-report-grid">
-        <article class="teach-report-card"><h3>本节课程收获</h3><div class="teach-gains"><div class="teach-gain"><i>1</i><span>能够识别生活中常见的人工智能应用，并说明它们解决的问题。</span></div><div class="teach-gain"><i>2</i><span>理解人工智能通过数据学习规律，再完成识别与判断的基本过程。</span></div><div class="teach-gain"><i>3</i><span>能用清晰、有序的指令完成一次简单的算法任务。</span></div></div></article>
-        <article class="teach-report-card"><h3>课堂排行</h3><div class="teach-rank-tabs"><button class="teach-rank-tab${teachRankTab === "group" ? " active" : ""}" data-rank-tab="group" type="button">分组排行</button><button class="teach-rank-tab${teachRankTab === "lesson" ? " active" : ""}" data-rank-tab="lesson" type="button">本节排行</button><button class="teach-rank-tab${teachRankTab === "total" ? " active" : ""}" data-rank-tab="total" type="button">总排行</button></div><div class="teach-rank-list" id="teach-rank-list">${renderRankList(teachRankTab)}</div></article>
+        <article class="teach-report-card"><h3><span class="trc-dot d-gain"></span>本节课程收获</h3><div class="teach-gains">${gainHtml}</div></article>
+        <article class="teach-report-card"><h3><span class="trc-dot d-rank"></span>课堂排行</h3><div class="teach-rank-tabs"><button class="teach-rank-tab${teachRankTab === "group" ? " active" : ""}" data-rank-tab="group" type="button">分组排行</button><button class="teach-rank-tab${teachRankTab === "lesson" ? " active" : ""}" data-rank-tab="lesson" type="button">本节排行</button><button class="teach-rank-tab${teachRankTab === "total" ? " active" : ""}" data-rank-tab="total" type="button">总排行</button></div><div class="teach-rank-list" id="teach-rank-list">${renderRankList(teachRankTab)}</div></article>
       </div>
     </section>`;
   }
@@ -2443,8 +2462,6 @@
     const segment = TEACH_SEGMENTS[teachIndex];
     stopTeachVideo();
     teachSeconds = 0;
-    document.getElementById("teach-lesson-title").textContent = `第${teachNo}课时 ${lessonNameOf(teachNo)}`;
-    document.getElementById("teach-segment-title").textContent = `${segment.title} · ${segment.detail}`;
     document.getElementById("teach-step-count").textContent = `${teachIndex + 1} / ${TEACH_SEGMENTS.length}`;
     document.getElementById("teach-prev").disabled = teachIndex === 0;
     document.querySelector("#teach-next span").textContent = teachIndex === TEACH_SEGMENTS.length - 2 ? "查看报告" : "下一步";
@@ -2454,6 +2471,7 @@
     teachTools.hidden = segment.type === "report";
     teachStepNav.hidden = segment.type === "report";
     teachPage.classList.remove("chrome-hidden");
+    teachPage.classList.toggle("teach-light", segment.type !== "video");
 
     if (segment.type === "video") {
       teachBackdrop.style.backgroundImage = `url("${segment.cover || MC_LESSON_COVERS[(teachNo - 1) % MC_LESSON_COVERS.length]}")`;
@@ -2558,7 +2576,7 @@
         const correctIndex = teachIndex > 4 ? 1 : 0;
         const isCorrect = parseInt(answer.dataset.teachAnswer, 10) === correctIndex;
         if (isCorrect) answer.classList.add("correct");
-        document.getElementById("teach-answer-feedback").textContent = isCorrect ? "回答正确，缤果币 +20" : "再想一想：清晰、具体的信息更容易被机器理解。";
+        document.getElementById("teach-answer-feedback").textContent = isCorrect ? "回答正确，星芒币 +20" : "再想一想：清晰、具体的信息更容易被机器理解。";
         if (isCorrect) teachCompleted.add(teachIndex);
         renderTeachSegments();
       }
@@ -2568,7 +2586,7 @@
       if (sortItem && !sortItem.classList.contains("active")) {
         sortItem.classList.add("active");
         const count = teachContent.querySelectorAll(".teach-sort-item.active").length;
-        teachContent.querySelector(".teach-game-result").textContent = count === 4 ? "挑战完成，指令顺序清晰，缤果币 +30" : `已选择 ${count} / 4 步，继续完成任务。`;
+        teachContent.querySelector(".teach-game-result").textContent = count === 4 ? "挑战完成，指令顺序清晰，星芒币 +30" : `已选择 ${count} / 4 步，继续完成任务。`;
         if (count === 4) { teachCompleted.add(teachIndex); renderTeachSegments(); }
       }
       const rankTab = event.target.closest("[data-rank-tab]");
@@ -2811,6 +2829,9 @@
     ];
   }
   function onboardDone() { return onboardState().every((s) => s.done); }
+  // 仅在用户主动切换到「空数据」的新手场景时展示引导；
+  // 演示数据即使未绑定学校，也不应打断正常浏览。
+  function shouldShowOnboard() { return classStore.length === 0; }
 
   function fillOnboardSteps() {
     const steps = onboardState();
@@ -2845,11 +2866,11 @@
       document.body.classList.remove("modal-open");
     }
   }
-  // 完成态 → 隐藏顶部按钮；未完成 → 显示顶部按钮供随时呼出
+  // 仅空数据场景提供顶部入口，正常演示数据不显示也不自动弹出。
   function renderOnboard() {
-    const done = onboardDone();
-    if (onboardBtn) onboardBtn.hidden = done;
-    if (done) { closeOnboard(); return; }
+    const shouldShow = shouldShowOnboard() && !onboardDone();
+    if (onboardBtn) onboardBtn.hidden = !shouldShow;
+    if (!shouldShow) { closeOnboard(); return; }
     if (onboardModal && !onboardModal.hidden) fillOnboardSteps();
   }
 
@@ -2864,9 +2885,9 @@
     document.getElementById("ob-later").addEventListener("click", closeOnboard);
     onboardModal.addEventListener("click", (e) => { if (e.target === onboardModal) closeOnboard(); });
     if (onboardBtn) onboardBtn.addEventListener("click", openOnboard);
-    // 首次进入：未完成前置链则自动弹出
+    // 仅在「体验新手状态」的空数据场景自动弹出。
     renderOnboard();
-    if (!onboardDone()) openOnboard();
+    if (shouldShowOnboard() && !onboardDone()) openOnboard();
   }
   // ===== 个人中心下拉面板 =====
   const profilePop = document.getElementById("profile-pop");

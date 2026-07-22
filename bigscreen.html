@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教育局数据统计中心 · 智慧教育数据驾驶舱</title>
+<link rel="stylesheet" href="css/bigscreen.css?v=8">
+</head>
+<body class="bs-body">
+<div class="bs-bg" aria-hidden="true">
+  <div class="bs-grid"></div>
+  <div class="bs-glow bs-glow-1"></div>
+  <div class="bs-glow bs-glow-2"></div>
+  <div class="bs-glow bs-glow-3"></div>
+  <div class="bs-scan"></div>
+</div>
+
+<div class="bs-screen" id="bs-screen">
+
+  <!-- 顶部：标题 + 装饰 + 时间/刷新 -->
+  <header class="bs-header">
+    <a class="bs-exit" href="index.html" title="返回平台">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>返回</span>
+    </a>
+    <div class="bs-title-wrap">
+      <div class="bs-title-deco left"></div>
+      <h1 class="bs-title">智慧教育数据驾驶舱</h1>
+      <div class="bs-title-deco right"></div>
+      <p class="bs-subtitle" id="bs-subtitle">教育局数据统计中心 · 全省汇总</p>
+    </div>
+    <div class="bs-header-right">
+      <span class="bs-updated">数据更新时间 <b id="bs-updated">—</b></span>
+      <button class="bs-refresh" id="bs-refresh" type="button" title="刷新数据">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>刷新</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 筛选栏 -->
+  <section class="bs-filters" aria-label="数据筛选">
+    <div class="bs-filter">
+      <label>省</label>
+      <div class="bs-select"><select id="f-province"></select></div>
+    </div>
+    <div class="bs-filter">
+      <label>市</label>
+      <div class="bs-select"><select id="f-city"></select></div>
+    </div>
+    <div class="bs-filter">
+      <label>区/县</label>
+      <div class="bs-select"><select id="f-district"></select></div>
+    </div>
+    <div class="bs-filter bs-filter-school">
+      <label>学校</label>
+      <div class="bs-school-picker">
+        <input type="text" id="f-school-input" placeholder="全部学校（可搜索学校名称）" autocomplete="off">
+        <div class="bs-school-menu" id="f-school-menu" hidden></div>
+      </div>
+    </div>
+    <div class="bs-filter">
+      <label>时间范围</label>
+      <div class="bs-range" id="f-range">
+        <button class="bs-range-btn active" data-range="all" type="button">全部数据</button>
+        <button class="bs-range-btn" data-range="term" type="button">本学期</button>
+        <button class="bs-range-btn" data-range="month" type="button">本月</button>
+        <button class="bs-range-btn" data-range="custom" type="button">自定义</button>
+        <input type="date" id="f-date-start" class="bs-date" hidden>
+        <span class="bs-date-sep" hidden>至</span>
+        <input type="date" id="f-date-end" class="bs-date" hidden>
+      </div>
+    </div>
+    <button class="bs-reset" id="f-reset" type="button">重置</button>
+  </section>
+
+  <!-- 核心指标卡 -->
+  <section class="bs-kpis" id="bs-kpis" aria-label="核心指标"></section>
+
+  <!-- 主体图表区 -->
+  <section class="bs-main">
+    <!-- 左列：两条主图表 -->
+    <div class="bs-col bs-col-left">
+      <div class="bs-panel" id="p-open-growth">
+        <div class="bs-panel-head"><span class="bs-panel-title">开课增长趋势</span><span class="bs-panel-tag">按月 · 开课班级</span></div>
+        <div class="bs-chart" id="chart-open-growth"></div>
+      </div>
+      <div class="bs-panel" id="p-class-growth">
+        <div class="bs-panel-head"><span class="bs-panel-title">班级增长视图</span><span class="bs-panel-tag">新增 / 累计使用班级</span></div>
+        <div class="bs-chart" id="chart-class-growth"></div>
+      </div>
+    </div>
+
+    <!-- 中列：区域分布地图 + 课时完成情况 -->
+    <div class="bs-col bs-col-center">
+      <div class="bs-panel bs-panel-map">
+        <div class="bs-panel-head"><span class="bs-panel-title">区域开课分布</span><span class="bs-panel-tag" id="map-tag">全省 · 热力分布</span></div>
+        <div class="bs-map" id="chart-map"></div>
+        <div class="bs-map-legend"><span>低</span><i class="bs-legend-bar"></i><span>高</span></div>
+      </div>
+      <div class="bs-panel bs-panel-gauge">
+        <div class="bs-panel-head"><span class="bs-panel-title">课时完成情况</span><span class="bs-panel-tag">总课时 · 已完成</span></div>
+        <div class="bs-gauge" id="chart-gauge"></div>
+      </div>
+    </div>
+
+    <!-- 右列：两个排行 -->
+    <div class="bs-col bs-col-right">
+      <div class="bs-panel">
+        <div class="bs-panel-head"><span class="bs-panel-title">区域完成率排行</span><span class="bs-panel-tag">TOP</span></div>
+        <div class="bs-bars" id="chart-region-rank"></div>
+      </div>
+      <div class="bs-panel">
+        <div class="bs-panel-head"><span class="bs-panel-title">学校活跃度排行</span><span class="bs-panel-tag">TOP 5</span></div>
+        <div class="bs-rank-list" id="chart-school-rank"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="bs-tooltip" id="bs-tooltip" hidden></div>
+
+<script src="js/bigscreen-data.js?v=2"></script>
+<script src="js/bigscreen.js?v=3"></script>
+</body>
+</html>
