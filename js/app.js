@@ -2426,6 +2426,91 @@
     { type: "quiz", title: "巩固挑战", detail: "小组抢答", duration: 100 },
     { type: "report", title: "课堂报告", detail: "本节课学习总结", duration: 0 },
   ];
+  /* 片段知识点（按片段序号索引，缺省表示该片段无知识点，入口自动隐藏）
+   * 后续接真实接口时保持结构不变：按「课时ID + 片段ID」返回同样字段即可。
+   *   title 知识点名称 / summary 一句话定义 / points 核心要点
+   *   examples 生活实例 / misconception 常见误区 / ask 课堂提问建议 */
+  const TEACH_KNOWLEDGE = {
+    0: {
+      title: "什么是人工智能",
+      tag: "概念认知",
+      summary: "人工智能就是让机器能像人一样去看、去听、去说、去思考的技术。",
+      points: [
+        "它不是某一台机器，而是一类让机器变聪明的方法",
+        "能感知外界信息，还能根据信息做出判断",
+        "人工智能已经藏在我们每天的生活里",
+      ],
+      examples: ["刷脸进校门", "对着音箱说“播放儿歌”", "拍照识别路边的花"],
+      misconception: "会动、会发声的玩具不一定是人工智能，关键要看它能不能自己判断、自己调整。",
+      ask: "同学们今天从家里到学校，一路上遇到过哪些“会自己做判断”的机器？",
+    },
+    1: {
+      title: "怎么判断是不是人工智能",
+      tag: "辨析方法",
+      summary: "判断的关键，是看它能不能“自己学、自己判断”，而不是只按固定程序动作。",
+      points: [
+        "只会重复同一个动作的，是普通自动化",
+        "能根据不同情况给出不同反应的，才是人工智能",
+        "会随着使用越来越准的，一定用到了人工智能",
+      ],
+      examples: ["电梯按楼层停 → 不是AI", "扫地机器人自己绕开桌腿 → 是AI", "输入法越用越懂你 → 是AI"],
+      misconception: "“自动”不等于“智能”。自动门感应到人就开，它并没有做任何判断。",
+      ask: "扫地机器人和电风扇都会自己动，它们的区别在哪里？",
+    },
+    2: {
+      title: "机器怎么“看见”世界",
+      tag: "智能感知",
+      summary: "人工智能靠摄像头、麦克风这些“感觉器官”收集信息，这个过程叫感知。",
+      points: [
+        "摄像头相当于机器的眼睛，麦克风相当于耳朵",
+        "机器看到的其实是一格一格的像素数据",
+        "感知只是第一步，之后还要理解和判断",
+      ],
+      examples: ["手机人脸解锁", "红绿灯路口的车辆抓拍", "语音输入把说话变成文字"],
+      misconception: "机器“看到”不等于“看懂”。它先拿到一堆数字，还要经过学习才知道那是猫还是狗。",
+      ask: "如果给机器一张很模糊的照片，它还能认出来吗？为什么？",
+    },
+    3: {
+      title: "机器学习：让机器自己找规律",
+      tag: "核心原理",
+      summary: "不是把答案一条条教给机器，而是给它看大量例子，让它自己总结出规律。",
+      points: [
+        "先给例子（数据），再让机器找规律（训练）",
+        "规律找到后，遇到新东西也能判断（预测）",
+        "例子看得越多、越全面，判断就越准",
+      ],
+      examples: ["看几千张猫的照片后能认出没见过的猫", "看大量天气记录后预测明天下不下雨"],
+      misconception: "机器不是把每张图都背下来了，它记住的是“猫长什么样”的共同特征。",
+      ask: "小朋友是怎么学会认猫的？和机器的学习方式像不像？",
+    },
+    4: {
+      title: "算法：一步一步的做事顺序",
+      tag: "计算思维",
+      summary: "算法就是解决问题的步骤清单，顺序排错了，结果就会出错。",
+      points: [
+        "每一步都要清楚、不能含糊",
+        "步骤的先后顺序会直接影响结果",
+        "同一个问题可以有多种算法，有的更快有的更慢",
+      ],
+      examples: ["泡面的步骤：烧水→放面→加料", "机器人走迷宫：遇到墙就转弯，再继续走"],
+      misconception: "算法不是越复杂越好，能用最少的步骤把事做对才是好算法。",
+      ask: "如果把“烧水”和“放面”调换顺序，会发生什么？",
+    },
+    5: {
+      title: "数据：人工智能的“教材”",
+      tag: "数据意识",
+      summary: "数据就是给机器学习用的例子，数据的数量和质量决定了机器聪不聪明。",
+      points: [
+        "数据越多，机器见过的情况越多，判断越准",
+        "数据如果有偏差，机器就会学错",
+        "收集数据时要注意保护个人隐私",
+      ],
+      examples: ["只用白猫照片训练，遇到黑猫可能就认不出", "语音助手听多了方言，才听得懂方言"],
+      misconception: "数据不是越多越好，如果全是重复或错误的数据，反而会把机器教坏。",
+      ask: "如果我们只给机器看男生的照片，它还能认出女生吗？这样公平吗？",
+    },
+  };
+
   const TEACH_ICON = {
     pk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4v6H5zM15 14h4v6h-4z"/><path d="M9 7h3a4 4 0 0 1 4 4v3M15 17h-3a4 4 0 0 1-4-4v-3"/></svg>',
     ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="14" height="11" rx="4"/><path d="M12 3v4M8 12h.01M16 12h.01M9 15h6"/></svg>',
@@ -2458,6 +2543,100 @@
     teachToolsMore.innerHTML = TEACH_TOOLS.filter((tool) => tool.more).map(toolButton).join("");
   }
 
+  /* ---------- 本片段知识点：入口胶囊 + 右侧抽屉 ---------- */
+  const kpBtn = document.getElementById("teach-kp-btn");
+  const kpPanel = document.getElementById("teach-kp-panel");
+  const kpScrim = document.getElementById("teach-kp-scrim");
+  const kpBody = document.getElementById("teach-kp-body");
+  let kpOpen = false;
+
+  const KP_ICON = {
+    point: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    example: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    ask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  };
+
+  function renderKnowledge(index) {
+    const kp = TEACH_KNOWLEDGE[index];
+    if (!kp) return;
+    const seg = TEACH_SEGMENTS[index];
+    document.getElementById("teach-kp-seg").textContent = `片段 ${index + 1} · ${seg.title}`;
+    document.getElementById("teach-kp-title").textContent = kp.title;
+    document.getElementById("teach-kp-tag").textContent = kp.tag || "";
+    let html = `<div class="kp-summary">${esc(kp.summary)}</div>`;
+    if (kp.points && kp.points.length) {
+      html += `<div class="kp-sec">
+        <div class="kp-sec-head"><span class="kp-ico" style="background:rgba(38,158,216,.14);color:var(--primary-dark)">${KP_ICON.point}</span>核心要点</div>
+        <div class="kp-points">${kp.points.map((p, i) => `<div class="kp-point"><i>${i + 1}</i><span>${esc(p)}</span></div>`).join("")}</div>
+      </div>`;
+    }
+    if (kp.examples && kp.examples.length) {
+      html += `<div class="kp-sec">
+        <div class="kp-sec-head"><span class="kp-ico" style="background:rgba(45,212,191,.16);color:#0E7490">${KP_ICON.example}</span>生活中的例子</div>
+        <div class="kp-examples">${kp.examples.map((e) => `<span class="kp-example">${esc(e)}</span>`).join("")}</div>
+      </div>`;
+    }
+    // 以下两块是给老师的备课提示，投屏放大时自动隐藏
+    if (kp.misconception || kp.ask) {
+      html += '<div class="kp-teacher-only"><div class="kp-teacher-label">教师提示</div>';
+      if (kp.misconception) {
+        html += `<div class="kp-note kp-warn"><span class="kp-ico">${KP_ICON.warn}</span><span><b>容易讲错的点</b>${esc(kp.misconception)}</span></div>`;
+      }
+      if (kp.ask) {
+        html += `<div class="kp-note kp-ask"><span class="kp-ico">${KP_ICON.ask}</span><span><b>可以这样提问</b>${esc(kp.ask)}</span></div>`;
+      }
+      html += "</div>";
+    }
+    kpBody.innerHTML = html;
+    kpBody.scrollTop = 0;
+  }
+
+  // 片段切换时更新入口：无知识点则隐藏，有则提示"内容已更新"
+  function updateKnowledgeEntry(index) {
+    if (!kpBtn) return;
+    const kp = TEACH_KNOWLEDGE[index];
+    const seg = TEACH_SEGMENTS[index];
+    if (!kp || seg.type === "report") {
+      kpBtn.hidden = true;
+      if (kpOpen) closeKnowledge();
+      return;
+    }
+    kpBtn.hidden = false;
+    kpBtn.classList.remove("has-new");
+    void kpBtn.offsetWidth;          // 重置动画，让每次切段都能再脉冲一次
+    kpBtn.classList.add("has-new");
+    if (kpOpen) renderKnowledge(index);  // 抽屉开着则直接换成新片段内容
+  }
+
+  function openKnowledge() {
+    if (!kpPanel || !TEACH_KNOWLEDGE[teachIndex]) return;
+    renderKnowledge(teachIndex);
+    kpPanel.hidden = false;
+    kpScrim.hidden = false;
+    kpOpen = true;
+    kpBtn.classList.remove("has-new");
+    kpBtn.setAttribute("aria-expanded", "true");
+    document.getElementById("teach-kp-close").focus();
+  }
+  function closeKnowledge() {
+    if (!kpPanel) return;
+    kpPanel.hidden = true;
+    kpScrim.hidden = true;
+    kpPanel.classList.remove("zoomed");
+    kpOpen = false;
+    kpBtn.setAttribute("aria-expanded", "false");
+  }
+  if (kpBtn) {
+    kpBtn.addEventListener("click", () => (kpOpen ? closeKnowledge() : openKnowledge()));
+    kpScrim.addEventListener("click", closeKnowledge);
+    document.getElementById("teach-kp-close").addEventListener("click", closeKnowledge);
+    document.getElementById("teach-kp-zoom").addEventListener("click", () => {
+      const zoomed = kpPanel.classList.toggle("zoomed");
+      document.getElementById("teach-kp-zoom").setAttribute("title", zoomed ? "退出放大" : "投屏放大给学生看");
+    });
+  }
+
   function formatTeachTime(seconds) {
     const value = Math.max(0, Math.floor(seconds));
     return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
@@ -2465,7 +2644,7 @@
 
   function renderTeachSegments() {
     teachSegmentsEl.innerHTML = TEACH_SEGMENTS.map((segment, index) => {
-      const classes = ["teach-segment", segment.type === "video" ? "video" : "interaction", teachCompleted.has(index) ? "learned" : "", index === teachIndex ? "current" : ""].filter(Boolean).join(" ");
+      const classes = ["teach-segment", segment.type === "video" ? "video" : "interaction", teachCompleted.has(index) ? "learned" : "", index === teachIndex ? "current" : "", TEACH_KNOWLEDGE[index] ? "has-kp" : ""].filter(Boolean).join(" ");
       const state = teachCompleted.has(index) ? "已学" : "未学";
       return `<button class="${classes}" style="--segment-flex:${segment.type === "video" ? 1.45 : 1}" type="button" data-teach-segment="${index}" aria-label="${index + 1}. ${segment.title}，${state}" aria-current="${index === teachIndex ? "step" : "false"}" title="${segment.title} · ${state}"><span class="teach-segment-name">${segment.title}</span><span class="teach-segment-track" aria-hidden="true"></span></button>`;
     }).join("");
@@ -2570,6 +2749,7 @@
     teachStepNav.hidden = segment.type === "report";
     teachPage.classList.remove("chrome-hidden");
     teachPage.classList.toggle("teach-light", segment.type !== "video");
+    updateKnowledgeEntry(teachIndex);
 
     if (segment.type === "video") {
       teachBackdrop.style.backgroundImage = `url("${segment.cover || MC_LESSON_COVERS[(teachNo - 1) % MC_LESSON_COVERS.length]}")`;
@@ -2612,6 +2792,7 @@
 
   function closeTeach() {
     stopTeachVideo();
+    closeKnowledge();
     if (teachChromeTimer) clearTimeout(teachChromeTimer);
     teachPage.hidden = true;
     teachPage.classList.remove("chrome-hidden");
@@ -2699,6 +2880,8 @@
     ["mousemove", "pointerdown", "keydown"].forEach((eventName) => teachPage.addEventListener(eventName, showTeachChrome));
     document.addEventListener("keydown", (event) => {
       if (teachPage.hidden) return;
+      // Esc 优先关闭知识点抽屉，再次按下才退出课堂
+      if (event.key === "Escape" && kpOpen) { closeKnowledge(); return; }
       if (event.key === "Escape" && !document.fullscreenElement) closeTeach();
       if (event.key === "ArrowLeft") moveTeachTo(teachIndex - 1);
       if (event.key === "ArrowRight") moveTeachTo(teachIndex + 1);
