@@ -252,6 +252,18 @@ ul { list-style: none; }
 .icon-btn:hover { background: var(--primary-light); color: var(--primary-dark); }
 .icon-btn svg { width: 19px; height: 19px; }
 
+/* 演示入口按钮（图标 + 文字，避免与"设置"语义混淆） */
+.demo-btn {
+  height: 40px; padding: 0 14px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 7px;
+  background: var(--primary-light); color: var(--primary-dark);
+  font-size: 14px; font-weight: 600; letter-spacing: .5px;
+  border: 1px solid rgba(38, 158, 216, .22);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.demo-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.demo-btn svg { width: 18px; height: 18px; flex: none; }
+
 .divider-v { width: 1px; height: 26px; background: var(--border); }
 
 .topbar-avatar {

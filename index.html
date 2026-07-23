@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=104">
+<link rel="stylesheet" href="css/style.css?v=105">
 </head>
 <body>
 <div class="app-shell">
@@ -25,11 +25,12 @@
       <button class="icon-btn" id="refresh-btn" aria-label="刷新" title="刷新">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
-      <button class="icon-btn" id="settings-btn" aria-label="设置" title="设置" aria-haspopup="true" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <button class="demo-btn" id="settings-btn" aria-label="演示" title="演示入口（数据状态切换 / 数据大屏）" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 8 14 10.5 10 13" fill="currentColor" stroke="none"/></svg>
+        <span>演示</span>
       </button>
 
-      <!-- 设置下拉面板（含演示状态切换） -->
+      <!-- 演示下拉面板（含演示状态切换） -->
       <div class="settings-pop" id="settings-pop" hidden>
         <div class="sp-section-label">演示 · 数据状态</div>
         <button class="sp-row" id="settings-empty" type="button">
@@ -41,7 +42,7 @@
           <span class="sp-row-text"><b>恢复演示数据</b><i>还原班级与课程示例</i></span>
         </button>
         <div class="sp-section-label">教育局端</div>
-        <a class="sp-row" id="settings-bigscreen" href="bigscreen.html">
+        <a class="sp-row" id="settings-bigscreen" href="bigscreen.html?from=demo">
           <span class="sp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
           <span class="sp-row-text"><b>数据统计大屏</b><i>教育局数据统计中心 · 全屏驾驶舱</i></span>
         </a>
