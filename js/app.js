@@ -2329,7 +2329,9 @@
 
   // 备课：全屏页面
   const prepPage = document.getElementById("prep-page");
+  const prepBodyEl = prepPage && prepPage.querySelector(".prep-body");
   const prepSectionsEl = document.getElementById("prep-sections");
+  const prepSubsectionsEl = document.getElementById("prep-subsections");
   const prepContentEl = document.getElementById("prep-content");
   const prepLessonSwitch = document.getElementById("prep-lesson-switch");
   const prepLessonMenu = document.getElementById("prep-lesson-menu");
@@ -2342,6 +2344,12 @@
     { title: "巩固练习" },
     { title: "课程回顾" },
   ];
+  const PREP_DURATIONS = {
+    "课程信息": "03分13秒", "教学目标": "02分20秒", "教学重难点": "02分45秒",
+    "教学流程": "05分00秒", "教师提示": "02分30秒",
+    "课前材料": "02分00秒", "课堂材料": "03分00秒",
+    "新知讲解": "08分30秒", "互动体验": "06分00秒", "巩固练习": "05分00秒", "课程回顾": "03分30秒",
+  };
   let prepNo = 1;
   let prepSection = "课程简介";
   let prepSubsection = "课程信息";
@@ -2354,18 +2362,24 @@
     prepLessonMenu.innerHTML = MC_LESSON_POOL.map((nm, i) =>
       `<button class="fp-switch-opt${(i + 1) === prepNo ? " active" : ""}" data-lessonopt="${i + 1}" type="button">第${i + 1}课时 ${esc(nm)}</button>`
     ).join("");
-    prepSectionsEl.innerHTML = PREP_SECTIONS.map((section) => {
+    const activeSection = PREP_SECTIONS.find((section) => section.title === prepSection);
+    const primaryMenu = PREP_SECTIONS.map((section) => {
       const hasChildren = Array.isArray(section.children);
       const isActive = section.title === prepSection;
-      const children = hasChildren ? `<div class="prep-subsections"${isActive ? "" : " hidden"}>${section.children.map((child) =>
-        `<button class="prep-subsec${child === prepSubsection ? " active" : ""}" data-prep-parent="${esc(section.title)}" data-prep-child="${esc(child)}" type="button">${esc(child)}</button>`
-      ).join("")}</div>` : "";
-      return `<div class="prep-nav-group${isActive ? " active" : ""}">
-        <button class="prep-sec${isActive ? " active" : ""}${hasChildren ? " has-children" : ""}" data-prep-parent="${esc(section.title)}" type="button"${hasChildren ? ` aria-expanded="${isActive}"` : ""}>
-          <span>${esc(section.title)}</span>${hasChildren ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' : ""}
-        </button>${children}
-      </div>`;
+      return `<button class="prep-sec${isActive ? " active" : ""}${hasChildren ? " has-children" : ""}" data-prep-parent="${esc(section.title)}" type="button"${hasChildren ? ` aria-expanded="${isActive}"` : ""}>
+        <span>${esc(section.title)}</span>${hasChildren ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' : ""}
+      </button>`;
     }).join("");
+    const hasSubsections = !!(activeSection && activeSection.children && activeSection.children.length);
+    const secondaryMenu = hasSubsections
+      ? activeSection.children.map((child) =>
+        `<button class="prep-subsec${child === prepSubsection ? " active" : ""}" data-prep-parent="${esc(activeSection.title)}" data-prep-child="${esc(child)}" type="button">${esc(child)}</button>`
+      ).join("")
+      : "";
+    prepSectionsEl.innerHTML = `<div class="prep-primary-menu">${primaryMenu}</div>`;
+    prepSubsectionsEl.innerHTML = `<div class="prep-secondary-menu">${secondaryMenu}</div>`;
+    prepSubsectionsEl.hidden = !hasSubsections;
+    if (prepBodyEl) prepBodyEl.classList.toggle("prep-no-subsections", !hasSubsections);
     if (prepSection === "课程简介" && prepSubsection === "课程信息") {
       prepContentEl.innerHTML =
         `<div class="pc-row"><span class="pc-key">课程名称：</span>${esc(name)}</div>` +
@@ -2378,6 +2392,12 @@
     } else {
       prepContentEl.innerHTML = `<div class="pc-empty">「${esc(prepSubsection || prepSection)}」环节内容开发中。</div>`;
     }
+    const currentPrepLabel = prepSubsection || prepSection;
+    const duration = PREP_DURATIONS[currentPrepLabel] || "03分13秒";
+    prepContentEl.insertAdjacentHTML("afterbegin", `<div class="prep-segment-meta">
+      <div><span class="psm-label">${esc(currentPrepLabel)}</span><span class="psm-duration">建议授课时长：<b>${duration}</b></span></div>
+      <button class="psm-preview" data-prep-preview="${esc(currentPrepLabel)}" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8L18.4 12 8 5.6Z"/></svg>预览</button>
+    </div>`);
   }
 
   function openPrep(no) {
@@ -2396,7 +2416,7 @@
 
   if (prepPage) {
     document.getElementById("prep-back").addEventListener("click", closePrep);
-    prepSectionsEl.addEventListener("click", (e) => {
+    const selectPrepSection = (e) => {
       const child = e.target.closest("[data-prep-child]");
       const parent = e.target.closest("[data-prep-parent]");
       if (!parent) return;
@@ -2404,6 +2424,12 @@
       const section = PREP_SECTIONS.find((item) => item.title === prepSection);
       prepSubsection = child ? child.dataset.prepChild : (section && section.children ? section.children[0] : "");
       renderPrep();
+    };
+    prepSectionsEl.addEventListener("click", selectPrepSection);
+    prepSubsectionsEl.addEventListener("click", selectPrepSection);
+    prepContentEl.addEventListener("click", (e) => {
+      const preview = e.target.closest("[data-prep-preview]");
+      if (preview) showToast(`正在预览「${preview.dataset.prepPreview}」`);
     });
     document.getElementById("prep-prev").addEventListener("click", () => { if (prepNo > 1) { prepNo--; prepSection = "课程简介"; prepSubsection = "课程信息"; renderPrep(); } });
     document.getElementById("prep-next").addEventListener("click", () => { if (prepNo < MC_LESSON_POOL.length) { prepNo++; prepSection = "课程简介"; prepSubsection = "课程信息"; renderPrep(); } });
