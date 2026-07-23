@@ -2258,7 +2258,8 @@
     lessonPkgMenu.innerHTML = myPackages.map((p, i) =>
       `<button class="fp-switch-opt${p === pkg ? " active" : ""}" data-pkgopt="${i}" type="button">${esc(p.names[0])}</button>`
     ).join("");
-    const taughtUpTo = 1; // 演示：已上到第 1 课时
+    const taughtUpTo = 4;                            // 演示：已上完前 4 课时
+    const LESSON_RESULTS = new Set([1, 3, 4]);       // 演示：这些课时有学生上传的成果
     // 单元分组：标题 + 覆盖的课时范围
     const MC_UNITS = [
       { title: "第1-2单元 · 走进人工智能", from: 1, to: 3 },
@@ -2270,8 +2271,17 @@
     ];
     function lessonCard(name, no) {
       const progress = no === taughtUpTo ? `<div class="lrc-progress">${ICON_UP}上到这里</div>` : '<div class="lrc-progress"></div>';
-      return `<div class="lesson-rail-card">
-        <div class="lrc-cover"><img src="${MC_LESSON_COVERS[(no - 1) % MC_LESSON_COVERS.length]}" alt="${esc(name)}"><span class="lrc-num">${no}</span></div>
+      // 已完成课时：封面盖一层毛玻璃「已完成」；其中有学生成果的再加「查看成果」
+      const done = no <= taughtUpTo;
+      const hasResult = done && LESSON_RESULTS.has(no);
+      const doneMask = done
+        ? `<div class="lrc-done${hasResult ? " has-result" : ""}">
+             <span class="lrc-done-tag">已完成</span>
+             ${hasResult ? `<button class="lrc-result" data-result="${no}" type="button">查看成果</button>` : ""}
+           </div>`
+        : "";
+      return `<div class="lesson-rail-card${done ? " is-done" : ""}">
+        <div class="lrc-cover"><img src="${MC_LESSON_COVERS[(no - 1) % MC_LESSON_COVERS.length]}" alt="${esc(name)}"><span class="lrc-num">${no}</span>${doneMask}</div>
         <h4 class="lrc-name">${esc(name)}</h4>
         <div class="lrc-actions"><button class="lrc-res" data-res="${no}" type="button">资源</button><button class="lrc-prep" data-prep="${no}" type="button">备课</button><button class="lrc-teach" data-teach="${no}" type="button">上课</button></div>
         ${progress}
@@ -2296,6 +2306,12 @@
 
   if (lessonRail) {
     lessonRail.addEventListener("click", (e) => {
+      const result = e.target.closest("[data-result]");
+      if (result) {
+        const no = parseInt(result.dataset.result, 10);
+        showToast(`查看「${MC_LESSON_POOL[no - 1]}」的学生成果（开发中）`);
+        return;
+      }
       const res = e.target.closest("[data-res]");
       const prep = e.target.closest("[data-prep]");
       const teach = e.target.closest("[data-teach]");
@@ -2800,7 +2816,8 @@
     teachContent.className = "teach-content";
     teachPlayer.hidden = segment.type !== "video";
     teachTools.hidden = segment.type === "report";
-    teachStepNav.hidden = segment.type === "report";
+    // 课堂报告不需要上一步/下一步，但全屏按钮仍要留着，避免全屏后无处退出
+    teachStepNav.classList.toggle("only-fs", segment.type === "report");
     teachPage.classList.remove("chrome-hidden");
     teachPage.classList.toggle("teach-light", segment.type !== "video");
     updateKnowledgeEntry(teachIndex);
@@ -2876,9 +2893,21 @@
       showTeachChrome();
     });
     document.getElementById("teach-sound").addEventListener("click", () => showToast("已切换课堂声音"));
-    document.getElementById("teach-screen").addEventListener("click", () => {
+    // 全屏：视频播放条与底部导航两处入口共用同一套逻辑
+    function toggleTeachFullscreen() {
       if (!document.fullscreenElement && teachPage.requestFullscreen) teachPage.requestFullscreen();
       else if (document.exitFullscreen) document.exitFullscreen();
+    }
+    document.getElementById("teach-screen").addEventListener("click", toggleTeachFullscreen);
+    document.getElementById("teach-fullscreen").addEventListener("click", toggleTeachFullscreen);
+    // 同步按钮状态（用户按 F11 或 Esc 退出时也要跟着变）
+    document.addEventListener("fullscreenchange", () => {
+      const on = !!document.fullscreenElement;
+      teachPage.classList.toggle("is-fullscreen", on);
+      const btn = document.getElementById("teach-fullscreen");
+      btn.title = on ? "退出全屏" : "全屏授课";
+      btn.setAttribute("aria-label", on ? "退出全屏" : "全屏");
+      document.querySelector(".teach-fs-text").textContent = on ? "退出全屏" : "全屏";
     });
     teachSegmentsEl.addEventListener("click", (event) => {
       const button = event.target.closest("[data-teach-segment]");

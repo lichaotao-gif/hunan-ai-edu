@@ -983,6 +983,30 @@ ul { list-style: none; }
   display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #fff;
   border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); box-shadow: 0 4px 10px rgba(38, 158, 216, .3);
 }
+/* 已完成课时：封面盖一层毛玻璃 + 居中「已完成」标识 */
+.lrc-done {
+  position: absolute; inset: 0;
+  background: rgba(12, 46, 66, .34);
+  -webkit-backdrop-filter: blur(3px) saturate(120%); backdrop-filter: blur(3px) saturate(120%);
+}
+/* 固定居中，不随「查看成果」的有无而移动 */
+.lrc-done-tag {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  padding: 10px 26px; border-radius: 999px; white-space: nowrap;
+  font-size: 22px; font-weight: 800; letter-spacing: 4px; color: #fff;
+  background: rgba(255, 255, 255, .18);
+  -webkit-backdrop-filter: blur(10px) saturate(160%); backdrop-filter: blur(10px) saturate(160%);
+  text-shadow: 0 2px 8px rgba(4, 35, 51, .4);
+}
+/* 有学生成果时才出现：纯文字，弱化处理，贴在封面底部 */
+.lrc-result {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  padding: 4px 6px; font-size: 13px; font-weight: 600; white-space: nowrap;
+  color: rgba(255, 255, 255, .82); background: none; border: none; box-shadow: none;
+  text-shadow: 0 1px 5px rgba(4, 35, 51, .5);
+  transition: color .16s;
+}
+.lrc-result:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 .lrc-name { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
 .lrc-actions { display: flex; gap: var(--sp-3); margin-top: auto; }
 .lrc-actions button {
@@ -1513,6 +1537,23 @@ ul { list-style: none; }
 .teach-step-nav button.primary { color: #fff; background: linear-gradient(135deg, var(--primary), #22C1E8 60%, var(--accent)); box-shadow: 0 8px 18px rgba(38,158,216,.34), inset 0 1px 0 rgba(255,255,255,.35); }
 .teach-step-nav button.primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
 .teach-step-nav button:disabled { opacity: .48; cursor: not-allowed; box-shadow: none; }
+/* 全屏按钮：所有片段可用，比上一步/下一步更紧凑 */
+.teach-step-nav button.teach-fs-btn { min-width: 0; padding: 0 14px; gap: 7px; }
+.teach-fs-btn .ico-exit { display: none; }
+.teach-page.is-fullscreen .teach-fs-btn .ico-enter { display: none; }
+.teach-page.is-fullscreen .teach-fs-btn .ico-exit { display: block; }
+.teach-page.is-fullscreen .teach-step-nav button.teach-fs-btn {
+  color: #fff; border-color: var(--primary);
+  background: linear-gradient(180deg, #4FB4E6 0%, #1B7FB4 100%);
+  box-shadow: 0 4px 12px rgba(38,158,216,.34), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.teach-page.is-fullscreen .teach-step-nav button.teach-fs-btn:hover { background: linear-gradient(180deg, #64C0EE 0%, #1F8CC4 100%); color: #fff; }
+.teach-step-sep { width: 1px; height: 26px; background: rgba(38, 158, 216, .28); }
+/* 课堂报告：只保留全屏按钮 */
+.teach-step-nav.only-fs .teach-step-sep,
+.teach-step-nav.only-fs #teach-prev,
+.teach-step-nav.only-fs #teach-next,
+.teach-step-nav.only-fs .teach-step-count { display: none; }
 .teach-step-nav svg { width: 18px; height: 18px; }
 .teach-step-count { min-width: 54px; color: var(--text-main); text-align: center; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .teach-hint { position: fixed; left: 50%; bottom: 24px; z-index: 3; transform: translateX(-50%); opacity: 0; pointer-events: none; padding: 7px 12px; border-radius: 8px; color: #fff; background: rgba(5,31,44,.58); font-size: 12px; transition: opacity .2s; }

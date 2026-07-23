@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=127">
+<link rel="stylesheet" href="css/style.css?v=130">
 </head>
 <body>
 <div class="app-shell">
@@ -906,6 +906,13 @@
   </div>
 
   <nav class="teach-chrome teach-step-nav" aria-label="片段切换">
+    <!-- 全屏：所有片段可用，方便直接在教室电脑上全屏授课 -->
+    <button class="teach-fs-btn" id="teach-fullscreen" type="button" aria-label="全屏" title="全屏授课">
+      <svg class="ico-enter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 3 3 3 3 8"/><polyline points="16 3 21 3 21 8"/><polyline points="8 21 3 21 3 16"/><polyline points="16 21 21 21 21 16"/></svg>
+      <svg class="ico-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 8 8 8 8 3"/><polyline points="21 8 16 8 16 3"/><polyline points="3 16 8 16 8 21"/><polyline points="21 16 16 16 16 21"/></svg>
+      <span class="teach-fs-text">全屏</span>
+    </button>
+    <span class="teach-step-sep"></span>
     <button id="teach-prev" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
       <span>上一步</span>
@@ -989,6 +996,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=81"></script>
+<script src="js/app.js?v=84"></script>
 </body>
 </html>
