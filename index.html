@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=106">
+<link rel="stylesheet" href="css/style.css?v=109">
 </head>
 <body>
 <div class="app-shell">
@@ -296,12 +296,15 @@
 
             <!-- 右侧栏 -->
             <aside class="mc-rail">
-              <div class="rail-card">
-                <div class="block-head"><span class="bar"></span>今日课表</div>
+              <div class="rail-card rail-card-today">
+                <div class="rail-today-head">
+                  <div class="block-head"><span class="bar"></span>今日课表</div>
+                  <span class="today-count" id="today-count"></span>
+                </div>
                 <div class="today-list" id="today-list"></div>
               </div>
 
-              <div class="rail-card">
+              <div class="rail-card rail-card-cal">
                 <div class="rail-cal-head">
                   <div class="block-head"><span class="bar"></span>课程日历</div>
                   <div class="rail-cal-head-right">
@@ -940,6 +943,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=67"></script>
+<script src="js/app.js?v=70"></script>
 </body>
 </html>

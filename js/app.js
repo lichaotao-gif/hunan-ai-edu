@@ -1947,12 +1947,51 @@
 
   // ===== 今日课表 + 课程日历 =====
   // 每周固定排课示例（周一=1 … 周五=5）
+  // period 节次 / time 上课时间，用于今日课表按时间顺序展示
   const weekSchedule = {
-    1: [{ course: "人工智能（四下）", klass: "四年级(6)班" }],
-    2: [{ course: "人工智能（五下）", klass: "五年级(2)班" }],
-    3: [{ course: "人工智能（八下）", klass: "八年级(2)班" }, { course: "人工智能（七下）", klass: "七年级(3)班" }],
-    4: [{ course: "人工智能（六下）", klass: "六年级(1)班" }],
-    5: [{ course: "体验课", klass: "三年级(4)班" }],
+    1: [
+      { period: "第1节", time: "08:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第3课 认识图像识别" },
+      { period: "第2节", time: "08:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第4课 让机器认识照片" },
+      { period: "第3节", time: "10:00", course: "人工智能（五下）", klass: "五年级(2)班", lesson: "第2课 语音助手初体验" },
+      { period: "第4节", time: "10:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第5课 图像分类小实验" },
+      { period: "第5节", time: "14:00", course: "体验课", klass: "四年级(6)班", lesson: "AI 通识体验课" },
+      { period: "第6节", time: "14:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第6课 训练我的第一个模型" },
+      { period: "第7节", time: "15:50", course: "人工智能（六下）", klass: "六年级(1)班", lesson: "第4课 智能推荐是怎么来的" },
+    ],
+    2: [
+      { period: "第1节", time: "08:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第7课 数据里的规律" },
+      { period: "第2节", time: "08:55", course: "人工智能（五下）", klass: "五年级(2)班", lesson: "第3课 语音识别原理" },
+      { period: "第3节", time: "10:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第8课 会分类的机器" },
+      { period: "第4节", time: "10:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第9课 数据标注小课堂" },
+      { period: "第5节", time: "14:00", course: "人工智能（八下）", klass: "八年级(2)班", lesson: "第2课 神经网络入门" },
+      { period: "第6节", time: "14:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第10课 单元小结与展示" },
+    ],
+    3: [
+      { period: "第1节", time: "08:00", course: "人工智能（八下）", klass: "八年级(2)班", lesson: "第3课 卷积与特征" },
+      { period: "第2节", time: "08:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第11课 智能小助手设计" },
+      { period: "第3节", time: "10:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第12课 语音指令初体验" },
+      { period: "第4节", time: "10:55", course: "人工智能（七下）", klass: "七年级(3)班", lesson: "第2课 搜索与决策" },
+      { period: "第5节", time: "14:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第13课 让小车会避障" },
+      { period: "第6节", time: "14:55", course: "体验课", klass: "四年级(6)班", lesson: "AI 通识体验课" },
+      { period: "第7节", time: "15:50", course: "人工智能（五下）", klass: "五年级(2)班", lesson: "第4课 智能音箱拆解" },
+    ],
+    4: [
+      { period: "第1节", time: "08:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第14课 图像里的秘密" },
+      { period: "第2节", time: "08:55", course: "人工智能（六下）", klass: "六年级(1)班", lesson: "第5课 推荐算法小实验" },
+      { period: "第3节", time: "10:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第15课 训练与测试" },
+      { period: "第4节", time: "10:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第16课 模型好不好用" },
+      { period: "第5节", time: "14:00", course: "人工智能（七下）", klass: "七年级(3)班", lesson: "第3课 博弈与策略" },
+      { period: "第6节", time: "14:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第17课 生活中的智能助手" },
+      { period: "第7节", time: "15:50", course: "体验课", klass: "三年级(4)班", lesson: "AI 通识体验课" },
+    ],
+    5: [
+      { period: "第1节", time: "08:00", course: "体验课", klass: "三年级(4)班", lesson: "AI 通识体验课" },
+      { period: "第2节", time: "08:55", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第18课 我的 AI 小作品" },
+      { period: "第3节", time: "10:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第19课 作品互评与改进" },
+      { period: "第4节", time: "10:55", course: "人工智能（八下）", klass: "八年级(2)班", lesson: "第4课 模型评估" },
+      { period: "第5节", time: "14:00", course: "人工智能（四下）", klass: "四年级(6)班", lesson: "第20课 单元回顾与展示" },
+      { period: "第6节", time: "14:55", course: "人工智能（六下）", klass: "六年级(1)班", lesson: "第6课 智能推荐再探究" },
+    ],
   };
   const WEEK_LABELS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   const pad2 = (n) => String(n).padStart(2, "0");
@@ -1984,11 +2023,12 @@
     const now = new Date();
     const wd = now.getDay();
     const items = weekSchedule[wd] || weekSchedule[1]; // 周末用周一示例
-    const dateStr = `${pad2(now.getMonth() + 1)}/${pad2(now.getDate())}`;
+    const countEl = document.getElementById("today-count");
+    if (countEl) countEl.textContent = `${WEEK_LABELS[wd]} · ${items.length} 节`;
     listEl.innerHTML = items.map((it) => `
       <div class="today-item">
-        <div class="ti-date"><b>${dateStr}</b><span>${WEEK_LABELS[wd]}</span></div>
-        <div class="ti-main"><b>${it.course}</b><span>${it.klass} · 双师AI课堂</span></div>
+        <div class="ti-date"><b>${it.time || ""}</b><span>${it.period || WEEK_LABELS[wd]}</span></div>
+        <div class="ti-main"><b>${it.course}</b><span>${it.klass}${it.lesson ? " · " + it.lesson : " · 双师AI课堂"}</span></div>
         <button class="ghost-btn ti-go" type="button">进入</button>
       </div>`).join("");
     listEl.querySelectorAll(".ti-go").forEach((b) => b.addEventListener("click", () => showToast("进入课堂（开发中）")));
@@ -2010,7 +2050,7 @@
       const isToday = sameDay(date, today);
       const items = hasScheduleData() ? (weekSchedule[i + 1] || []) : [];
       const body = items.length
-        ? items.map((it) => `<div class="cal-class"><b>${it.course}</b><span class="cc-klass">${it.klass}</span></div>`).join("")
+        ? items.map((it) => `<div class="cal-class">${it.time ? `<span class="cc-time">${it.time} ${it.period || ""}</span>` : ""}<b>${it.course}</b><span class="cc-klass">${it.klass}</span></div>`).join("")
         : '<div class="cal-empty">无课</div>';
       html += `<div class="cal-day${isToday ? " today" : ""}">
         <div class="cal-day-head"><span class="cd-week">${WEEK_LABELS[i + 1]}</span><span class="cd-date">${pad2(date.getMonth() + 1)}/${pad2(date.getDate())}</span>${isToday ? '<span class="cd-today">今天</span>' : ""}</div>
