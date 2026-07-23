@@ -857,6 +857,59 @@ ul { list-style: none; }
   max-width: none; margin: 0;
   padding: var(--sp-4) clamp(16px, 2.4vw, 32px);
 }
+/* 课时页右上角：图书信息 / 上课指导（后台配置项，可能都不显示） */
+.lesson-extra { margin-left: auto; display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0; }
+.lx-btn {
+  position: relative; overflow: hidden; min-height: 44px; padding: 0 18px 0 12px;
+  display: inline-flex; align-items: center; gap: 9px; border-radius: 14px;
+  color: #fff; font-size: 14.5px; font-weight: 700; letter-spacing: .3px;
+  border: 1px solid rgba(255, 255, 255, .34);
+  background: linear-gradient(135deg, var(--lx-a) 0%, var(--lx-b) 55%, var(--lx-c) 100%);
+  box-shadow: 0 8px 20px var(--lx-sh), inset 0 1px 0 rgba(255, 255, 255, .34);
+  transition: transform .18s, box-shadow .18s, filter .18s;
+}
+.lx-btn[hidden] { display: none; }
+/* 掠过的高光 */
+.lx-btn::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 38%; left: -60%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .38), transparent);
+  transform: skewX(-18deg); transition: left .5s ease;
+}
+.lx-btn > * { position: relative; }
+.lx-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 26px var(--lx-sh), inset 0 1px 0 rgba(255,255,255,.4); }
+.lx-btn:hover::after { left: 120%; }
+.lx-btn:active { transform: translateY(0); }
+.lx-ico {
+  width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 10px;
+  background: rgba(255, 255, 255, .22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38);
+}
+.lx-ico svg { width: 17px; height: 17px; }
+.lx-book  { --lx-a:#F59E0B; --lx-b:#F97316; --lx-c:#EC6A5C; --lx-sh:rgba(245,140,11,.34); }
+.lx-guide { --lx-a:#6366F1; --lx-b:#8B5CF6; --lx-c:#C24BE0; --lx-sh:rgba(124,92,246,.34); }
+
+/* ---------- 上课指导视频弹窗 ---------- */
+.guide-modal {
+  position: relative; width: min(920px, calc(100vw - 32px));
+  border-radius: 22px; padding: clamp(20px, 2.6vw, 26px);
+  background: linear-gradient(160deg, #1B2350 0%, #2A2266 55%, #3B2170 100%);
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: 0 30px 70px rgba(4, 12, 40, .48);
+}
+.guide-modal .modal-close { color: rgba(255, 255, 255, .82); }
+.guide-modal .modal-close:hover { color: #fff; background: rgba(255, 255, 255, .16); }
+.guide-head { margin-bottom: 16px; padding-right: 44px; }
+.guide-head h2 { font-size: clamp(18px, 2.2vw, 22px); font-weight: 800; color: #fff; }
+.guide-head p { margin-top: 5px; font-size: 13.5px; color: rgba(255, 255, 255, .7); }
+.guide-video { position: relative; border-radius: 14px; overflow: hidden; background: #0B1030; aspect-ratio: 16 / 9; box-shadow: 0 16px 36px rgba(4, 12, 40, .4); }
+.guide-video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #0B1030; }
+/* 后台尚未配置视频地址时的占位说明 */
+.guide-empty {
+  position: absolute; inset: 0; z-index: 2; display: grid; place-items: center;
+  font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, .78);
+  background: rgba(11, 16, 48, .86);
+}
+.guide-empty[hidden] { display: none; }
+
 .fullpage-back {
   width: 44px; height: 44px; border-radius: var(--radius-sm); flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;

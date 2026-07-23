@@ -1231,6 +1231,25 @@
     return found ? found.periods : "10课时";
   }
 
+  /* 课程包附加资料（由运营后台按课程包配置，缺省即不显示对应入口）
+   * 接真实接口时保持结构不变：以课程包名为 key 返回 { bookIndex, guide } 即可。
+   *   bookIndex 对应 books 数组下标，复用平台已有的图书信息弹窗
+   *   guide { title, sub, src, poster } —— 上课指导视频 */
+  const PACKAGE_EXTRAS = {
+    "人工智能（四下）": {
+      bookIndex: 0,
+      guide: {
+        title: "《人工智能（四下）》上课指导",
+        sub: "教研团队讲解 · 全册教学建议与课堂组织方法",
+        src: "",   // 由后台配置真实视频地址
+        poster: "assets/img/machine-learning-classroom.jpg",
+      },
+    },
+    // 该课程包配了教材，但暂未配上课指导视频
+    "人工智能（五下）": { bookIndex: 1 },
+    // 「体验课」未配置任何附加资料，两个按钮都不显示
+  };
+
   const myPackages = [];
   // 从 classStore 重建「我的课程」课程包（新增/删除课程后调用以保持同步）
   function rebuildMyPackages() {
@@ -2254,6 +2273,10 @@
     mcCurrentPkg = pkg;
     document.getElementById("lesson-page-title").textContent = pkg.names[0];
     document.getElementById("lesson-page-sub").textContent = `共 ${MC_LESSON_POOL.length} 课时 · ${pkg.klass}`;
+    // 图书信息 / 上课指导：后台配置了才显示
+    const extras = PACKAGE_EXTRAS[pkg.names[0]] || {};
+    document.getElementById("lesson-book-btn").hidden = extras.bookIndex === undefined;
+    document.getElementById("lesson-guide-btn").hidden = !extras.guide;
     // 课程包切换菜单
     lessonPkgMenu.innerHTML = myPackages.map((p, i) =>
       `<button class="fp-switch-opt${p === pkg ? " active" : ""}" data-pkgopt="${i}" type="button">${esc(p.names[0])}</button>`
@@ -2323,6 +2346,40 @@
       else if (teach) openTeach(parseInt(teach.dataset.teach, 10));
     });
     document.getElementById("lesson-page-back").addEventListener("click", closeMcLessons);
+
+    // --- 图书信息：复用平台已有的图书弹窗 ---
+    document.getElementById("lesson-book-btn").addEventListener("click", () => {
+      const extras = PACKAGE_EXTRAS[mcCurrentPkg && mcCurrentPkg.names[0]] || {};
+      if (extras.bookIndex !== undefined) openBookInfo(extras.bookIndex);
+    });
+
+    // --- 上课指导视频弹窗 ---
+    const guideModal = document.getElementById("guide-modal");
+    const guideVideo = document.getElementById("guide-video-el");
+    function openGuideModal() {
+      const guide = (PACKAGE_EXTRAS[mcCurrentPkg && mcCurrentPkg.names[0]] || {}).guide;
+      if (!guide) return;
+      document.getElementById("guide-modal-title").textContent = guide.title || "上课指导";
+      document.getElementById("guide-modal-sub").textContent = guide.sub || "";
+      guideVideo.poster = guide.poster || "";
+      // 后台未配置视频地址时，播放器留空并给出说明
+      guideVideo.src = guide.src || "";
+      document.getElementById("guide-empty").hidden = !!guide.src;
+      guideModal.hidden = false;
+      document.body.classList.add("modal-open");
+    }
+    function closeGuideModal() {
+      guideVideo.pause();
+      guideModal.hidden = true;
+      if (lessonPage.hidden) document.body.classList.remove("modal-open");
+    }
+    document.getElementById("lesson-guide-btn").addEventListener("click", openGuideModal);
+    document.getElementById("guide-modal-close").addEventListener("click", closeGuideModal);
+    guideModal.addEventListener("click", (e) => { if (e.target === guideModal) closeGuideModal(); });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !guideModal.hidden) closeGuideModal();
+    });
     // 课程包切换
     document.getElementById("lesson-pkg-btn").addEventListener("click", (e) => {
       e.stopPropagation();

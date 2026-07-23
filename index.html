@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=130">
+<link rel="stylesheet" href="css/style.css?v=133">
 </head>
 <body>
 <div class="app-shell">
@@ -753,9 +753,37 @@
       </div>
       <span id="lesson-page-sub"></span>
     </div>
+    <!-- 课程包附加入口：由后台配置，没有配置的课程包不显示 -->
+    <div class="lesson-extra" id="lesson-extra">
+      <button class="lx-btn lx-book" id="lesson-book-btn" type="button" hidden>
+        <span class="lx-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <span>图书信息</span>
+      </button>
+      <button class="lx-btn lx-guide" id="lesson-guide-btn" type="button" hidden>
+        <span class="lx-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="14" rx="2.6"/><path d="M8 21h8"/><path d="M12 18v3"/><path d="M10.6 8.6 15 11l-4.4 2.4z" fill="currentColor" stroke="none"/></svg></span>
+        <span>上课指导</span>
+      </button>
+    </div>
   </div>
   <div class="fullpage-body">
     <div class="lesson-flow" id="mc-lessons-rail"></div>
+  </div>
+</div>
+
+<!-- 上课指导视频弹窗 -->
+<div class="modal-backdrop" id="guide-modal" hidden>
+  <div class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+    <button class="modal-close" id="guide-modal-close" type="button" aria-label="关闭上课指导">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="guide-head">
+      <h2 id="guide-modal-title">上课指导</h2>
+      <p id="guide-modal-sub"></p>
+    </div>
+    <div class="guide-video">
+      <video id="guide-video-el" controls preload="metadata" playsinline></video>
+      <div class="guide-empty" id="guide-empty" hidden>上课指导视频尚未配置</div>
+    </div>
   </div>
 </div>
 
@@ -996,6 +1024,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=84"></script>
+<script src="js/app.js?v=87"></script>
 </body>
 </html>
