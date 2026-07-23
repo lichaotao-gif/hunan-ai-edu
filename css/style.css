@@ -859,33 +859,41 @@ ul { list-style: none; }
 }
 /* 课时页右上角：图书信息 / 上课指导（后台配置项，可能都不显示） */
 .lesson-extra { margin-left: auto; display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0; }
+/* 液态玻璃：半透明渐变 + 内高光 + 淡蓝描边，配色收敛到主题蓝 */
 .lx-btn {
-  position: relative; overflow: hidden; min-height: 44px; padding: 0 18px 0 12px;
+  position: relative; overflow: hidden; min-height: 44px; padding: 0 18px 0 11px;
   display: inline-flex; align-items: center; gap: 9px; border-radius: 14px;
-  color: #fff; font-size: 14.5px; font-weight: 700; letter-spacing: .3px;
-  border: 1px solid rgba(255, 255, 255, .34);
-  background: linear-gradient(135deg, var(--lx-a) 0%, var(--lx-b) 55%, var(--lx-c) 100%);
-  box-shadow: 0 8px 20px var(--lx-sh), inset 0 1px 0 rgba(255, 255, 255, .34);
-  transition: transform .18s, box-shadow .18s, filter .18s;
+  color: var(--primary-dark); font-size: 14.5px; font-weight: 700; letter-spacing: .3px;
+  border: 1px solid rgba(38, 158, 216, .3);
+  background: linear-gradient(150deg, rgba(255, 255, 255, .86) 0%, rgba(230, 244, 252, .66) 55%, rgba(38, 158, 216, .16) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -2px 6px rgba(38, 158, 216, .1), 0 6px 16px rgba(20, 58, 64, .1);
+  -webkit-backdrop-filter: blur(14px) saturate(165%); backdrop-filter: blur(14px) saturate(165%);
+  transition: transform .18s, box-shadow .18s, border-color .18s, background .18s;
 }
 .lx-btn[hidden] { display: none; }
 /* 掠过的高光 */
 .lx-btn::after {
   content: ""; position: absolute; top: 0; bottom: 0; width: 38%; left: -60%; pointer-events: none;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .38), transparent);
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .55), transparent);
   transform: skewX(-18deg); transition: left .5s ease;
 }
 .lx-btn > * { position: relative; }
-.lx-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 26px var(--lx-sh), inset 0 1px 0 rgba(255,255,255,.4); }
+.lx-btn:hover {
+  transform: translateY(-2px); border-color: rgba(38, 158, 216, .55);
+  background: linear-gradient(150deg, rgba(255, 255, 255, .94) 0%, rgba(214, 238, 251, .78) 55%, rgba(38, 158, 216, .24) 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 7px rgba(38, 158, 216, .16), 0 10px 24px rgba(38, 158, 216, .22);
+}
 .lx-btn:hover::after { left: 120%; }
 .lx-btn:active { transform: translateY(0); }
 .lx-ico {
   width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 10px;
-  background: rgba(255, 255, 255, .22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38);
+  color: var(--primary);
+  background: rgba(38, 158, 216, .13);
+  border: 1px solid rgba(38, 158, 216, .2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
 }
+.lx-btn:hover .lx-ico { color: var(--primary-dark); background: rgba(38, 158, 216, .2); }
 .lx-ico svg { width: 17px; height: 17px; }
-.lx-book  { --lx-a:#F59E0B; --lx-b:#F97316; --lx-c:#EC6A5C; --lx-sh:rgba(245,140,11,.34); }
-.lx-guide { --lx-a:#6366F1; --lx-b:#8B5CF6; --lx-c:#C24BE0; --lx-sh:rgba(124,92,246,.34); }
 
 /* ---------- 上课指导视频弹窗 ---------- */
 .guide-modal {
@@ -1068,17 +1076,18 @@ ul { list-style: none; }
   backdrop-filter: blur(12px) saturate(170%);
   transition: transform .15s, background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-/* 次级：毛玻璃白 */
+/* 次级：浅蓝毛玻璃 */
 .lrc-prep, .lrc-res {
-  background: rgba(255, 255, 255, .62);
-  border: 1px solid rgba(255, 255, 255, .85);
-  color: var(--text-main);
-  box-shadow: 0 1px 2px rgba(20, 58, 64, .05), 0 6px 16px rgba(20, 58, 64, .07), inset 0 1px 0 rgba(255, 255, 255, .85);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .82), rgba(226, 243, 252, .78) 60%, rgba(38, 158, 216, .14));
+  border: 1px solid rgba(38, 158, 216, .26);
+  color: var(--primary-dark);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .05), 0 6px 16px rgba(20, 58, 64, .07), inset 0 1px 0 rgba(255, 255, 255, .9);
 }
 .lrc-prep:hover, .lrc-res:hover {
-  background: rgba(255, 255, 255, .92); border-color: rgba(169, 217, 243, .95);
-  color: var(--primary-dark); transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(20, 58, 64, .12), inset 0 1px 0 rgba(255, 255, 255, .95);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .9), rgba(206, 235, 250, .88) 60%, rgba(38, 158, 216, .22));
+  border-color: rgba(38, 158, 216, .5);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(38, 158, 216, .18), inset 0 1px 0 rgba(255, 255, 255, .95);
 }
 /* 主操作：主题色毛玻璃 */
 .lrc-teach {
