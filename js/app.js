@@ -513,23 +513,71 @@
   const schoolModal = document.getElementById("school-modal");
   const schoolSearchInput = document.getElementById("school-search-input");
   const schoolListEl = document.getElementById("school-list");
+  const schoolCountEl = document.getElementById("school-count");
+  const spProvince = document.getElementById("school-province");
+  const spCity = document.getElementById("school-city");
+  const spDistrict = document.getElementById("school-district");
   let schoolSelection = "";
+  // 区域筛选状态：空字符串代表"全部"
+  const schoolScope = { city: "", district: "" };
+
+  // 区域树与大屏共用 js/bigscreen-data.js；未加载时降级为平铺学校列表
+  const REGION_DATA = window.BigScreenData || null;
+  const REGION_PROVINCE = REGION_DATA ? REGION_DATA.PROVINCE : "湖南省";
+
+  // 按当前区域返回 [{school, city, district}]
+  function schoolsInScope() {
+    if (REGION_DATA) return REGION_DATA.allSchoolsUnder(REGION_PROVINCE, schoolScope.city, schoolScope.district);
+    return SCHOOLS.map((s) => ({ school: s, city: "", district: "" }));
+  }
+
+  function fillSelect(sel, items, allLabel, value) {
+    sel.innerHTML = `<option value="">${allLabel}</option>` +
+      items.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.value = value || "";
+  }
+
+  function renderSchoolRegionSelects() {
+    if (!REGION_DATA) { spProvince.closest(".school-region").hidden = true; return; }
+    fillSelect(spProvince, [REGION_PROVINCE], "全部省份", REGION_PROVINCE);
+    fillSelect(spCity, REGION_DATA.REGION_TREE.map((c) => c.name), "全部市", schoolScope.city);
+    const city = REGION_DATA.REGION_TREE.find((c) => c.name === schoolScope.city);
+    fillSelect(spDistrict, city ? city.districts.map((d) => d.name) : [], "全部区/县", schoolScope.district);
+    spDistrict.disabled = !city;
+  }
 
   function renderSchoolOptions(filter) {
     const kw = (filter || "").trim();
-    const list = kw ? SCHOOLS.filter((s) => s.includes(kw)) : SCHOOLS;
+    let list = schoolsInScope();
+    if (kw) list = list.filter((s) => s.school.includes(kw));
+    schoolCountEl.textContent = list.length
+      ? `共 ${list.length} 所学校${kw ? "（已按关键词过滤）" : ""}`
+      : "";
     if (list.length === 0) {
-      schoolListEl.innerHTML = '<div class="school-empty">未找到匹配的学校</div>';
+      schoolListEl.innerHTML = '<div class="school-empty">该区域下未找到匹配的学校，请调整区域或关键词</div>';
       return;
     }
-    schoolListEl.innerHTML = list.map((s) =>
-      `<label class="school-option"><input type="radio" name="school-pick" value="${esc(s)}" ${s === schoolSelection ? "checked" : ""}><b>${esc(s)}</b></label>`
-    ).join("");
+    schoolListEl.innerHTML = list.map((s) => {
+      const area = s.city ? `${esc(s.city)} · ${esc(s.district)}` : "";
+      return `<label class="school-option"><input type="radio" name="school-pick" value="${esc(s.school)}" ${s.school === schoolSelection ? "checked" : ""}>` +
+        `<span class="school-option-text"><b>${esc(s.school)}</b>${area ? `<i>${area}</i>` : ""}</span></label>`;
+    }).join("");
+  }
+
+  // 已绑定学校时，回填其所属市/区，便于用户就近调整
+  function scopeFromSchool(name) {
+    if (!REGION_DATA || !name) return { city: "", district: "" };
+    const hit = REGION_DATA.allSchoolsUnder(REGION_PROVINCE, "", "").find((s) => s.school === name);
+    return hit ? { city: hit.city, district: hit.district } : { city: "", district: "" };
   }
 
   function openSchoolModal() {
     schoolSelection = loadSchool();
+    const from = scopeFromSchool(schoolSelection);
+    schoolScope.city = from.city;
+    schoolScope.district = from.district;
     schoolSearchInput.value = "";
+    renderSchoolRegionSelects();
     renderSchoolOptions("");
     schoolModal.hidden = false;
     document.body.classList.add("modal-open");
@@ -540,6 +588,16 @@
     document.body.classList.remove("modal-open");
   }
   schoolSearchInput.addEventListener("input", () => renderSchoolOptions(schoolSearchInput.value));
+  spCity.addEventListener("change", () => {
+    schoolScope.city = spCity.value;
+    schoolScope.district = "";       // 切换市后重置区/县
+    renderSchoolRegionSelects();
+    renderSchoolOptions(schoolSearchInput.value);
+  });
+  spDistrict.addEventListener("change", () => {
+    schoolScope.district = spDistrict.value;
+    renderSchoolOptions(schoolSearchInput.value);
+  });
   schoolListEl.addEventListener("change", (e) => {
     if (e.target.name === "school-pick") schoolSelection = e.target.value;
   });
@@ -2823,7 +2881,7 @@
     const hasClass = classStore.length > 0;
     const hasCourse = classStore.some((c) => Array.isArray(c.courses) && c.courses.length > 0);
     return [
-      { key: "school", done: hasSchool, title: "绑定学校", desc: "选择所在学校，审核通过后即可创建班级", btn: "去绑定", act: () => openSchoolModal() },
+      { key: "school", done: hasSchool, title: "绑定学校", desc: "按省市区选择所在学校，绑定后即可创建班级", btn: "去绑定", act: () => openSchoolModal() },
       { key: "class", done: hasClass, title: "创建班级", desc: "填写年级与班级名称，建立你的第一个班级", btn: "去创建", act: () => openClassForm(), locked: !hasSchool },
       { key: "course", done: hasCourse, title: "添加课程", desc: "为班级选择课程包，即可排课与上课", btn: "去添加", act: () => { const t = document.querySelector('.menu-item[data-target="class-management"]'); if (t) t.click(); }, locked: !hasClass },
     ];
@@ -2906,8 +2964,11 @@
   }
 
   function renderProfileSchool() {
+    const name = loadSchool();
     const el = document.getElementById("pp-school");
-    if (el) el.textContent = loadSchool() || "未绑定学校";
+    if (el) el.textContent = name || "未绑定学校";
+    const side = document.getElementById("sidebar-school");
+    if (side) side.textContent = name || "未绑定学校";
   }
 
   // 初始化面板信息

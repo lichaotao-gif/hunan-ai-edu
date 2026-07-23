@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=105">
+<link rel="stylesheet" href="css/style.css?v=106">
 </head>
 <body>
 <div class="app-shell">
@@ -101,7 +101,7 @@
       <div class="sidebar-profile">
         <div class="avatar" id="sidebar-avatar">陈</div>
         <div class="greet" id="sidebar-greet">下午好，陈老师</div>
-        <div class="role">长沙市第一中学</div>
+        <div class="role" id="sidebar-school">长沙市第一中学</div>
       </div>
 
       <div class="menu">
@@ -571,11 +571,26 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <h2 id="school-modal-title">绑定学校</h2>
-    <p class="class-modal-sub">选择你所在的学校，绑定后即可创建班级</p>
+    <p class="class-modal-sub">先选择所在区域，再从该区域下的学校中选择绑定</p>
+    <div class="school-region">
+      <div class="form-field">
+        <label for="school-province">省</label>
+        <select id="school-province"></select>
+      </div>
+      <div class="form-field">
+        <label for="school-city">市</label>
+        <select id="school-city"></select>
+      </div>
+      <div class="form-field">
+        <label for="school-district">区/县</label>
+        <select id="school-district"></select>
+      </div>
+    </div>
     <div class="school-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="school-search-input" placeholder="搜索学校名称" autocomplete="off">
+      <input type="text" id="school-search-input" placeholder="在所选区域内搜索学校名称" autocomplete="off">
     </div>
+    <div class="school-count" id="school-count"></div>
     <div class="school-list" id="school-list"></div>
     <div class="class-modal-actions">
       <button class="secondary-action" id="school-cancel" type="button">取消</button>
@@ -923,6 +938,8 @@
   </div>
 </div>
 
-<script src="js/app.js?v=65"></script>
+<!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
+<script src="js/bigscreen-data.js?v=2"></script>
+<script src="js/app.js?v=67"></script>
 </body>
 </html>
