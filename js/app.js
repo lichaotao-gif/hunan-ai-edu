@@ -2333,9 +2333,18 @@
   const prepContentEl = document.getElementById("prep-content");
   const prepLessonSwitch = document.getElementById("prep-lesson-switch");
   const prepLessonMenu = document.getElementById("prep-lesson-menu");
-  const PREP_SECTIONS = ["课程简介", "指导手册", "材料准备", "新知讲解", "互动体验", "巩固练习", "课程回顾"];
+  const PREP_SECTIONS = [
+    { title: "课程简介", children: ["课程信息", "教学目标", "教学重难点"] },
+    { title: "指导手册", children: ["教学流程", "教师提示"] },
+    { title: "材料准备", children: ["课前材料", "课堂材料"] },
+    { title: "新知讲解" },
+    { title: "互动体验" },
+    { title: "巩固练习" },
+    { title: "课程回顾" },
+  ];
   let prepNo = 1;
   let prepSection = "课程简介";
+  let prepSubsection = "课程信息";
 
   function lessonNameOf(no) { return MC_LESSON_POOL[(no - 1) % MC_LESSON_POOL.length]; }
 
@@ -2345,24 +2354,36 @@
     prepLessonMenu.innerHTML = MC_LESSON_POOL.map((nm, i) =>
       `<button class="fp-switch-opt${(i + 1) === prepNo ? " active" : ""}" data-lessonopt="${i + 1}" type="button">第${i + 1}课时 ${esc(nm)}</button>`
     ).join("");
-    prepSectionsEl.innerHTML = PREP_SECTIONS.map((s) =>
-      `<button class="prep-sec${s === prepSection ? " active" : ""}" data-sec="${esc(s)}" type="button">${esc(s)}</button>`
-    ).join("");
-    if (prepSection === "课程简介") {
+    prepSectionsEl.innerHTML = PREP_SECTIONS.map((section) => {
+      const hasChildren = Array.isArray(section.children);
+      const isActive = section.title === prepSection;
+      const children = hasChildren ? `<div class="prep-subsections"${isActive ? "" : " hidden"}>${section.children.map((child) =>
+        `<button class="prep-subsec${child === prepSubsection ? " active" : ""}" data-prep-parent="${esc(section.title)}" data-prep-child="${esc(child)}" type="button">${esc(child)}</button>`
+      ).join("")}</div>` : "";
+      return `<div class="prep-nav-group${isActive ? " active" : ""}">
+        <button class="prep-sec${isActive ? " active" : ""}${hasChildren ? " has-children" : ""}" data-prep-parent="${esc(section.title)}" type="button"${hasChildren ? ` aria-expanded="${isActive}"` : ""}>
+          <span>${esc(section.title)}</span>${hasChildren ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' : ""}
+        </button>${children}
+      </div>`;
+    }).join("");
+    if (prepSection === "课程简介" && prepSubsection === "课程信息") {
       prepContentEl.innerHTML =
         `<div class="pc-row"><span class="pc-key">课程名称：</span>${esc(name)}</div>` +
         `<div class="pc-row"><span class="pc-key">时长：</span>26分32秒</div>` +
-        `<div class="pc-row"><span class="pc-key">课程流程：</span>课程导入 — 新知讲解 — 互动体验 — 巩固练习 — 课程回顾 — 课后成果</div>` +
-        `<h3>教学目标</h3><ol><li>了解本课时的核心概念与背景</li><li>掌握关键知识点与操作方法</li><li>能在真实情境中迁移运用</li><li>感受人工智能与生活的联系</li></ol>` +
-        `<h3>教学重难点</h3><ol><li>重点：核心概念的理解与应用</li><li>难点：从具体案例抽象出一般规律</li></ol>`;
+        `<div class="pc-row"><span class="pc-key">课程流程：</span>课程导入 — 新知讲解 — 互动体验 — 巩固练习 — 课程回顾 — 课后成果</div>`;
+    } else if (prepSection === "课程简介" && prepSubsection === "教学目标") {
+      prepContentEl.innerHTML = `<h3>教学目标</h3><ol><li>了解本课时的核心概念与背景</li><li>掌握关键知识点与操作方法</li><li>能在真实情境中迁移运用</li><li>感受人工智能与生活的联系</li></ol>`;
+    } else if (prepSection === "课程简介" && prepSubsection === "教学重难点") {
+      prepContentEl.innerHTML = `<h3>教学重难点</h3><ol><li>重点：核心概念的理解与应用</li><li>难点：从具体案例抽象出一般规律</li></ol>`;
     } else {
-      prepContentEl.innerHTML = `<div class="pc-empty">「${esc(prepSection)}」环节内容开发中。</div>`;
+      prepContentEl.innerHTML = `<div class="pc-empty">「${esc(prepSubsection || prepSection)}」环节内容开发中。</div>`;
     }
   }
 
   function openPrep(no) {
     prepNo = no;
     prepSection = "课程简介";
+    prepSubsection = "课程信息";
     renderPrep();
     prepPage.hidden = false;
     prepPage.scrollTop = 0;
@@ -2376,13 +2397,16 @@
   if (prepPage) {
     document.getElementById("prep-back").addEventListener("click", closePrep);
     prepSectionsEl.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-sec]");
-      if (!b) return;
-      prepSection = b.dataset.sec;
+      const child = e.target.closest("[data-prep-child]");
+      const parent = e.target.closest("[data-prep-parent]");
+      if (!parent) return;
+      prepSection = parent.dataset.prepParent;
+      const section = PREP_SECTIONS.find((item) => item.title === prepSection);
+      prepSubsection = child ? child.dataset.prepChild : (section && section.children ? section.children[0] : "");
       renderPrep();
     });
-    document.getElementById("prep-prev").addEventListener("click", () => { if (prepNo > 1) { prepNo--; prepSection = "课程简介"; renderPrep(); } });
-    document.getElementById("prep-next").addEventListener("click", () => { if (prepNo < MC_LESSON_POOL.length) { prepNo++; prepSection = "课程简介"; renderPrep(); } });
+    document.getElementById("prep-prev").addEventListener("click", () => { if (prepNo > 1) { prepNo--; prepSection = "课程简介"; prepSubsection = "课程信息"; renderPrep(); } });
+    document.getElementById("prep-next").addEventListener("click", () => { if (prepNo < MC_LESSON_POOL.length) { prepNo++; prepSection = "课程简介"; prepSubsection = "课程信息"; renderPrep(); } });
     document.getElementById("prep-lesson-btn").addEventListener("click", (e) => {
       e.stopPropagation();
       const open = prepLessonMenu.hidden;
@@ -2396,6 +2420,7 @@
       prepLessonSwitch.classList.remove("open");
       prepNo = parseInt(opt.dataset.lessonopt, 10);
       prepSection = "课程简介";
+      prepSubsection = "课程信息";
       renderPrep();
     });
     document.addEventListener("click", (e) => {
@@ -2426,7 +2451,7 @@
   ];
   /* 片段知识点（按片段序号索引，缺省表示该片段无知识点，入口自动隐藏）
    * 后续接真实接口时保持结构不变：按「课时ID + 片段ID」返回同样字段即可。
-   *   title 知识点名称 / points 知识点条目（1、2、3 分条，条数不固定）
+   *   title 知识点名称 / points 知识点条目（每条一句话，条数不固定）
    *   examples 生活实例 / misconception 常见误区 / ask 课堂提问建议 */
   const TEACH_KNOWLEDGE = {
     0: {
@@ -2435,6 +2460,7 @@
         "人工智能就是让机器能像人一样去看、去听、去说、去思考的技术",
         "它不是某一台机器，而是一类让机器变聪明的方法",
         "它能感知外界信息，还能根据信息自己做出判断",
+        "刷脸、语音助手、拍照识花，它已经藏在每天的生活里",
       ],
       examples: ["刷脸进校门", "对着音箱说“播放儿歌”", "拍照识别路边的花"],
       misconception: "会动、会发声的玩具不一定是人工智能，关键要看它能不能自己判断、自己调整。",
@@ -2835,6 +2861,7 @@
     teachToolsToggle.addEventListener("click", () => {
       const open = teachToolsMore.hidden;
       teachToolsMore.hidden = !open;
+      teachTools.classList.toggle("expanded", open);   // 展开时工具栏整体变宽，多出一列
       teachToolsToggle.classList.toggle("open", open);
       teachToolsToggle.setAttribute("aria-expanded", String(open));
       teachToolsToggle.title = open ? "收起更多工具" : "展开更多工具";
