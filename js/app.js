@@ -1700,7 +1700,6 @@
         return `<div class="file-row is-folder" data-folder="${idx}">
           <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span></span>
           <span class="col-size">${it.children.length} 项</span>
-          <span class="col-date">—</span>
           <span class="col-act"><button class="muted" data-act="open" data-folder="${idx}">打开</button></span>
         </div>`;
       }
@@ -1709,7 +1708,6 @@
       return `<div class="file-row">
         <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span></span>
         <span class="col-size">${it.size}</span>
-        <span class="col-date">${it.date}</span>
         <span class="col-act">
           <button data-act="preview" ${canPreview ? "" : "disabled"}>预览</button>
           <button data-act="download">下载</button>
@@ -2428,17 +2426,15 @@
   ];
   /* 片段知识点（按片段序号索引，缺省表示该片段无知识点，入口自动隐藏）
    * 后续接真实接口时保持结构不变：按「课时ID + 片段ID」返回同样字段即可。
-   *   title 知识点名称 / summary 一句话定义 / points 核心要点
+   *   title 知识点名称 / points 知识点条目（1、2、3 分条，条数不固定）
    *   examples 生活实例 / misconception 常见误区 / ask 课堂提问建议 */
   const TEACH_KNOWLEDGE = {
     0: {
       title: "什么是人工智能",
-      tag: "概念认知",
-      summary: "人工智能就是让机器能像人一样去看、去听、去说、去思考的技术。",
       points: [
+        "人工智能就是让机器能像人一样去看、去听、去说、去思考的技术",
         "它不是某一台机器，而是一类让机器变聪明的方法",
-        "能感知外界信息，还能根据信息做出判断",
-        "人工智能已经藏在我们每天的生活里",
+        "它能感知外界信息，还能根据信息自己做出判断",
       ],
       examples: ["刷脸进校门", "对着音箱说“播放儿歌”", "拍照识别路边的花"],
       misconception: "会动、会发声的玩具不一定是人工智能，关键要看它能不能自己判断、自己调整。",
@@ -2446,12 +2442,10 @@
     },
     1: {
       title: "怎么判断是不是人工智能",
-      tag: "辨析方法",
-      summary: "判断的关键，是看它能不能“自己学、自己判断”，而不是只按固定程序动作。",
       points: [
+        "关键看它能不能“自己学、自己判断”，而不是只按固定程序动作",
         "只会重复同一个动作的，是普通自动化",
-        "能根据不同情况给出不同反应的，才是人工智能",
-        "会随着使用越来越准的，一定用到了人工智能",
+        "能根据不同情况给出不同反应、而且越用越准的，才是人工智能",
       ],
       examples: ["电梯按楼层停 → 不是AI", "扫地机器人自己绕开桌腿 → 是AI", "输入法越用越懂你 → 是AI"],
       misconception: "“自动”不等于“智能”。自动门感应到人就开，它并没有做任何判断。",
@@ -2459,12 +2453,10 @@
     },
     2: {
       title: "机器怎么“看见”世界",
-      tag: "智能感知",
-      summary: "人工智能靠摄像头、麦克风这些“感觉器官”收集信息，这个过程叫感知。",
       points: [
+        "机器靠摄像头、麦克风这些“感觉器官”收集信息，这个过程叫感知",
         "摄像头相当于机器的眼睛，麦克风相当于耳朵",
-        "机器看到的其实是一格一格的像素数据",
-        "感知只是第一步，之后还要理解和判断",
+        "机器拿到的其实是一格一格的像素数据，看到不等于看懂",
       ],
       examples: ["手机人脸解锁", "红绿灯路口的车辆抓拍", "语音输入把说话变成文字"],
       misconception: "机器“看到”不等于“看懂”。它先拿到一堆数字，还要经过学习才知道那是猫还是狗。",
@@ -2472,11 +2464,9 @@
     },
     3: {
       title: "机器学习：让机器自己找规律",
-      tag: "核心原理",
-      summary: "不是把答案一条条教给机器，而是给它看大量例子，让它自己总结出规律。",
       points: [
-        "先给例子（数据），再让机器找规律（训练）",
-        "规律找到后，遇到新东西也能判断（预测）",
+        "不是把答案一条条教给机器，而是给它看大量例子，让它自己总结规律",
+        "规律找到后，遇到没见过的新东西也能做出判断",
         "例子看得越多、越全面，判断就越准",
       ],
       examples: ["看几千张猫的照片后能认出没见过的猫", "看大量天气记录后预测明天下不下雨"],
@@ -2485,11 +2475,9 @@
     },
     4: {
       title: "算法：一步一步的做事顺序",
-      tag: "计算思维",
-      summary: "算法就是解决问题的步骤清单，顺序排错了，结果就会出错。",
       points: [
-        "每一步都要清楚、不能含糊",
-        "步骤的先后顺序会直接影响结果",
+        "算法就是解决问题的步骤清单，每一步都要清楚、不能含糊",
+        "步骤的先后顺序会直接影响结果，排错了结果就会出错",
         "同一个问题可以有多种算法，有的更快有的更慢",
       ],
       examples: ["泡面的步骤：烧水→放面→加料", "机器人走迷宫：遇到墙就转弯，再继续走"],
@@ -2498,12 +2486,10 @@
     },
     5: {
       title: "数据：人工智能的“教材”",
-      tag: "数据意识",
-      summary: "数据就是给机器学习用的例子，数据的数量和质量决定了机器聪不聪明。",
       points: [
+        "数据就是给机器学习用的例子，数量和质量决定了机器聪不聪明",
         "数据越多，机器见过的情况越多，判断越准",
-        "数据如果有偏差，机器就会学错",
-        "收集数据时要注意保护个人隐私",
+        "数据如果有偏差机器就会学错，收集时还要保护个人隐私",
       ],
       examples: ["只用白猫照片训练，遇到黑猫可能就认不出", "语音助手听多了方言，才听得懂方言"],
       misconception: "数据不是越多越好，如果全是重复或错误的数据，反而会把机器教坏。",
@@ -2511,15 +2497,24 @@
     },
   };
 
+  /* 工具图标：统一 2px 圆头描边 + 少量实心点，小尺寸下更清晰。
+   * 注意「抽问」用骰子而非问号，避免与「帮助」的问号图标撞脸。 */
+  const ICON_ATTR = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
   const TEACH_ICON = {
-    pk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4v6H5zM15 14h4v6h-4z"/><path d="M9 7h3a4 4 0 0 1 4 4v3M15 17h-3a4 4 0 0 1-4-4v-3"/></svg>',
-    ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="14" height="11" rx="4"/><path d="M12 3v4M8 12h.01M16 12h.01M9 15h6"/></svg>',
-    group: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5M15 15c3 0 5 1.5 5 4"/></svg>',
-    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z"/><path d="m14 7 3 3"/></svg>',
-    cheer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V5a2 2 0 0 1 4 0v5-7a2 2 0 0 1 4 0v7-5a2 2 0 0 1 4 0v9c0 4-3 7-7 7h-1c-3 0-5-1-7-4l-2-3a2 2 0 0 1 3-2l2 2"/></svg>',
-    timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>',
-    cast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M7 9a5 5 0 0 1 5 5M7 12a2 2 0 0 1 2 2"/></svg>',
-    ask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7M12 17h.01"/></svg>',
+    // 机器人头像：天线 + 双眼 + 嘴
+    ai: `<svg ${ICON_ATTR}><rect x="3.5" y="8" width="17" height="12" rx="3.5"/><path d="M12 4.5V8"/><circle cx="12" cy="3.2" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.8" cy="13" r="1.25" fill="currentColor" stroke="none"/><circle cx="15.2" cy="13" r="1.25" fill="currentColor" stroke="none"/><path d="M9.5 16.6h5"/></svg>`,
+    // 两组人：左右各一组，中间留白表示分组对抗
+    group: `<svg ${ICON_ATTR}><circle cx="7" cy="7.5" r="2.6"/><path d="M2.6 19c0-2.9 2-4.6 4.4-4.6s4.4 1.7 4.4 4.6"/><circle cx="17" cy="7.5" r="2.6"/><path d="M12.6 19c0-2.9 2-4.6 4.4-4.6s4.4 1.7 4.4 4.6"/></svg>`,
+    // 铅笔
+    pen: `<svg ${ICON_ATTR}><path d="M16.8 3.3a2.6 2.6 0 0 1 3.7 3.7L7.6 19.9 2.9 21.1l1.2-4.7z"/><path d="m15.2 5 3.7 3.7"/></svg>`,
+    // 点赞（喝彩）
+    cheer: `<svg ${ICON_ATTR}><path d="M6.5 10.5h-2a1.5 1.5 0 0 0-1.5 1.5v7a1.5 1.5 0 0 0 1.5 1.5h2z"/><path d="M6.5 10.5 10.8 3a2.4 2.4 0 0 1 2.4 2.4v3.3h5.3a2 2 0 0 1 2 2.3l-1.2 7.1a2 2 0 0 1-2 1.4H6.5z"/></svg>`,
+    // 秒表（倒计时）
+    timer: `<svg ${ICON_ATTR}><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.6 1.8"/><path d="M9.2 2.5h5.6"/><path d="m19.2 6.4 1.4-1.4"/></svg>`,
+    // 投屏：屏幕 + 信号波
+    cast: `<svg ${ICON_ATTR}><path d="M2 8.4V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6.6"/><path d="M2 16.4A4.6 4.6 0 0 1 6.6 21"/><path d="M2 12.2A8.8 8.8 0 0 1 10.8 21"/><circle cx="2.4" cy="20.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
+    // 骰子（随机抽问）
+    ask: `<svg ${ICON_ATTR}><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4"/><circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/></svg>`,
   };
   // 工具栏统一配色，避免抢走课堂内容的注意力（PK 快捷方式已并入「分组PK」）
   const TEACH_TOOLS = [
@@ -2557,7 +2552,7 @@
   let kpOpen = false;
 
   const KP_ICON = {
-    point: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    point: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
     example: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>',
     warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
     ask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
@@ -2569,13 +2564,12 @@
     const seg = TEACH_SEGMENTS[index];
     document.getElementById("teach-kp-seg").textContent = `片段 ${index + 1} · ${seg.title}`;
     document.getElementById("teach-kp-title").textContent = kp.title;
-    document.getElementById("teach-kp-tag").textContent = kp.tag || "";
-    let html = `<div class="kp-summary">${esc(kp.summary)}</div>`;
+    // 知识点正文：小标题 + 分条列出
+    let html = "";
     if (kp.points && kp.points.length) {
-      html += `<div class="kp-sec">
-        <div class="kp-sec-head"><span class="kp-ico" style="background:rgba(38,158,216,.14);color:var(--primary-dark)">${KP_ICON.point}</span>核心要点</div>
-        <div class="kp-points">${kp.points.map((p, i) => `<div class="kp-point"><i>${i + 1}</i><span>${esc(p)}</span></div>`).join("")}</div>
-      </div>`;
+      html += `<div class="kp-core"><div class="kp-core-head">${KP_ICON.point}<span>核心要点</span></div><div class="kp-points">` +
+        kp.points.map((p, i) => `<div class="kp-point"><i>${i + 1}</i><span>${esc(p)}</span></div>`).join("") +
+        `</div></div>`;
     }
     // 教师提示：生活例子 / 易错点 / 提问建议，均为备课用，投屏放大时整体隐藏
     if ((kp.examples && kp.examples.length) || kp.misconception || kp.ask) {
