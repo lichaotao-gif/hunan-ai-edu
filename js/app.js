@@ -2521,10 +2521,15 @@
     cast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M7 9a5 5 0 0 1 5 5M7 12a2 2 0 0 1 2 2"/></svg>',
     ask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7M12 17h.01"/></svg>',
   };
+  // 工具栏统一配色，避免抢走课堂内容的注意力（PK 快捷方式已并入「分组PK」）
   const TEACH_TOOLS = [
-    { key: "pk", label: "PK" }, { key: "ai", label: "AI教学" }, { key: "group", label: "分组PK" },
-    { key: "pen", label: "画笔" }, { key: "cheer", label: "喝彩" },
-    { key: "timer", label: "倒计时", more: true }, { key: "cast", label: "投屏", more: true }, { key: "ask", label: "抽问", more: true },
+    { key: "ai", label: "AI教学" },
+    { key: "group", label: "分组PK" },
+    { key: "pen", label: "画笔" },
+    { key: "cheer", label: "喝彩" },
+    { key: "timer", label: "倒计时", more: true },
+    { key: "cast", label: "投屏", more: true },
+    { key: "ask", label: "抽问", more: true },
   ];
   let teachNo = 1;
   let teachIndex = 0;
@@ -2536,7 +2541,8 @@
   let teachRankTab = "group";
 
   function toolButton(tool) {
-    return `<button class="teach-tool" type="button" data-teach-tool="${tool.key}" title="${tool.label}">${TEACH_ICON[tool.key]}<span>${tool.label}</span></button>`;
+    return `<button class="teach-tool" type="button" data-teach-tool="${tool.key}" title="${tool.label}">` +
+      `<span class="teach-tool-ico">${TEACH_ICON[tool.key]}</span><span>${tool.label}</span></button>`;
   }
   if (teachToolsMain) {
     teachToolsMain.innerHTML = TEACH_TOOLS.filter((tool) => !tool.more).map(toolButton).join("");
@@ -2571,15 +2577,13 @@
         <div class="kp-points">${kp.points.map((p, i) => `<div class="kp-point"><i>${i + 1}</i><span>${esc(p)}</span></div>`).join("")}</div>
       </div>`;
     }
-    if (kp.examples && kp.examples.length) {
-      html += `<div class="kp-sec">
-        <div class="kp-sec-head"><span class="kp-ico" style="background:rgba(45,212,191,.16);color:#0E7490">${KP_ICON.example}</span>生活中的例子</div>
-        <div class="kp-examples">${kp.examples.map((e) => `<span class="kp-example">${esc(e)}</span>`).join("")}</div>
-      </div>`;
-    }
-    // 以下两块是给老师的备课提示，投屏放大时自动隐藏
-    if (kp.misconception || kp.ask) {
+    // 教师提示：生活例子 / 易错点 / 提问建议，均为备课用，投屏放大时整体隐藏
+    if ((kp.examples && kp.examples.length) || kp.misconception || kp.ask) {
       html += '<div class="kp-teacher-only"><div class="kp-teacher-label">教师提示</div>';
+      if (kp.examples && kp.examples.length) {
+        html += `<div class="kp-note kp-eg"><span class="kp-ico">${KP_ICON.example}</span><span><b>可以举这些例子</b>` +
+          `<span class="kp-examples">${kp.examples.map((e) => `<span class="kp-example">${esc(e)}</span>`).join("")}</span></span></div>`;
+      }
       if (kp.misconception) {
         html += `<div class="kp-note kp-warn"><span class="kp-ico">${KP_ICON.warn}</span><span><b>容易讲错的点</b>${esc(kp.misconception)}</span></div>`;
       }
@@ -2624,6 +2628,7 @@
     kpPanel.hidden = true;
     kpScrim.hidden = true;
     kpPanel.classList.remove("zoomed");
+    document.getElementById("teach-kp-zoom-text").textContent = "放大";
     kpOpen = false;
     kpBtn.setAttribute("aria-expanded", "false");
   }
@@ -2631,9 +2636,12 @@
     kpBtn.addEventListener("click", () => (kpOpen ? closeKnowledge() : openKnowledge()));
     kpScrim.addEventListener("click", closeKnowledge);
     document.getElementById("teach-kp-close").addEventListener("click", closeKnowledge);
-    document.getElementById("teach-kp-zoom").addEventListener("click", () => {
+    document.getElementById("teach-kp-close-bottom").addEventListener("click", closeKnowledge);
+    document.getElementById("teach-kp-zoom").addEventListener("click", (e) => {
       const zoomed = kpPanel.classList.toggle("zoomed");
-      document.getElementById("teach-kp-zoom").setAttribute("title", zoomed ? "退出放大" : "投屏放大给学生看");
+      const btn = e.currentTarget;
+      btn.setAttribute("title", zoomed ? "退出放大，回到侧边栏" : "投屏放大给学生看");
+      document.getElementById("teach-kp-zoom-text").textContent = zoomed ? "还原" : "放大";
     });
   }
 

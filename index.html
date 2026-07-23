@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>湖南省中小学人工智能通识教育平台</title>
-<link rel="stylesheet" href="css/style.css?v=113">
+<link rel="stylesheet" href="css/style.css?v=116">
 </head>
 <body>
 <div class="app-shell">
@@ -835,12 +835,12 @@
     <div class="teach-tools-main" id="teach-tools-main"></div>
     <div class="teach-tools-more" id="teach-tools-more" hidden></div>
     <button class="teach-tool teach-tool-toggle" id="teach-tools-toggle" type="button" aria-expanded="false" title="展开更多工具">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="teach-tool-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
       <span>更多</span>
     </button>
     <span class="teach-tool-line"></span>
     <button class="teach-tool" id="teach-help" type="button" title="帮助">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="teach-tool-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.5 2-2.5 3.7"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
       <span>帮助</span>
     </button>
   </aside>
@@ -848,10 +848,15 @@
   <!-- 本片段知识点：入口胶囊按钮（工具栏下方） -->
   <button class="teach-kp-btn" id="teach-kp-btn" type="button" aria-haspopup="dialog" aria-expanded="false" hidden>
     <span class="teach-kp-btn-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6V17h5.4v-1.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z"/>
+        <path d="M9.6 20h4.8"/>
+      </svg>
+      <span class="teach-kp-spark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l1.5 4.3 4.3 1.5-4.3 1.5L12 14.2l-1.5-4.3L6.2 8.4l4.3-1.5z"/></svg>
+      </span>
     </span>
     <span class="teach-kp-btn-text">本段<br>知识点</span>
-    <span class="teach-kp-dot" id="teach-kp-dot" aria-hidden="true"></span>
   </button>
   </div>
 
@@ -863,9 +868,6 @@
         <div class="teach-kp-head-top">
           <span class="teach-kp-seg" id="teach-kp-seg">片段 1 · 课程导入</span>
           <div class="teach-kp-head-acts">
-            <button class="teach-kp-icon-btn" id="teach-kp-zoom" type="button" aria-label="投屏放大" title="投屏放大给学生看">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-            </button>
             <button class="teach-kp-icon-btn" id="teach-kp-close" type="button" aria-label="关闭知识点">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
@@ -875,6 +877,17 @@
         <span class="teach-kp-tag" id="teach-kp-tag"></span>
       </header>
       <div class="teach-kp-body" id="teach-kp-body"></div>
+      <!-- 底部关闭：教室屏幕多在讲台高处，右上角不好点，这里给一个大按钮 -->
+      <footer class="teach-kp-foot">
+        <button class="teach-kp-zoom-btn" id="teach-kp-zoom" type="button" title="投屏放大给学生看">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          <span id="teach-kp-zoom-text">放大</span>
+        </button>
+        <button class="teach-kp-close-btn" id="teach-kp-close-bottom" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span>关闭知识点</span>
+        </button>
+      </footer>
     </div>
   </aside>
 
@@ -977,6 +990,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=71"></script>
+<script src="js/app.js?v=74"></script>
 </body>
 </html>
