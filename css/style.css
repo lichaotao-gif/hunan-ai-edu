@@ -863,10 +863,10 @@ ul { list-style: none; }
 .lx-btn {
   position: relative; overflow: hidden; min-height: 44px; padding: 0 18px 0 11px;
   display: inline-flex; align-items: center; gap: 9px; border-radius: 14px;
-  color: var(--primary-dark); font-size: 14.5px; font-weight: 700; letter-spacing: .3px;
-  border: 1px solid rgba(38, 158, 216, .3);
-  background: linear-gradient(150deg, rgba(255, 255, 255, .86) 0%, rgba(230, 244, 252, .66) 55%, rgba(38, 158, 216, .16) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -2px 6px rgba(38, 158, 216, .1), 0 6px 16px rgba(20, 58, 64, .1);
+  color: var(--lx-ink); font-size: 14.5px; font-weight: 700; letter-spacing: .3px;
+  border: 1.5px solid var(--lx-bd);
+  background: linear-gradient(150deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .62) 52%, var(--lx-tint) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), 0 6px 16px var(--lx-sh);
   -webkit-backdrop-filter: blur(14px) saturate(165%); backdrop-filter: blur(14px) saturate(165%);
   transition: transform .18s, box-shadow .18s, border-color .18s, background .18s;
 }
@@ -879,21 +879,34 @@ ul { list-style: none; }
 }
 .lx-btn > * { position: relative; }
 .lx-btn:hover {
-  transform: translateY(-2px); border-color: rgba(38, 158, 216, .55);
-  background: linear-gradient(150deg, rgba(255, 255, 255, .94) 0%, rgba(214, 238, 251, .78) 55%, rgba(38, 158, 216, .24) 100%);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 7px rgba(38, 158, 216, .16), 0 10px 24px rgba(38, 158, 216, .22);
+  transform: translateY(-2px); border-color: var(--lx-bd-on);
+  background: linear-gradient(150deg, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, .7) 52%, var(--lx-tint-on) 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 10px 24px var(--lx-sh-on);
 }
 .lx-btn:hover::after { left: 120%; }
 .lx-btn:active { transform: translateY(0); }
+/* 彩色图标块 */
 .lx-ico {
-  width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 10px;
-  color: var(--primary);
-  background: rgba(38, 158, 216, .13);
-  border: 1px solid rgba(38, 158, 216, .2);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 10px; color: #fff;
+  background: linear-gradient(135deg, var(--lx-a), var(--lx-b));
+  box-shadow: 0 4px 10px var(--lx-sh-on), inset 0 1px 0 rgba(255, 255, 255, .42);
+  transition: transform .18s, box-shadow .18s;
 }
-.lx-btn:hover .lx-ico { color: var(--primary-dark); background: rgba(38, 158, 216, .2); }
+.lx-btn:hover .lx-ico { transform: scale(1.06); box-shadow: 0 6px 14px var(--lx-sh-on), inset 0 1px 0 rgba(255, 255, 255, .5); }
 .lx-ico svg { width: 17px; height: 17px; }
+/* 图书信息：暖橙；上课指导：紫 —— 只在图标与描边上用色，底仍是浅玻璃 */
+.lx-book {
+  --lx-a:#F59E0B; --lx-b:#F97316; --lx-ink:#B45309;
+  --lx-bd:rgba(245,158,11,.46); --lx-bd-on:rgba(245,158,11,.72);
+  --lx-tint:rgba(245,158,11,.14); --lx-tint-on:rgba(245,158,11,.22);
+  --lx-sh:rgba(245,140,11,.18); --lx-sh-on:rgba(245,140,11,.3);
+}
+.lx-guide {
+  --lx-a:#7C6BF0; --lx-b:#A78BFA; --lx-ink:#5B37C4;
+  --lx-bd:rgba(124,107,240,.46); --lx-bd-on:rgba(124,107,240,.72);
+  --lx-tint:rgba(124,107,240,.13); --lx-tint-on:rgba(124,107,240,.21);
+  --lx-sh:rgba(124,107,240,.18); --lx-sh-on:rgba(124,107,240,.3);
+}
 
 /* ---------- 上课指导视频弹窗 ---------- */
 .guide-modal {
@@ -1040,13 +1053,13 @@ ul { list-style: none; }
 .lrc-cover { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-sm); overflow: hidden; }
 .lrc-cover img { width: 100%; height: 100%; object-fit: cover; }
 .lrc-num {
-  position: absolute; top: 12px; right: 12px; min-width: 42px; height: 42px; padding: 0 10px;
+  position: absolute; z-index: 3; top: 12px; right: 12px; min-width: 42px; height: 42px; padding: 0 10px;
   display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #fff;
   border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); box-shadow: 0 4px 10px rgba(38, 158, 216, .3);
 }
 /* 已完成课时：封面盖一层毛玻璃 + 居中「已完成」标识 */
 .lrc-done {
-  position: absolute; inset: 0;
+  position: absolute; z-index: 1; inset: 0;
   background: rgba(12, 46, 66, .34);
   -webkit-backdrop-filter: blur(3px) saturate(120%); backdrop-filter: blur(3px) saturate(120%);
 }
