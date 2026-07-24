@@ -1501,7 +1501,7 @@ ul { list-style: none; }
 .teach-kp-icon-btn svg { width: 16px; height: 16px; }
 .teach-kp-title { position: relative; font-size: 21px; font-weight: 800; letter-spacing: .5px; line-height: 1.3; }
 /* 卡片正文 */
-.teach-kp-body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 20px 20px; }
+.teach-kp-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 18px 20px 20px; }
 /* 底部操作条：常驻不随内容滚动，讲台上抬手就能点 */
 .teach-kp-foot { flex: none; display: flex; align-items: stretch; gap: 10px; padding: 12px 20px 16px; border-top: 1px solid rgba(20, 58, 64, .09); background: rgba(255, 255, 255, .72); }
 .teach-kp-zoom-btn, .teach-kp-close-btn {
@@ -1566,7 +1566,7 @@ ul { list-style: none; }
 /* 投屏放大：居中大卡，给学生看 */
 .teach-kp-panel.zoomed {
   top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%);
-  width: min(860px, calc(100vw - 64px)); height: auto; max-height: min(84vh, 760px);
+  width: min(860px, calc(100vw - 64px)); height: min(84vh, 760px); min-height: 0;
   animation: kpZoom .26s cubic-bezier(.22,1,.36,1);
 }
 @keyframes kpZoom { from { opacity: 0; transform: translate(-50%, -50%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
@@ -1580,8 +1580,6 @@ ul { list-style: none; }
 .teach-kp-panel.zoomed .teach-kp-foot { padding: 14px 30px 20px; gap: 12px; }
 .teach-kp-panel.zoomed .teach-kp-zoom-btn { min-height: 60px; font-size: 16px; padding: 0 22px; }
 .teach-kp-panel.zoomed .teach-kp-close-btn { min-height: 60px; font-size: 18px; }
-/* 投屏时隐藏只给老师看的内容 */
-.teach-kp-panel.zoomed .kp-teacher-only { display: none; }
 
 .teach-player {
   left: 18px; bottom: 18px; width: min(470px, calc(100vw - 360px)); min-height: 58px;

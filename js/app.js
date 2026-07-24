@@ -2686,8 +2686,7 @@
   function renderKnowledge(index) {
     const kp = TEACH_KNOWLEDGE[index];
     if (!kp) return;
-    const seg = TEACH_SEGMENTS[index];
-    document.getElementById("teach-kp-seg").textContent = `片段 ${index + 1} · ${seg.title}`;
+    document.getElementById("teach-kp-seg").textContent = `片段 ${index + 1}`;
     document.getElementById("teach-kp-title").textContent = kp.title;
     // 知识点正文：小标题 + 分条列出
     let html = "";
