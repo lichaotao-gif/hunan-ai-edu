@@ -553,7 +553,8 @@ ul { list-style: none; }
 #sec-subject-research #research-list .page-panel { flex: 1; margin-bottom: 0; }
 /* 我的AI实验：面板拉满后，实验包多时列表内部滚动，底边始终与侧边栏对齐 */
 #sec-my-experiments #myexp-list .page-panel { display: flex; flex-direction: column; min-height: 0; }
-#sec-my-experiments #myexp-list #my-exp-list { flex: 1; min-height: 0; overflow-y: auto; }
+/* align-content: start —— 面板拉满高度时，网格行保持自然高度，避免卡片被撑高 */
+#sec-my-experiments #myexp-list #my-exp-list { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
 #sec-my-experiments #myexp-list #my-exp-list::-webkit-scrollbar { width: 6px; }
 #sec-my-experiments #myexp-list #my-exp-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -894,7 +895,7 @@ ul { list-style: none; }
 }
 .lx-btn:hover .lx-ico { transform: scale(1.06); box-shadow: 0 6px 14px var(--lx-sh-on), inset 0 1px 0 rgba(255, 255, 255, .5); }
 .lx-ico svg { width: 17px; height: 17px; }
-/* 图书信息：暖橙；上课指导：紫 —— 只在图标与描边上用色，底仍是浅玻璃 */
+/* 图书信息：暖橙；上课指导：主题蓝 —— 只在图标与描边上用色，底仍是浅玻璃 */
 .lx-book {
   --lx-a:#F59E0B; --lx-b:#F97316; --lx-ink:#B45309;
   --lx-bd:rgba(245,158,11,.46); --lx-bd-on:rgba(245,158,11,.72);
@@ -902,32 +903,36 @@ ul { list-style: none; }
   --lx-sh:rgba(245,140,11,.18); --lx-sh-on:rgba(245,140,11,.3);
 }
 .lx-guide {
-  --lx-a:#7C6BF0; --lx-b:#A78BFA; --lx-ink:#5B37C4;
-  --lx-bd:rgba(124,107,240,.46); --lx-bd-on:rgba(124,107,240,.72);
-  --lx-tint:rgba(124,107,240,.13); --lx-tint-on:rgba(124,107,240,.21);
-  --lx-sh:rgba(124,107,240,.18); --lx-sh-on:rgba(124,107,240,.3);
+  --lx-a:var(--primary); --lx-b:var(--accent); --lx-ink:#0B5C84;
+  --lx-bd:rgba(38,158,216,.46); --lx-bd-on:rgba(38,158,216,.72);
+  --lx-tint:rgba(38,158,216,.13); --lx-tint-on:rgba(38,158,216,.21);
+  --lx-sh:rgba(38,158,216,.18); --lx-sh-on:rgba(38,158,216,.3);
 }
 
 /* ---------- 上课指导视频弹窗 ---------- */
+/* 外观（玻璃底 / 描边 / 投影）与图书信息弹窗共用下方统一规则 */
 .guide-modal {
   position: relative; width: min(920px, calc(100vw - 32px));
-  border-radius: 22px; padding: clamp(20px, 2.6vw, 26px);
-  background: linear-gradient(160deg, #1B2350 0%, #2A2266 55%, #3B2170 100%);
-  border: 1px solid rgba(255, 255, 255, .18);
-  box-shadow: 0 30px 70px rgba(4, 12, 40, .48);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: clamp(20px, 2.6vw, 26px);
 }
-.guide-modal .modal-close { color: rgba(255, 255, 255, .82); }
-.guide-modal .modal-close:hover { color: #fff; background: rgba(255, 255, 255, .16); }
+.guide-modal .modal-close { color: var(--text-mid); }
+.guide-modal .modal-close:hover { color: var(--text-main); background: rgba(38, 158, 216, .12); }
 .guide-head { margin-bottom: 16px; padding-right: 44px; }
-.guide-head h2 { font-size: clamp(18px, 2.2vw, 22px); font-weight: 800; color: #fff; }
-.guide-head p { margin-top: 5px; font-size: 13.5px; color: rgba(255, 255, 255, .7); }
-.guide-video { position: relative; border-radius: 14px; overflow: hidden; background: #0B1030; aspect-ratio: 16 / 9; box-shadow: 0 16px 36px rgba(4, 12, 40, .4); }
-.guide-video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #0B1030; }
+.guide-head h2 { font-size: clamp(18px, 2.2vw, 22px); font-weight: 800; color: var(--text-main); }
+.guide-head p { margin-top: 5px; font-size: 13.5px; color: var(--text-sub); }
+.guide-video {
+  position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9;
+  background: rgba(244, 248, 250, .9); border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 10px 26px rgba(20, 58, 64, .1);
+}
+/* 播放时用深底衬托画面，避免 contain 留白刺眼 */
+.guide-video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #0E2027; }
 /* 后台尚未配置视频地址时的占位说明 */
 .guide-empty {
   position: absolute; inset: 0; z-index: 2; display: grid; place-items: center;
-  font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, .78);
-  background: rgba(11, 16, 48, .86);
+  font-size: 15px; font-weight: 700; color: var(--text-mid);
+  background: rgba(240, 246, 249, .97);
 }
 .guide-empty[hidden] { display: none; }
 
@@ -1081,7 +1086,23 @@ ul { list-style: none; }
   transition: color .16s;
 }
 .lrc-result:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
-.lrc-name { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
+/* 当前进度角标：贴在封面左上角，取代原先卡片底部那一行 */
+.lrc-current {
+  position: absolute; z-index: 3; top: 12px; left: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  font-size: 13px; font-weight: 700; color: #0B5C84;
+  background: rgba(255, 255, 255, .88);
+  -webkit-backdrop-filter: blur(10px) saturate(160%); backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: 0 4px 12px rgba(4, 35, 51, .22);
+}
+.lrc-current svg { width: 13px; height: 13px; color: var(--primary); flex-shrink: 0; }
+/* 标题固定两行高度，保证同一行卡片的按钮对齐在底部 */
+.lrc-name {
+  font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.4;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; min-height: calc(18px * 1.4 * 2);
+}
 .lrc-actions { display: flex; gap: var(--sp-3); margin-top: auto; }
 .lrc-actions button {
   flex: 1; min-height: 48px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700;
@@ -1114,8 +1135,6 @@ ul { list-style: none; }
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(38, 158, 216, .38), inset 0 1px 0 rgba(255, 255, 255, .55);
 }
-.lrc-progress { min-height: 22px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 13.5px; font-weight: 600; color: var(--primary-dark); }
-.lrc-progress svg { width: 14px; height: 14px; }
 
 /* ===== 双师AI课堂：沉浸式页面（浅色） ===== */
 .classroom-page { overflow: hidden; background: radial-gradient(120% 90% at 50% 0%, #dbefff 0%, #e9f3ff 50%, #eceaf9 100%); color: var(--text-main); }
@@ -1622,11 +1641,12 @@ ul { list-style: none; }
 }
 .teach-page.is-fullscreen .teach-step-nav button.teach-fs-btn:hover { background: linear-gradient(180deg, #64C0EE 0%, #1F8CC4 100%); color: #fff; }
 .teach-step-sep { width: 1px; height: 26px; background: rgba(38, 158, 216, .28); }
-/* 课堂报告：只保留全屏按钮 */
-.teach-step-nav.only-fs .teach-step-sep,
+/* 课堂报告：隐藏上一步/下一步，改为在同一个背景框内显示「返回课程 / 再次学习」 */
+.teach-step-nav .teach-report-btn { display: none; }
 .teach-step-nav.only-fs #teach-prev,
 .teach-step-nav.only-fs #teach-next,
 .teach-step-nav.only-fs .teach-step-count { display: none; }
+.teach-step-nav.only-fs .teach-report-btn { display: flex; }
 .teach-step-nav svg { width: 18px; height: 18px; }
 .teach-step-count { min-width: 54px; color: var(--text-main); text-align: center; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .teach-hint { position: fixed; left: 50%; bottom: 24px; z-index: 3; transform: translateX(-50%); opacity: 0; pointer-events: none; padding: 7px 12px; border-radius: 8px; color: #fff; background: rgba(5,31,44,.58); font-size: 12px; transition: opacity .2s; }
@@ -1642,23 +1662,6 @@ ul { list-style: none; }
   background: linear-gradient(120deg, #2563EB, #06B6D4 45%, #8B5CF6);
   -webkit-background-clip: text; background-clip: text; color: transparent; }
 .teach-report-head p { margin-top: 4px; color: var(--text-mid); font-size: 14px; }
-.teach-report-actions {
-  position: fixed; right: 18px; bottom: 18px; z-index: 6;
-  display: flex; gap: 8px; padding: 8px;
-  border: 1px solid rgba(255,255,255,.82); border-radius: 16px;
-  background: rgba(238, 248, 253, .72);
-  box-shadow: 0 18px 42px rgba(4, 35, 51, .2), inset 0 1px 0 rgba(255,255,255,.92);
-  -webkit-backdrop-filter: blur(24px) saturate(155%); backdrop-filter: blur(24px) saturate(155%);
-}
-.teach-report-actions button {
-  min-width: 126px; min-height: 48px; padding: 0 20px; border-radius: 11px;
-  font-size: 15px; font-weight: 800; color: var(--primary-dark);
-  background: rgba(255,255,255,.58); border: 1px solid rgba(255,255,255,.8);
-  transition: background .18s, color .18s, box-shadow .18s;
-}
-.teach-report-actions button:hover { background: rgba(255,255,255,.95); box-shadow: 0 7px 16px rgba(20,58,64,.1); }
-.teach-report-actions button.primary { color: #fff; background: linear-gradient(135deg, var(--primary), #22C1E8 60%, var(--accent)); border-color: rgba(255,255,255,.52); box-shadow: 0 8px 18px rgba(38,158,216,.34), inset 0 1px 0 rgba(255,255,255,.35); }
-.teach-report-actions button.primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
 .teach-report-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .teach-report-stat {
   position: relative; overflow: hidden; padding: 20px; border-radius: 16px;
@@ -1698,7 +1701,8 @@ ul { list-style: none; }
 .teach-rank-row.r-gold { background: linear-gradient(90deg, rgba(245,158,11,.14), rgba(245,158,11,0) 82%); border-bottom-color: transparent; }
 .teach-rank-row.r-silver { background: linear-gradient(90deg, rgba(148,163,184,.14), rgba(148,163,184,0) 82%); border-bottom-color: transparent; }
 .teach-rank-row.r-bronze { background: linear-gradient(90deg, rgba(184,118,66,.14), rgba(184,118,66,0) 82%); border-bottom-color: transparent; }
-.teach-medal { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #93A4AA; font-size: 12px; font-weight: 800; }
+.teach-medal { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #93A4AA; font-size: 12px; font-weight: 800; }
+.teach-medal svg { width: 18px; height: 18px; }
 .teach-medal.gold { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 5px 12px rgba(245,158,11,.4); }
 .teach-medal.silver { background: linear-gradient(135deg, #CBD5E1, #94A3B8); box-shadow: 0 5px 12px rgba(148,163,184,.35); }
 .teach-medal.bronze { background: linear-gradient(135deg, #D9A066, #B87642); box-shadow: 0 5px 12px rgba(184,118,66,.32); }
@@ -1727,8 +1731,6 @@ ul { list-style: none; }
   .teach-step-nav { right: 8px; bottom: 8px; }
   .teach-step-nav button { min-width: 96px; }
   .teach-quiz-options, .teach-image-task, .teach-sort { grid-template-columns: 1fr; }
-  .teach-report-actions { right: 8px; bottom: 8px; }
-  .teach-report-actions button { min-width: 108px; min-height: 46px; padding: 0 14px; }
   .teach-report-stats { grid-template-columns: 1fr 1fr; }
 }
 
@@ -1798,7 +1800,7 @@ ul { list-style: none; }
 }
 .pkg-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .pkg-card.pkg-clickable { cursor: pointer; }
-.pkg-cover { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+.pkg-cover { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
 .pkg-cover img { width: 100%; height: 100%; object-fit: cover; }
 .pkg-status {
   position: absolute; top: 0; right: 0;
@@ -2812,7 +2814,7 @@ body {
 .prep-sections, .prep-subsections-panel, .prep-content, .stat-strip, .pkg-card, .drive-card,
 .video-card, .guide-card, .exp-card, .feature-card, .course-card,
 .intro-card, .lesson-card, .package-hero, .package-panel, .table-card,
-.mcc, .mc-empty, .today-empty, .book-modal, .school-banner, .lesson-unit {
+.mcc, .mc-empty, .today-empty, .book-modal, .guide-modal, .school-banner, .lesson-unit {
   background: rgba(255, 255, 255, .86);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   backdrop-filter: blur(14px) saturate(160%);
@@ -2870,7 +2872,7 @@ body {
 }
 
 /* 弹窗：玻璃卡片（遮罩已在上方虚化） */
-.book-modal {
+.book-modal, .guide-modal {
   background: rgba(255, 255, 255, .74);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   backdrop-filter: blur(30px) saturate(180%);
@@ -2892,6 +2894,6 @@ body {
   .prep-sections, .prep-subsections-panel, .prep-content, .stat-strip, .pkg-card, .drive-card,
   .video-card, .guide-card, .exp-card, .feature-card, .course-card,
   .intro-card, .lesson-card, .package-hero, .package-panel, .table-card,
-  .mcc, .mc-empty, .today-empty, .book-modal, .login-shell,
+  .mcc, .mc-empty, .today-empty, .book-modal, .guide-modal, .login-shell,
   .profile-pop, .fp-switch-menu, .dc-menu, .pkg-menu { background: #fff; }
 }

@@ -2265,7 +2265,8 @@
     "assets/img/pbl-teaching.jpg",
     "assets/img/realistic-ai-ocean-lab.jpg",
   ];
-  const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg>';
+  // 教学进度书签：标记「已经上到这一课时」
+  const ICON_BOOKMARK = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 2H7a2.6 2.6 0 0 0-2.6 2.6v16.9c0 .8.88 1.29 1.56.86L12 18.55l6.04 3.81c.68.43 1.56-.06 1.56-.86V4.6A2.6 2.6 0 0 0 17 2z"/></svg>';
   let mcCurrentPkg = null;
 
   function openMcLessons(pkg) {
@@ -2293,7 +2294,8 @@
       { title: "第11-12单元 · 伦理与展望", from: 17, to: 18 },
     ];
     function lessonCard(name, no) {
-      const progress = no === taughtUpTo ? `<div class="lrc-progress">${ICON_UP}上到这里</div>` : '<div class="lrc-progress"></div>';
+      // 进度标识做成封面左上角角标，避免每张卡片底部留一条空行
+      const progress = no === taughtUpTo ? `<span class="lrc-current">${ICON_BOOKMARK}上到这里</span>` : "";
       // 已完成课时：封面盖一层毛玻璃「已完成」；其中有学生成果的再加「查看成果」
       const done = no <= taughtUpTo;
       const hasResult = done && LESSON_RESULTS.has(no);
@@ -2304,10 +2306,9 @@
            </div>`
         : "";
       return `<div class="lesson-rail-card${done ? " is-done" : ""}">
-        <div class="lrc-cover"><img src="${MC_LESSON_COVERS[(no - 1) % MC_LESSON_COVERS.length]}" alt="${esc(name)}"><span class="lrc-num">${no}</span>${doneMask}</div>
+        <div class="lrc-cover"><img src="${MC_LESSON_COVERS[(no - 1) % MC_LESSON_COVERS.length]}" alt="${esc(name)}"><span class="lrc-num">${no}</span>${doneMask}${progress}</div>
         <h4 class="lrc-name">${esc(name)}</h4>
         <div class="lrc-actions"><button class="lrc-res" data-res="${no}" type="button">资源</button><button class="lrc-prep" data-prep="${no}" type="button">备课</button><button class="lrc-teach" data-teach="${no}" type="button">上课</button></div>
-        ${progress}
       </div>`;
     }
     lessonRail.innerHTML = MC_UNITS.map((u) => {
@@ -2780,15 +2781,34 @@
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFC83D"/><circle cx="12" cy="12" r="7" fill="none" stroke="#D99A16" stroke-width="1.5"/><path d="M12 7.5v9M9.4 10c0-1 1-1.7 2.6-1.7s2.6.7 2.6 1.7-.9 1.4-2.6 1.7-2.6.8-2.6 1.8 1 1.7 2.6 1.7 2.6-.7 2.6-1.7" fill="none" stroke="#D99A16" stroke-width="1.3" stroke-linecap="round"/></svg>';
   }
 
+  // 前三名奖杯：金=双耳高脚奖杯、银=无耳圣杯、铜=浅口奖盘；第四名起显示序号
+  function trophyIcon(index) {
+    const wrap = (paths) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+    const stem = '<path d="M12 12.6v2.9"/><path d="M9 19.6h6l-.85-4.1h-4.3z"/>';
+    if (index === 0) {
+      return wrap(
+        '<path d="M7.2 3.6h9.6v4.1a4.8 4.8 0 0 1-9.6 0z"/>' +
+        '<path d="M7.2 4.9H5.2a2.1 2.1 0 0 0 0 4.2h.7"/>' +
+        '<path d="M16.8 4.9h2a2.1 2.1 0 0 1 0 4.2h-.7"/>' + stem
+      );
+    }
+    if (index === 1) {
+      return wrap('<path d="M7.9 3.6h8.2v4.3a4.1 4.1 0 0 1-8.2 0z"/>' + stem);
+    }
+    if (index === 2) {
+      return wrap('<path d="M6.7 4.8h10.6v1.3a5.3 5.3 0 0 1-10.6 0z"/><path d="M12 11.4v4.1"/><path d="M9 19.6h6l-.85-4.1h-4.3z"/>');
+    }
+    return String(index + 1);
+  }
+
   function renderRankList(tab) {
     const data = {
       group: [["星河探索队", 1280], ["未来创造队", 1160], ["智慧先锋队", 980], ["数字梦想队", 860]],
       lesson: [["未来创造队", 460], ["星河探索队", 420], ["数字梦想队", 380], ["智慧先锋队", 340]],
       total: [["星河探索队", 9860], ["智慧先锋队", 9240], ["未来创造队", 8910], ["数字梦想队", 8350]],
     }[tab];
-    const medalNames = ["金", "银", "铜"];
     const medalClasses = ["gold", "silver", "bronze"];
-    return data.map((row, index) => `<div class="teach-rank-row${medalClasses[index] ? " r-" + medalClasses[index] : ""}"><span class="teach-medal ${medalClasses[index] || ""}">${medalNames[index] || index + 1}</span><span class="teach-rank-name">${row[0]}</span><span class="teach-rank-coins">${coinIcon()}${row[1]}</span></div>`).join("");
+    return data.map((row, index) => `<div class="teach-rank-row${medalClasses[index] ? " r-" + medalClasses[index] : ""}"><span class="teach-medal ${medalClasses[index] || ""}">${trophyIcon(index)}</span><span class="teach-rank-name">${row[0]}</span><span class="teach-rank-coins">${coinIcon()}${row[1]}</span></div>`).join("");
   }
 
   function renderTeachReport() {
@@ -2816,7 +2836,6 @@
           <span class="trh-trophy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
           <div><h2>课堂总结报告</h2><p>第${teachNo}课时 · ${esc(lessonNameOf(teachNo))}</p></div>
         </div>
-        <div class="teach-report-actions"><button type="button" data-report-back>返回课程</button><button class="primary" type="button" data-report-replay>再次学习</button></div>
       </div>
       <div class="teach-report-stats">${statHtml}</div>
       <div class="teach-report-grid">
@@ -3014,8 +3033,11 @@
         teachContent.querySelectorAll(".teach-rank-tab").forEach((button) => button.classList.toggle("active", button === rankTab));
         document.getElementById("teach-rank-list").innerHTML = renderRankList(teachRankTab);
       }
-      if (event.target.closest("[data-report-back]")) closeTeach();
-      if (event.target.closest("[data-report-replay]")) { teachIndex = 0; teachCompleted = new Set(); renderTeach(); }
+    });
+    // 课堂报告的「返回课程 / 再次学习」位于底部控制条内
+    document.getElementById("teach-report-back").addEventListener("click", () => closeTeach());
+    document.getElementById("teach-report-replay").addEventListener("click", () => {
+      teachIndex = 0; teachCompleted = new Set(); renderTeach();
     });
     ["mousemove", "pointerdown", "keydown"].forEach((eventName) => teachPage.addEventListener(eventName, showTeachChrome));
     document.addEventListener("keydown", (event) => {
