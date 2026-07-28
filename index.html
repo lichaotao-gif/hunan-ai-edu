@@ -326,16 +326,18 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
             返回
           </button>
-          <div class="page-head">
-            <h1 class="page-title">课程日历</h1>
-            <p class="page-sub">查看上周 / 本周 / 下周的排课安排</p>
+          <!-- 标题与周切换同排，节省纵向空间 -->
+          <div class="cal-head">
+            <div class="cal-head-left">
+              <h1 class="page-title">课程日历</h1>
+              <p class="cal-range" id="cal-range"></p>
+            </div>
+            <div class="cal-tabs">
+              <button class="cal-tab" data-week="-1" type="button">上周</button>
+              <button class="cal-tab active" data-week="0" type="button">本周</button>
+              <button class="cal-tab" data-week="1" type="button">下周</button>
+            </div>
           </div>
-          <div class="cal-tabs">
-            <button class="cal-tab" data-week="-1" type="button">上周</button>
-            <button class="cal-tab active" data-week="0" type="button">本周</button>
-            <button class="cal-tab" data-week="1" type="button">下周</button>
-          </div>
-          <div class="cal-range" id="cal-range"></div>
           <div class="cal-week" id="cal-week"></div>
         </div>
 

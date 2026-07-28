@@ -2042,13 +2042,27 @@
     const items = weekSchedule[wd] || weekSchedule[1]; // 周末用周一示例
     const countEl = document.getElementById("today-count");
     if (countEl) countEl.textContent = `${WEEK_LABELS[wd]} · ${items.length} 节`;
-    listEl.innerHTML = items.map((it) => `
+    listEl.innerHTML = items.map((it, i) => `
       <div class="today-item">
         <div class="ti-date"><b>${it.time || ""}</b><span>${it.period || WEEK_LABELS[wd]}</span></div>
         <div class="ti-main"><b>${it.course}</b><span>${it.klass}${it.lesson ? " · " + it.lesson : " · 双师AI课堂"}</span></div>
-        <button class="ghost-btn ti-go" type="button">进入</button>
+        <button class="ghost-btn ti-go" data-today-go="${i}" type="button">进入</button>
       </div>`).join("");
-    listEl.querySelectorAll(".ti-go").forEach((b) => b.addEventListener("click", () => showToast("进入课堂（开发中）")));
+    listEl.querySelectorAll(".ti-go").forEach((b) => b.addEventListener("click", () => {
+      openScheduleItem(items[parseInt(b.dataset.todayGo, 10)]);
+    }));
+  }
+
+  // 今日课表「进入」：跳到该节课对应的课程课时列表
+  function openScheduleItem(item) {
+    if (!item) return;
+    // 优先匹配「课程 + 班级」，找不到再只按课程匹配
+    const pkg = myPackages.find((p) => p.names[0] === item.course && p.klass === item.klass)
+      || myPackages.find((p) => p.names[0] === item.course);
+    if (!pkg) { showToast(`未找到「${item.course}」对应的课程`); return; }
+    const menuBtn = document.querySelector('.menu-item[data-target="my-courses"]');
+    if (menuBtn) menuBtn.click();
+    openMcLessons(pkg);
   }
 
   // 课程日历：渲染某一周
@@ -2782,21 +2796,32 @@
   }
 
   // 前三名奖杯：金=双耳高脚奖杯、银=无耳圣杯、铜=浅口奖盘；第四名起显示序号
+  /* 前三名用三种不同轮廓的图标（奖杯 / 奖牌 / 绶带），
+   * 配合金银铜三色底，小尺寸下也能一眼区分；第 4 名起显示名次数字 */
   function trophyIcon(index) {
     const wrap = (paths) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
-    const stem = '<path d="M12 12.6v2.9"/><path d="M9 19.6h6l-.85-4.1h-4.3z"/>';
+    // 冠军：带双耳的奖杯
     if (index === 0) {
       return wrap(
-        '<path d="M7.2 3.6h9.6v4.1a4.8 4.8 0 0 1-9.6 0z"/>' +
-        '<path d="M7.2 4.9H5.2a2.1 2.1 0 0 0 0 4.2h.7"/>' +
-        '<path d="M16.8 4.9h2a2.1 2.1 0 0 1 0 4.2h-.7"/>' + stem
+        '<path d="M7.2 3.4h9.6v4.2a4.8 4.8 0 0 1-9.6 0z"/>' +
+        '<path d="M7.2 4.7H5.1a2.1 2.1 0 0 0 0 4.2h.8"/>' +
+        '<path d="M16.8 4.7h2.1a2.1 2.1 0 0 1 0 4.2h-.8"/>' +
+        '<path d="M12 12.4v3"/><path d="M8.8 20.4h6.4l-.9-4.4h-4.6z"/>'
       );
     }
+    // 亚军：吊挂式奖牌
     if (index === 1) {
-      return wrap('<path d="M7.9 3.6h8.2v4.3a4.1 4.1 0 0 1-8.2 0z"/>' + stem);
+      return wrap(
+        '<path d="M8.4 2.8 11.3 8.6"/><path d="M15.6 2.8 12.7 8.6"/>' +
+        '<circle cx="12" cy="14.4" r="5.9"/><circle cx="12" cy="14.4" r="2.3"/>'
+      );
     }
+    // 季军：绶带勋章
     if (index === 2) {
-      return wrap('<path d="M6.7 4.8h10.6v1.3a5.3 5.3 0 0 1-10.6 0z"/><path d="M12 11.4v4.1"/><path d="M9 19.6h6l-.85-4.1h-4.3z"/>');
+      return wrap(
+        '<circle cx="12" cy="8.9" r="5.6"/><circle cx="12" cy="8.9" r="2.1"/>' +
+        '<path d="M8.6 13.5 7 21.2l5-2.6 5 2.6-1.6-7.7"/>'
+      );
     }
     return String(index + 1);
   }
