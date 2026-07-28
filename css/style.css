@@ -1999,6 +1999,8 @@ ul { list-style: none; }
   transition: transform .18s, box-shadow .18s;
 }
 .exp-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.exp-clickable { cursor: pointer; }
+.exp-clickable:hover { border-color: rgba(38, 158, 216, .38); }
 .exp-cover { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; flex-shrink: 0; }
 .exp-cover img { width: 100%; height: 100%; object-fit: cover; }
 .exp-tag {

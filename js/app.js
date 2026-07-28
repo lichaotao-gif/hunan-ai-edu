@@ -1198,7 +1198,7 @@
     document.getElementById("lab-title").textContent = pkg.title;
     document.getElementById("lab-sub").textContent = `共 ${experiments.length} 个实验 · 线上 / 线下`;
     labExperimentsEl.innerHTML = experiments.map((e, i) => `
-      <article class="exp-card">
+      <article class="exp-card exp-clickable" data-exp-item="${esc(e.title)}">
         <div class="exp-cover">
           <img src="${expPhotos[i % expPhotos.length]}" alt="${e.title}">
           ${e.offline ? '<span class="exp-tag">线下实验</span>' : ""}
@@ -1217,6 +1217,7 @@
     const card = e.target.closest(".course-card");
     if (card) openPackage(card.dataset.pkg);
   });
+  bindExpCardHint(labExperimentsEl);
   document.getElementById("lab-back").addEventListener("click", showLabList);
 
   // ===== 我的课程：课程包数据（由「班级管理」的真实班级/课程派生） =====
@@ -1299,7 +1300,7 @@
       return;
     }
     myexpExperimentsEl.innerHTML = list.map((e) => `
-      <article class="exp-card">
+      <article class="exp-card exp-clickable" data-exp-item="${esc(e.title)}">
         <div class="exp-cover">
           <img src="${e.photo}" alt="${e.title}">
           ${e.offline ? '<span class="exp-tag">线下实验</span>' : ""}
@@ -1309,6 +1310,16 @@
           <div class="desc">${e.desc}</div>
         </div>
       </article>`).join("");
+  }
+
+  /* 实验内容由运营后台上传，尚未配置前点击给出明确提示。
+   * 后台接入后：把这里换成打开实验详情即可。 */
+  function bindExpCardHint(host) {
+    if (!host) return;
+    host.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-exp-item]");
+      if (card) showToast("该实验尚未上传内容，需后台配置后才能查看");
+    });
   }
 
   function openMyexpDetail(idx) {
@@ -1357,6 +1368,7 @@
       if (card) openMyexpDetail(parseInt(card.dataset.exp, 10));
     });
   }
+  bindExpCardHint(myexpExperimentsEl);
   const myexpBack = document.getElementById("myexp-back");
   if (myexpBack) myexpBack.addEventListener("click", showMyexpList);
 
