@@ -154,7 +154,7 @@
 .bs-reset:hover { color: var(--bs-cyan); border-color: rgba(51,225,255,.5); }
 
 /* ---------- KPI 卡 ---------- */
-.bs-kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: clamp(8px, .9vw, 14px); }
+.bs-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: clamp(8px, .9vw, 14px); }
 .bs-kpi { position: relative; overflow: hidden; padding: 14px 16px; border-radius: 14px;
   background: linear-gradient(150deg, var(--k-tint, rgba(51,130,255,.16)), var(--bs-panel) 70%);
   border: 1px solid var(--bs-panel-bd); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(4,12,34,.45);
@@ -261,7 +261,7 @@
 
 /* ---------- 响应式：窄屏纵向堆叠 ---------- */
 @media (max-width: 1280px) {
-  .bs-kpis { grid-template-columns: repeat(4, 1fr); }
+  .bs-kpis { grid-template-columns: repeat(3, 1fr); }
   .bs-main { grid-template-columns: 1fr 1fr; }
   .bs-col-center { grid-column: 1 / -1; }
 }

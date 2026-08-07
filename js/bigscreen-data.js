@@ -98,7 +98,6 @@
     const openedSchools = scope.school ? 1 : Math.max(1, Math.round(schoolsTotal * (0.82 + 0.1 * f)));
     const usedClasses = r(3860);
     const students = r(148600);
-    const openedClasses = r(2940);
     const totalPeriods = r(58200);
     const donePeriods = Math.round(totalPeriods * (0.74 + seeded("done" + (scope.city || "")) * 0.08));
     const completeRate = totalPeriods ? (donePeriods / totalPeriods) * 100 : 0;
@@ -107,17 +106,16 @@
       { key: "openedSchools", label: "开通学校数", value: openedSchools, unit: "所", trend: +6.2, icon: "school", color: "cyan" },
       { key: "usedClasses", label: "使用班级数", value: usedClasses, unit: "个", trend: +8.5, icon: "grid", color: "blue" },
       { key: "students", label: "学生数量", value: students, unit: "人", trend: +12.4, icon: "users", color: "violet" },
-      { key: "openedClasses", label: "开课班级数", value: openedClasses, unit: "个", trend: +9.1, icon: "book", color: "teal" },
       { key: "totalPeriods", label: "总课时", value: totalPeriods, unit: "节", trend: +5.3, icon: "clock", color: "sky" },
       { key: "donePeriods", label: "已完成课时", value: donePeriods, unit: "节", trend: +7.8, icon: "check", color: "green" },
       { key: "completeRate", label: "课时完成率", value: +completeRate.toFixed(1), unit: "%", trend: +2.6, icon: "gauge", color: "amber" },
     ];
 
-    // ---- 开课增长曲线（按月）--------------------------------------------
-    const openGrowth = MONTHS.map((m, i) => {
-      const wave = 0.55 + 0.45 * Math.sin((i / 11) * Math.PI); // 学期形态
-      const noise = 0.9 + seeded(m + (scope.city || "") + "og") * 0.25;
-      return { label: m, value: Math.round(320 * f * wave * noise) + 40 };
+    // ---- 开通学校数增长曲线（按月累计）----------------------------------
+    const schoolGrowth = MONTHS.map((m, i) => {
+      const progress = Math.pow((i + 1) / MONTHS.length, 0.82);
+      const value = Math.max(1, Math.round(openedSchools * (0.22 + 0.78 * progress)));
+      return { label: m, value: Math.min(openedSchools, value) };
     });
 
     // ---- 班级增长（新增 + 累计）----------------------------------------
@@ -152,7 +150,7 @@
 
     return {
       updatedAt: new Date(),
-      scope, kpis, openGrowth, classGrowth, completion, regionRanking, schoolActivity, regionDist,
+      scope, kpis, schoolGrowth, classGrowth, completion, regionRanking, schoolActivity, regionDist,
     };
   }
 

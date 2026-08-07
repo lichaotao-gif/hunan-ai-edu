@@ -269,7 +269,7 @@
   function renderAll() {
     const data = D.buildMetrics(scope);
     renderKpis(data);
-    renderAreaLine("chart-open-growth", data.openGrowth, "#33E1FF", "#3B82F6", "开课班级");
+    renderAreaLine("chart-school-growth", data.schoolGrowth, "#33E1FF", "#3B82F6", "累计开通学校");
     renderClassGrowth("chart-class-growth", data.classGrowth);
     renderGauge(data);
     renderRegionRank(data);
