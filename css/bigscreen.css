@@ -74,7 +74,7 @@
 .bs-exit:hover { color: var(--bs-cyan); border-color: rgba(51,225,255,.5); }
 .bs-exit svg { width: 17px; height: 17px; }
 .bs-title-wrap { position: relative; text-align: center; padding: 2px 0; }
-.bs-title { font-size: clamp(24px, 2.6vw, 40px); font-weight: 800; letter-spacing: 4px; line-height: 1.1;
+.bs-title { font-size: clamp(22px, 2vw, 34px); font-weight: 800; letter-spacing: 3px; line-height: 1.1; white-space: nowrap;
   background: linear-gradient(180deg, #EAF6FF 0%, #6EC7FF 55%, #3B82F6 120%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 34px rgba(56,189,248,.35); }
