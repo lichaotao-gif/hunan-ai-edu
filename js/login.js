@@ -1,4 +1,10 @@
 (function () {
+  // 游客模式是独立访问模式，不展示任何账户入口。
+  if (localStorage.getItem("hndj_guest_mode") === "1") {
+    window.location.replace("index.html");
+    return;
+  }
+
   const tabs = document.querySelectorAll(".login-tabs .tab");
   const tabBar = document.querySelector(".login-tabs");
   const panels = {

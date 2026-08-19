@@ -264,6 +264,19 @@ ul { list-style: none; }
 .demo-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .demo-btn svg { width: 18px; height: 18px; flex: none; }
 
+.guest-mode-badge {
+  display: none; align-items: center; gap: 8px; min-height: 36px; padding: 0 13px;
+  border: 1px solid rgba(16, 185, 129, .30); border-radius: 18px;
+  background: rgba(236, 253, 245, .86); color: #087A56;
+  font-size: 13px; font-weight: 700; letter-spacing: .2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82);
+}
+.guest-mode-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #10B981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, .13);
+}
+.guest-mode .guest-mode-badge { display: inline-flex; }
+
 .divider-v { width: 1px; height: 26px; background: var(--border); }
 
 .topbar-avatar {
@@ -309,6 +322,14 @@ ul { list-style: none; }
 .sp-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sp-row-text b { font-size: 14px; font-weight: 600; color: var(--text-main); }
 .sp-row-text i { font-size: 12px; color: var(--text-sub); font-style: normal; line-height: 1.5; }
+.sp-mode-row { position: relative; padding-right: 46px; }
+.sp-current {
+  position: absolute; top: 10px; right: 8px; padding: 2px 7px; border-radius: 10px;
+  background: #D1FAE5; color: #087A56; font-size: 10px; font-weight: 700;
+}
+.guest-mode-only { display: none !important; }
+.guest-mode .guest-mode-only { display: flex !important; }
+.guest-mode .standard-mode-only { display: none !important; }
 
 /* 顶栏「新手引导」呼出按钮（刷新键左侧） */
 .onboard-btn {
@@ -474,6 +495,22 @@ ul { list-style: none; }
 .sidebar-profile .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .sidebar-profile .greet { font-size: 15px; font-weight: 700; color: var(--text-main); margin-top: var(--sp-1); }
 .sidebar-profile .role { font-size: 12.5px; color: var(--text-sub); }
+
+/* 游客演示模式：只呈现两项开放课堂功能，账户与个人功能完全退出界面。 */
+.guest-mode .topbar .divider-v,
+.guest-mode .topbar-avatar,
+.guest-mode .profile-pop,
+.guest-mode .sidebar-profile,
+.guest-mode .menu-section-label,
+.guest-mode .sidebar-help,
+.guest-mode #onboard-btn,
+.guest-mode #onboard-modal,
+.guest-mode .guest-restricted-demo,
+.guest-mode .menu > .menu-item:not([data-target="dual-teacher"]):not([data-target="ai-lab"]) { display: none !important; }
+.guest-mode .menu { flex: 0 0 auto; overflow: visible; }
+.guest-mode .sidebar { padding-top: var(--sp-5); }
+.guest-mode .menu-item { min-height: 52px; font-size: 15px; }
+.guest-mode #dt-back { display: none !important; }
 
 .menu { flex: 1; display: flex; flex-direction: column; gap: var(--sp-2); overflow-y: auto; }
 .menu::-webkit-scrollbar { width: 6px; }
@@ -2106,6 +2143,17 @@ ul { list-style: none; }
 }
 .intro-cover svg { width: 96px; height: 96px; }
 .intro-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
+.combined-course-cover {
+  position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3px; overflow: hidden; border-radius: var(--radius);
+}
+.intro-cover .combined-course-cover img { border-radius: 0; }
+.combined-course-cover span {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  padding: 6px 14px; border-radius: 999px; white-space: nowrap;
+  background: rgba(20, 58, 64, .78); color: #fff; font-size: 12px; font-weight: 700;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
 .intro-body { display: flex; flex-direction: column; }
 .intro-title { font-size: 19px; font-weight: 700; color: var(--text-main); }
 .intro-rule { display: block; width: 40px; height: 3px; border-radius: 3px; background: var(--accent); margin: var(--sp-3) 0 var(--sp-5); }
@@ -2645,6 +2693,7 @@ tbody tr:hover { background: #FAFCFD; }
   .topbar .logo-text .name { max-width: 36vw; overflow: hidden; text-overflow: ellipsis; }
   .topbar .logo-text .sub { display: none; }
   .topbar-actions { gap: var(--sp-2); }
+  .guest-mode-badge { padding: 0 10px; }
   .divider-v, .topbar-avatar .nm { display: none; }
   /* 桌面客户端：侧边栏始终保留在布局中 */
   .sidebar { width: 200px; }
@@ -2701,6 +2750,8 @@ tbody tr:hover { background: #FAFCFD; }
   .code-btn { font-size: 12px; margin-left: var(--sp-2); padding-left: var(--sp-2); }
   .content { padding: var(--sp-4); }
   .topbar .logo-text .name { max-width: 34vw; font-size: 14px; }
+  .guest-mode-badge span:last-child { display: none; }
+  .guest-mode-badge { width: 34px; min-height: 34px; padding: 0; justify-content: center; }
   .icon-btn { width: 36px; height: 36px; }
   .course-grid { gap: var(--sp-4); }
   .book-row { gap: var(--sp-4); }

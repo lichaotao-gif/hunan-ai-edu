@@ -1,11 +1,16 @@
 (function () {
+  const GUEST_MODE_KEY = "hndj_guest_mode";
+  const isGuestMode = localStorage.getItem(GUEST_MODE_KEY) === "1";
+  document.documentElement.classList.toggle("guest-mode", isGuestMode);
+  document.body.classList.toggle("guest-mode", isGuestMode);
+
   // 未登录则跳转回登录页
   const userRaw = localStorage.getItem("hndj_user");
-  if (!userRaw) {
+  if (!isGuestMode && !userRaw) {
     window.location.href = "login.html";
     return;
   }
-  try {
+  if (!isGuestMode) try {
     const user = JSON.parse(userRaw);
     if (user && user.name) {
       const initial = user.name.charAt(0);
@@ -64,6 +69,13 @@
     });
   });
 
+  // 游客模式固定从开放课程首页开始，避免落入任何个人功能页面。
+  if (isGuestMode) {
+    const labLabel = document.querySelector('.menu-item[data-target="ai-lab"] span');
+    if (labLabel) labLabel.textContent = "AI 实验";
+    activate("dual-teacher");
+  }
+
   // ===== 双师AI课：科目 -> 科目详情 下钻 =====
   const IMG = "assets/img/";
   // 读本（教材封面，按年级），各科目通用
@@ -106,6 +118,16 @@
         { name: "人工智能（九上）", periods: "12课时", validity: "2026.09.01-2031.03.24", desc: "结合真实应用场景分析 AI 的价值、风险与治理，形成综合项目方案。", img: IMG + "ai-book-grade-9.png" },
       ],
     },
+  };
+
+  // 游客开放课堂只有一个人工智能系列：按年级将上下册合并为连续课程。
+  courses.combined = {
+    title: "人工智能课程",
+    desc: "<p>人工智能课程系列覆盖四至九年级完整教学内容，上下册统一编排，老师可按年级与学期直接选择课程开始教学。</p>" + introText,
+    coverImg: IMG + "ai-course-autumn-redesign.png",
+    lessons: courses.autumn.lessons.flatMap((upper, index) =>
+      [upper, courses.spring.lessons[index]].filter(Boolean)
+    ),
   };
 
   const dtList = document.getElementById("dt-list");
@@ -179,6 +201,10 @@
   let selectedClassId = classStore[0] && classStore[0].id;
 
   function showDtList() {
+    if (isGuestMode) {
+      openCourse("combined");
+      return;
+    }
     dtDetail.classList.remove("active");
     dtLessonDetail.classList.remove("active");
     dtList.classList.add("active");
@@ -292,15 +318,16 @@
   function openBookInfo(index) {
     const book = books[index];
     if (!book) return;
+    const bookLabel = activeCourseKey === "combined" ? book.label.replace(" 上册", "") : book.label;
     document.getElementById("book-modal-cover").innerHTML = `
       <div class="modal-book-art" style="--book-accent:${book.accent}">
-        <img src="${book.img}" alt="人工智能 ${book.label}">
+        <img src="${book.img}" alt="人工智能 ${bookLabel}">
         <div class="book-cover-text">
           <span class="bk-name">人工智能</span>
-          <span class="bk-sub">${book.label}</span>
+          <span class="bk-sub">${bookLabel}</span>
         </div>
       </div>`;
-    document.getElementById("book-modal-grade").textContent = book.label;
+    document.getElementById("book-modal-grade").textContent = bookLabel;
     document.getElementById("book-modal-publisher").textContent = "四川科学技术出版社";
     document.getElementById("book-modal-issuer").textContent = "新华文轩出版传媒股份有限公司";
     document.getElementById("book-modal-isbn").textContent = book.isbn;
@@ -321,20 +348,28 @@
     activeCourseKey = key;
     document.getElementById("dt-title").textContent = c.title;
     document.getElementById("dt-desc").innerHTML = c.desc;
-    document.getElementById("dt-cover").innerHTML =
-      `<img src="${c.coverImg}" alt="${c.title}">`;
+    document.getElementById("dt-cover").innerHTML = key === "combined"
+      ? `<div class="combined-course-cover">
+          <img src="${courses.autumn.coverImg}" alt="人工智能课程上册">
+          <img src="${courses.spring.coverImg}" alt="人工智能课程下册">
+          <span>完整系列</span>
+        </div>`
+      : `<img src="${c.coverImg}" alt="${c.title}">`;
 
-    dtBooks.innerHTML = books.map((b, idx) => `
-      <div class="book-item" data-book-index="${idx}" role="button" tabindex="0" aria-label="查看${b.label}图书信息">
+    dtBooks.innerHTML = books.map((b, idx) => {
+      const label = key === "combined" ? b.label.replace(" 上册", "") : b.label;
+      return `
+      <div class="book-item" data-book-index="${idx}" role="button" tabindex="0" aria-label="查看${label}图书信息">
         <div class="book-cover book-cover-art" style="--book-accent:${b.accent}">
-          <img src="${b.img}" alt="人工智能 ${b.label}">
+          <img src="${b.img}" alt="人工智能 ${label}">
           <div class="book-cover-text">
             <span class="bk-name">人工智能</span>
-            <span class="bk-sub">${b.label}</span>
+            <span class="bk-sub">${label}</span>
           </div>
         </div>
-        <span class="book-label">${b.label}</span>
-      </div>`).join("");
+        <span class="book-label">${label}</span>
+      </div>`;
+    }).join("");
 
     dtLessons.innerHTML = c.lessons.map((l, idx) => {
       const validity = l.validity === "off"
@@ -376,6 +411,7 @@
     event.preventDefault();
     openLesson(Number(card.dataset.lessonIndex));
   });
+  if (isGuestMode) openCourse("combined");
   dtBooks.addEventListener("click", (event) => {
     const item = event.target.closest(".book-item");
     if (!item) return;
@@ -3264,6 +3300,28 @@
   const settingsBtn = document.getElementById("settings-btn");
   const settingsPop = document.getElementById("settings-pop");
   if (settingsBtn && settingsPop) {
+    const enterGuestBtn = document.getElementById("settings-enter-guest");
+    const exitGuestBtn = document.getElementById("settings-exit-guest");
+    function switchAccessMode(toGuest) {
+      // 清掉直达链接上的 mode 参数，避免刷新时覆盖用户刚完成的模式切换。
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.delete("mode");
+      window.history.replaceState({}, "", nextUrl);
+      if (toGuest) {
+        localStorage.setItem(GUEST_MODE_KEY, "1");
+        showToast("正在进入游客演示模式");
+      } else {
+        localStorage.removeItem(GUEST_MODE_KEY);
+        // 从免登录直达页返回演示时补充演示身份，确保可直接查看完整模式。
+        if (!localStorage.getItem("hndj_user")) {
+          localStorage.setItem("hndj_user", JSON.stringify({ name: "陈老师", account: "13800138000" }));
+        }
+        showToast("正在返回教师演示模式");
+      }
+      setTimeout(() => location.reload(), 450);
+    }
+    if (enterGuestBtn) enterGuestBtn.addEventListener("click", () => switchAccessMode(true));
+    if (exitGuestBtn) exitGuestBtn.addEventListener("click", () => switchAccessMode(false));
     settingsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const open = settingsPop.hidden;
@@ -3311,7 +3369,7 @@
   function onboardDone() { return onboardState().every((s) => s.done); }
   // 仅在用户主动切换到「空数据」的新手场景时展示引导；
   // 演示数据即使未绑定学校，也不应打断正常浏览。
-  function shouldShowOnboard() { return classStore.length === 0; }
+  function shouldShowOnboard() { return !isGuestMode && classStore.length === 0; }
 
   function fillOnboardSteps() {
     const steps = onboardState();
@@ -3395,6 +3453,7 @@
 
   // 初始化面板信息
   (function initProfile() {
+    if (isGuestMode) return;
     let u = {};
     try { u = JSON.parse(localStorage.getItem("hndj_user") || "{}"); } catch (e) { /* ignore */ }
     document.getElementById("pp-av").textContent = (u.name || "").charAt(0);
