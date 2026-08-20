@@ -159,6 +159,8 @@
   }
   const deviceId = isGuestMode ? getDeviceId() : "";
   const DEVICE_AVATAR_KEY = isGuestMode ? `hndj_device_avatar_${deviceId}` : "";
+  const POST_SETUP_GUIDE_SHOWN_KEY = isGuestMode ? `hndj_device_post_setup_guide_shown_${deviceId}` : "";
+  const ONBOARD_COMPLETE_KEY = isGuestMode ? `hndj_device_onboard_complete_${deviceId}` : "";
   const SCHOOL_KEY = isGuestMode ? `hndj_device_school_${deviceId}` : "hndj_school";
   const SCHOOL_REGION_KEY = isGuestMode ? `hndj_device_school_region_${deviceId}` : "hndj_school_region";
   const CLASS_KEY = isGuestMode ? `hndj_device_classes_${deviceId}` : "hndj_classes";
@@ -508,6 +510,7 @@
       renderClassTable();
       if (typeof refreshMcClasses === "function") refreshMcClasses();
       if (typeof renderOnboard === "function") renderOnboard();
+      if (typeof continueOnboardAfterSetup === "function") continueOnboardAfterSetup();
     }
     showToast(`已添加到${selected.name}`);
     closeClassModal();
@@ -1101,6 +1104,7 @@
     if (added > 0 && typeof refreshMcClasses === "function") refreshMcClasses();
     if (classroomPage && !classroomPage.hidden) renderClassroom();
     showToast(added > 0 ? `已添加 ${added} 门课程` : "所选课程已存在");
+    if (added > 0 && typeof continueOnboardAfterSetup === "function") continueOnboardAfterSetup();
   });
 
   document.getElementById("course-modal-close").addEventListener("click", closeCourseModal);
@@ -3684,6 +3688,10 @@
     document.getElementById("settings-empty").addEventListener("click", () => {
       localStorage.removeItem(SCHOOL_KEY);
       localStorage.setItem(CLASS_KEY, "[]");
+      if (isGuestMode) {
+        localStorage.removeItem(POST_SETUP_GUIDE_SHOWN_KEY);
+        localStorage.removeItem(ONBOARD_COMPLETE_KEY);
+      }
       showToast("已切换到新手无数据状态");
       setTimeout(() => location.reload(), 500);
     });
@@ -3696,17 +3704,35 @@
     });
   }
 
-  // ===== 新手引导弹窗（绑定学校 → 创建班级 → 添加课程） =====
+  // ===== 新手引导（免登录设备：创建班级 → 添加课程 → 聚焦课堂操作） =====
   const onboardModal = document.getElementById("onboard-modal");
   const onboardBtn = document.getElementById("onboard-btn");
   const obStepsEl = document.getElementById("ob-steps");
   const obBar = document.getElementById("ob-bar");
   const obSub = document.getElementById("ob-sub");
+  const obTitle = document.getElementById("ob-title");
+  const tourLayer = document.getElementById("tour-layer");
+  const tourCard = document.getElementById("tour-card");
+  const tourTitle = document.getElementById("tour-title");
+  const tourDesc = document.getElementById("tour-desc");
+  const tourStepEl = document.getElementById("tour-step");
+  const tourNext = document.getElementById("tour-next");
+  const tourShades = tourLayer ? [...tourLayer.querySelectorAll(".tour-shade")] : [];
+  let onboardingActive = false;
+  let tourIndex = -1;
+  let tourTarget = null;
+  let tourAdvancing = false;
+  let tourTimer = null;
+  let activeTourSteps = [];
 
   function onboardState() {
     const hasSchool = !!loadSchool();
     const hasClass = classStore.length > 0;
     const hasCourse = classStore.some((c) => Array.isArray(c.courses) && c.courses.length > 0);
+    if (isGuestMode) return [
+      { key: "class", done: hasClass, title: "创建班级", desc: "填写年级与班级名称，学校信息可稍后再绑定", btn: "去创建", act: () => openClassForm() },
+      { key: "course", done: hasCourse, title: "添加课程", desc: "为班级选择课程包，即可进入课堂开始教学", btn: "去添加", act: () => openCourseModal((classStore.find((c) => !(c.courses || []).length) || classStore[0]).id), locked: !hasClass },
+    ];
     return [
       { key: "school", done: hasSchool, title: "绑定学校", desc: "按省市区选择所在学校，绑定后即可创建班级", btn: "去绑定", act: () => openSchoolModal() },
       { key: "class", done: hasClass, title: "创建班级", desc: "填写年级与班级名称，建立你的第一个班级", btn: "去创建", act: () => openClassForm(), locked: !hasSchool },
@@ -3714,15 +3740,17 @@
     ];
   }
   function onboardDone() { return onboardState().every((s) => s.done); }
-  // 仅在用户主动切换到「空数据」的新手场景时展示引导；
-  // 演示数据即使未绑定学校，也不应打断正常浏览。
-  function shouldShowOnboard() { return !isGuestMode && classStore.length === 0; }
+  // 标准演示只在空数据场景展示；免登录设备始终保留顶部重播入口。
+  function shouldShowOnboard() { return isGuestMode || classStore.length === 0; }
 
   function fillOnboardSteps() {
     const steps = onboardState();
     const doneCount = steps.filter((s) => s.done).length;
+    if (obTitle) obTitle.textContent = isGuestMode
+      ? "欢迎使用，2 步开始您的第一堂课"
+      : "欢迎使用，3 步开始您的第一堂课";
     if (obBar) obBar.style.width = `${(doneCount / steps.length) * 100}%`;
-    if (obSub) obSub.textContent = `已完成 ${doneCount} / ${steps.length} 步，完成后即可排课与上课`;
+    if (obSub) obSub.textContent = `已完成 ${doneCount} / ${steps.length} 步，完成后带您认识备课与上课`;
     if (obStepsEl) obStepsEl.innerHTML = steps.map((s, i) => {
       const num = s.done
         ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
@@ -3751,12 +3779,144 @@
       document.body.classList.remove("modal-open");
     }
   }
-  // 仅空数据场景提供顶部入口，正常演示数据不显示也不自动弹出。
+
+  function dismissOnboard() {
+    onboardingActive = false;
+    closeOnboard();
+  }
+
+  // 免登录模式顶部入口始终可见，完成设置后点击入口会直接重播课堂引导。
   function renderOnboard() {
-    const shouldShow = shouldShowOnboard() && !onboardDone();
+    const shouldShow = isGuestMode || (shouldShowOnboard() && !onboardDone());
     if (onboardBtn) onboardBtn.hidden = !shouldShow;
     if (!shouldShow) { closeOnboard(); return; }
     if (onboardModal && !onboardModal.hidden) fillOnboardSteps();
+  }
+
+  function clearTourTarget() {
+    if (tourTarget) tourTarget.classList.remove("tour-focus");
+    tourTarget = null;
+  }
+
+  function positionTour() {
+    if (!tourTarget || !tourLayer || tourLayer.hidden) return;
+    const pad = 10;
+    const rect = tourTarget.getBoundingClientRect();
+    const top = Math.max(0, rect.top - pad);
+    const left = Math.max(0, rect.left - pad);
+    const right = Math.min(window.innerWidth, rect.right + pad);
+    const bottom = Math.min(window.innerHeight, rect.bottom + pad);
+    const holeH = Math.max(0, bottom - top);
+    const [shadeTop, shadeLeft, shadeRight, shadeBottom] = tourShades;
+    if (shadeTop) Object.assign(shadeTop.style, { inset: "0 0 auto 0", height: `${top}px` });
+    if (shadeLeft) Object.assign(shadeLeft.style, { inset: `${top}px auto auto 0`, width: `${left}px`, height: `${holeH}px` });
+    if (shadeRight) Object.assign(shadeRight.style, { inset: `${top}px 0 auto auto`, width: `${Math.max(0, window.innerWidth - right)}px`, height: `${holeH}px` });
+    if (shadeBottom) Object.assign(shadeBottom.style, { inset: `${bottom}px 0 0 0` });
+
+    const cardRect = tourCard.getBoundingClientRect();
+    const gap = 20;
+    const placeBelow = window.innerHeight - bottom >= cardRect.height + gap || top < cardRect.height + gap;
+    const cardTop = placeBelow
+      ? Math.min(window.innerHeight - cardRect.height - 12, bottom + gap)
+      : Math.max(12, top - cardRect.height - gap);
+    const cardLeft = Math.max(12, Math.min(window.innerWidth - cardRect.width - 12, rect.left + rect.width / 2 - cardRect.width / 2));
+    tourCard.dataset.side = placeBelow ? "bottom" : "top";
+    tourCard.style.top = `${cardTop}px`;
+    tourCard.style.left = `${cardLeft}px`;
+    tourCard.style.setProperty("--tour-arrow", `${Math.max(20, Math.min(cardRect.width - 34, rect.left + rect.width / 2 - cardLeft - 7))}px`);
+  }
+
+  function hasTeachingPlan() {
+    return classStore.some((cls) => (cls.courses || []).some((course) => course.plan && course.plan.on));
+  }
+
+  function buildTourSteps() {
+    const steps = [];
+    if (hasTeachingPlan()) steps.push({
+      selector: ".rail-card-today .ti-go", title: "今日课表快捷入口",
+      desc: "设置开课计划后，课程会同步到右侧“今日课表”。上课当天可直接点击“进入”，快速打开对应课程。",
+    });
+    steps.push({
+      selector: "#mc-course-list .mcc-enter", title: "进入课程",
+      desc: "课程添加完成后，从“我的课程”列表直接进入课程，查看全部课时。",
+      next: () => { const card = document.querySelector("#mc-course-list [data-pkg-idx]"); if (card) card.click(); },
+    }, {
+      selector: "#mc-lessons-rail [data-prep]", title: "先备课",
+      desc: "点击“备课”可查看教学目标、课堂流程与所需素材，上课前建议先浏览一遍。",
+    }, {
+      selector: "#mc-lessons-rail [data-teach]", title: "开始上课",
+      desc: "准备完成后点击“上课”，即可进入沉浸式课堂并按教学片段逐步授课。",
+    });
+    return steps;
+  }
+
+  function finishTour(completed) {
+    if (tourTimer) clearTimeout(tourTimer);
+    tourTimer = null;
+    tourAdvancing = false;
+    clearTourTarget();
+    if (tourLayer) tourLayer.hidden = true;
+    tourIndex = -1;
+    onboardingActive = false;
+    window.removeEventListener("resize", positionTour);
+    window.removeEventListener("scroll", positionTour, true);
+    if (completed && isGuestMode) {
+      localStorage.setItem(ONBOARD_COMPLETE_KEY, "1");
+      showToast("新手引导已完成，可随时从顶部再次查看");
+    }
+  }
+
+  function showTourStep(index) {
+    if (!tourLayer || index < 0 || index >= activeTourSteps.length) { finishTour(true); return; }
+    clearTourTarget();
+    tourIndex = index;
+    const step = activeTourSteps[index];
+    const target = document.querySelector(step.selector);
+    if (!target) { finishTour(false); showToast("当前暂无可引导的课程，请先完成班级与课程设置"); return; }
+    target.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+    tourTarget = target;
+    tourTarget.classList.add("tour-focus");
+    tourTitle.textContent = step.title;
+    tourDesc.textContent = step.desc;
+    tourStepEl.textContent = `${index + 1} / ${activeTourSteps.length}`;
+    tourNext.textContent = index === activeTourSteps.length - 1 ? "完成引导" : "我知道了";
+    tourNext.disabled = false;
+    tourAdvancing = false;
+    tourLayer.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => { positionTour(); tourNext.focus(); }));
+  }
+
+  function startProductTour() {
+    if (!isGuestMode || !onboardDone()) return;
+    closeOnboard();
+    if (classroomPage && !classroomPage.hidden) closeClassroom();
+    if (lessonPage && !lessonPage.hidden) closeMcLessons();
+    activate("my-courses");
+    showMcHome();
+    activeTourSteps = buildTourSteps();
+    onboardingActive = true;
+    if (tourTimer) clearTimeout(tourTimer);
+    window.addEventListener("resize", positionTour);
+    window.addEventListener("scroll", positionTour, true);
+    tourTimer = setTimeout(() => showTourStep(0), 80);
+  }
+
+  function beginOnboarding() {
+    onboardingActive = true;
+    if (isGuestMode && onboardDone()) startProductTour();
+    else openOnboard();
+  }
+
+  function continueOnboardAfterSetup() {
+    renderOnboard();
+    if (!isGuestMode || !onboardDone()) return;
+    const shouldAutoStart = !localStorage.getItem(POST_SETUP_GUIDE_SHOWN_KEY);
+    if (!onboardingActive && !shouldAutoStart) return;
+    if (shouldAutoStart) localStorage.setItem(POST_SETUP_GUIDE_SHOWN_KEY, "1");
+    closeCourseModal();
+    closeOnboard();
+    if (tourTimer) clearTimeout(tourTimer);
+    tourTimer = setTimeout(startProductTour, 120);
   }
 
   if (onboardModal) {
@@ -3766,13 +3926,31 @@
       const step = onboardState().find((s) => s.key === btn.dataset.ob);
       if (step && !step.locked) { closeOnboard(); step.act(); }
     });
-    document.getElementById("ob-close").addEventListener("click", closeOnboard);
-    document.getElementById("ob-later").addEventListener("click", closeOnboard);
-    onboardModal.addEventListener("click", (e) => { if (e.target === onboardModal) closeOnboard(); });
-    if (onboardBtn) onboardBtn.addEventListener("click", openOnboard);
-    // 仅在「体验新手状态」的空数据场景自动弹出。
+    document.getElementById("ob-close").addEventListener("click", dismissOnboard);
+    document.getElementById("ob-later").addEventListener("click", dismissOnboard);
+    onboardModal.addEventListener("click", (e) => { if (e.target === onboardModal) dismissOnboard(); });
+    if (onboardBtn) onboardBtn.addEventListener("click", beginOnboarding);
+    if (tourNext) tourNext.addEventListener("click", () => {
+      if (tourAdvancing) return;
+      tourAdvancing = true;
+      tourNext.disabled = true;
+      const nextIndex = tourIndex + 1;
+      const step = activeTourSteps[tourIndex];
+      if (step && step.next) step.next();
+      if (tourIndex >= activeTourSteps.length - 1) { finishTour(true); return; }
+      if (tourTimer) clearTimeout(tourTimer);
+      tourTimer = setTimeout(() => showTourStep(nextIndex), 160);
+    });
+    const tourClose = document.getElementById("tour-close");
+    if (tourClose) tourClose.addEventListener("click", () => finishTour(false));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && tourLayer && !tourLayer.hidden) finishTour(false);
+    });
     renderOnboard();
-    if (shouldShowOnboard() && !onboardDone()) openOnboard();
+    // 免登录设备首次进入保持空数据页面，不主动打断；完成班级和课程后再自动提示。
+    if (!isGuestMode && shouldShowOnboard() && !onboardDone()) {
+      beginOnboarding();
+    }
   }
   // ===== 个人中心下拉面板 =====
   const profilePop = document.getElementById("profile-pop");
