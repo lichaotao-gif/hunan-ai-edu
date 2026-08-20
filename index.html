@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=148">
+<link rel="stylesheet" href="css/style.css?v=155">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
-    if (mode === "guest") localStorage.setItem("hndj_guest_mode", "1");
+    if (mode === "guest" || mode === "device") localStorage.setItem("hndj_guest_mode", "1");
     if (mode === "teacher") localStorage.removeItem("hndj_guest_mode");
     document.documentElement.classList.toggle("guest-mode", localStorage.getItem("hndj_guest_mode") === "1");
   })();
@@ -26,9 +26,9 @@
       </div>
     </div>
     <div class="topbar-actions">
-      <div class="guest-mode-badge" id="guest-mode-badge" role="status" aria-label="当前为游客演示模式">
+      <div class="guest-mode-badge" id="guest-mode-badge" role="status" aria-label="当前为免登录设备模式">
         <span class="guest-mode-dot" aria-hidden="true"></span>
-        <span>游客演示模式</span>
+        <span>免登录设备模式</span>
       </div>
       <button class="onboard-btn" id="onboard-btn" type="button" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>
@@ -47,11 +47,11 @@
         <div class="sp-section-label">演示 · 访问模式</div>
         <button class="sp-row sp-mode-row standard-mode-only" id="settings-enter-guest" type="button">
           <span class="sp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18"/><path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/><path d="M5 11v8"/><path d="M19 11v8"/><path d="M8 15h8"/></svg></span>
-          <span class="sp-row-text"><b>进入游客模式</b><i>开放课堂功能，隐藏个人与学校信息</i></span>
+          <span class="sp-row-text"><b>进入免登录设备模式</b><i>本机自动保留班级与教学记录</i></span>
         </button>
         <button class="sp-row sp-mode-row guest-mode-only" id="settings-exit-guest" type="button">
           <span class="sp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-          <span class="sp-row-text"><b>返回教师演示模式</b><i>恢复完整教学管理菜单</i></span>
+          <span class="sp-row-text"><b>返回标准演示模式</b><i>恢复账号方式的演示环境</i></span>
           <span class="sp-current">切换</span>
         </button>
         <div class="sp-section-label guest-restricted-demo">演示 · 数据状态</div>
@@ -71,7 +71,7 @@
       </div>
 
       <span class="divider-v"></span>
-      <button class="topbar-avatar" id="topbar-avatar" title="个人中心" aria-haspopup="true" aria-expanded="false">
+      <button class="topbar-avatar" id="topbar-avatar" title="身份信息" aria-haspopup="true" aria-expanded="false">
         <span class="av" id="topbar-av">陈</span>
         <span class="nm" id="topbar-name">陈老师</span>
       </button>
@@ -84,6 +84,7 @@
             <button class="pp-cam" id="pp-photo" type="button" aria-label="更换头像" title="更换头像">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
+            <input id="device-avatar-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>
           </div>
           <div class="pp-id">
             <div class="pp-name-row">
@@ -100,12 +101,16 @@
             </div>
           </div>
         </div>
-        <div class="pp-row">
+        <div class="pp-row" id="pp-phone-row">
           <span class="pp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2.5"/><line x1="10" y1="18" x2="14" y2="18"/></svg></span>
           <span class="pp-row-val" id="pp-phone">—</span>
           <button class="pp-action" id="pp-edit-phone" type="button">修改手机号</button>
         </div>
-        <div class="pp-row">
+        <div class="pp-row device-id-row" id="pp-device-row">
+          <span class="pp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+          <span class="pp-row-val" id="pp-device-id">设备 UID</span>
+        </div>
+        <div class="pp-row" id="pp-password-row">
           <span class="pp-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
           <span class="pp-row-val">******</span>
           <button class="pp-action" id="pp-edit-pwd" type="button">修改密码</button>
@@ -220,12 +225,28 @@
           </div>
 
           <!-- 读本详情 -->
-          <div class="block-head"><span class="bar"></span>读本详情</div>
-          <div class="book-row" id="dt-books"></div>
+          <section class="series-section-panel">
+            <div class="block-head"><span class="bar"></span>读本详情</div>
+            <div class="book-row" id="dt-books"></div>
+          </section>
 
           <!-- 课程列表 -->
-          <div class="block-head"><span class="bar"></span>课程列表</div>
-          <div class="lesson-grid" id="dt-lessons"></div>
+          <section class="series-section-panel series-course-panel">
+            <div class="series-section-head">
+              <div class="block-head"><span class="bar"></span>课程列表</div>
+              <div class="grade-filter" id="dt-grade-filter" aria-label="按年级筛选课程" hidden>
+                <span class="grade-filter-label">年级</span>
+                <button class="active" type="button" data-grade="all" aria-pressed="true">全部</button>
+                <button type="button" data-grade="四年级" aria-pressed="false">四年级</button>
+                <button type="button" data-grade="五年级" aria-pressed="false">五年级</button>
+                <button type="button" data-grade="六年级" aria-pressed="false">六年级</button>
+                <button type="button" data-grade="七年级" aria-pressed="false">七年级</button>
+                <button type="button" data-grade="八年级" aria-pressed="false">八年级</button>
+                <button type="button" data-grade="九年级" aria-pressed="false">九年级</button>
+              </div>
+            </div>
+            <div class="lesson-grid" id="dt-lessons"></div>
+          </section>
         </div>
 
         <!-- 课程包详情视图 -->
@@ -478,7 +499,7 @@
       <section class="content-section" id="sec-class-management">
         <div class="page-head">
           <h1 class="page-title">班级管理</h1>
-          <p class="page-sub">先绑定所在学校，即可创建并管理班级</p>
+          <p class="page-sub" id="class-page-sub">先绑定所在学校，即可创建并管理班级</p>
         </div>
 
         <!-- 学校绑定横幅（由 JS 渲染两种状态） -->
@@ -598,7 +619,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <h2 id="school-modal-title">绑定学校</h2>
-    <p class="class-modal-sub">先选择所在区域，再从该区域下的学校中选择绑定</p>
+    <p class="class-modal-sub" id="school-modal-sub">先选择所在区域，再从该区域下的学校中选择绑定</p>
     <div class="school-region">
       <div class="form-field">
         <label for="school-province">省</label>
@@ -613,10 +634,13 @@
         <select id="school-district"></select>
       </div>
     </div>
-    <div class="school-search">
+    <label class="school-name-label" id="school-name-label" for="school-search-input">搜索学校</label>
+    <div class="school-search" id="school-name-field">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="school-search-input" placeholder="在所选区域内搜索学校名称" autocomplete="off">
+      <input type="text" id="school-search-input" placeholder="在所选区域内搜索学校名称" autocomplete="off" maxlength="50" aria-describedby="school-name-help school-name-error">
     </div>
+    <p class="school-name-help" id="school-name-help" hidden>请以学校公章或官方挂牌名称为准，逐字核对，不要填写简称，避免多字、少字或错别字。</p>
+    <p class="school-name-error" id="school-name-error" role="alert" hidden></p>
     <div class="school-count" id="school-count"></div>
     <div class="school-list" id="school-list"></div>
     <div class="class-modal-actions">
@@ -825,6 +849,13 @@
   <div class="fullpage-body">
     <div class="drive-toolbar">
       <nav class="drive-breadcrumb" id="drive-breadcrumb"></nav>
+      <div class="drive-actions">
+        <button class="solid-btn" id="my-resource-upload" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>
+          上传资源
+        </button>
+        <input id="my-resource-input" type="file" accept=".doc,.docx,.ppt,.pptx,.pdf,.xls,.xlsx,.png,.jpg,.jpeg,.mp4" hidden>
+      </div>
     </div>
     <div class="drive-card">
       <div class="drive-head">
@@ -908,7 +939,16 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l1.5 4.3 4.3 1.5-4.3 1.5L12 14.2l-1.5-4.3L6.2 8.4l4.3-1.5z"/></svg>
       </span>
     </span>
-    <span class="teach-kp-btn-text">本段<br>知识点</span>
+    <span class="teach-kp-btn-text">本段知识点</span>
+  </button>
+  <button class="teach-kp-btn teach-resource-btn" id="teach-resource-btn" type="button" title="打开本节课资源" aria-haspopup="dialog" aria-expanded="false">
+    <span class="teach-kp-btn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+        <path d="M12 10v6M9 13h6"/>
+      </svg>
+    </span>
+    <span class="teach-kp-btn-text">本课资源</span>
   </button>
   </div>
 
@@ -941,6 +981,55 @@
       </footer>
     </div>
   </aside>
+
+  <!-- 本课资源：讲台易触达的紧凑右下角抽屉，资源较少时随内容收起 -->
+  <div class="teach-resource-scrim" id="teach-resource-scrim" hidden></div>
+  <aside class="teach-resource-panel" id="teach-resource-panel" role="dialog" aria-modal="false" aria-labelledby="teach-resource-title" hidden>
+    <header class="teach-resource-head">
+      <div>
+        <span class="teach-resource-eyebrow" id="teach-resource-lesson">第 1 课时</span>
+        <h3 id="teach-resource-title">本课资源</h3>
+      </div>
+      <div class="teach-resource-head-actions">
+        <button class="teach-resource-upload" id="teach-resource-upload" type="button" title="上传我的资源">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>
+          <span>上传</span>
+        </button>
+        <button class="teach-kp-icon-btn" id="teach-resource-close" type="button" aria-label="关闭本课资源">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="teach-resource-list" id="teach-resource-list"></div>
+  </aside>
+
+  <!-- PPT 课堂预览：以大画面居中展示，便于投屏讲解 -->
+  <div class="ppt-preview-scrim" id="ppt-preview-scrim" hidden></div>
+  <section class="ppt-preview-dialog" id="ppt-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="ppt-preview-title" hidden>
+    <header class="ppt-preview-topbar">
+      <div class="ppt-preview-file"><span class="ppt-preview-mark">P</span><span id="ppt-preview-title">课堂演示课件.pptx</span></div>
+      <div class="ppt-preview-actions">
+        <button class="ppt-preview-close" id="ppt-preview-close" type="button" aria-label="关闭 PPT 预览" title="关闭 PPT 预览">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="ppt-preview-stage" id="ppt-preview-stage" aria-live="polite"></div>
+    <footer class="ppt-preview-footer">
+      <button class="ppt-preview-nav" id="ppt-preview-prev" type="button" aria-label="上一页">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg><span>上一页</span>
+      </button>
+      <span class="ppt-preview-count" id="ppt-preview-count">1 / 3</span>
+      <button class="ppt-preview-nav primary" id="ppt-preview-next" type="button" aria-label="下一页">
+        <span>下一页</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="ppt-preview-action" id="ppt-preview-fullscreen" type="button" aria-label="全屏播放" title="全屏播放">
+        <svg class="ppt-icon-enter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="8 3 3 3 3 8"/><polyline points="16 3 21 3 21 8"/><polyline points="8 21 3 21 3 16"/><polyline points="16 21 21 21 21 16"/></svg>
+        <svg class="ppt-icon-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 8 8 8 8 3"/><polyline points="21 8 16 8 16 3"/><polyline points="3 16 8 16 8 21"/><polyline points="21 16 16 16 16 21"/></svg>
+        <span id="ppt-preview-fullscreen-text">全屏</span>
+      </button>
+    </footer>
+  </section>
 
   <div class="teach-chrome teach-player" id="teach-player">
     <button class="teach-play" id="teach-play" type="button" aria-label="播放视频">
@@ -1057,6 +1146,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=93"></script>
+<script src="js/app.js?v=102"></script>
 </body>
 </html>

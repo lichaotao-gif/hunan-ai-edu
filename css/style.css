@@ -290,6 +290,10 @@ ul { list-style: none; }
   color: #fff; display: flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 600;
 }
+.topbar-avatar .av img,
+.sidebar-profile .avatar img,
+.pp-av-text img { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.device-person-icon { width: 56%; height: 56%; }
 .topbar-avatar .nm { font-size: 14px; font-weight: 600; color: var(--text-main); }
 
 /* 个人中心下拉面板 */
@@ -426,6 +430,7 @@ ul { list-style: none; }
 }
 .pp-badge:hover { background: var(--primary-light); }
 .pp-row { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4) 0; border-top: 1px solid var(--border); }
+.device-id-row { display: none; }
 .pp-row-icon {
   width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
   background: var(--bg); color: var(--text-mid);
@@ -496,20 +501,16 @@ ul { list-style: none; }
 .sidebar-profile .greet { font-size: 15px; font-weight: 700; color: var(--text-main); margin-top: var(--sp-1); }
 .sidebar-profile .role { font-size: 12.5px; color: var(--text-sub); }
 
-/* 游客演示模式：只呈现两项开放课堂功能，账户与个人功能完全退出界面。 */
-.guest-mode .topbar .divider-v,
-.guest-mode .topbar-avatar,
-.guest-mode .profile-pop,
-.guest-mode .sidebar-profile,
-.guest-mode .menu-section-label,
-.guest-mode .sidebar-help,
+/* 免登录设备模式：显示设备身份，隐藏手机号、密码等登录账户操作。 */
 .guest-mode #onboard-btn,
 .guest-mode #onboard-modal,
-.guest-mode .guest-restricted-demo,
-.guest-mode .menu > .menu-item:not([data-target="dual-teacher"]):not([data-target="ai-lab"]) { display: none !important; }
-.guest-mode .menu { flex: 0 0 auto; overflow: visible; }
-.guest-mode .sidebar { padding-top: var(--sp-5); }
-.guest-mode .menu-item { min-height: 52px; font-size: 15px; }
+.guest-mode .guest-restricted-demo { display: none !important; }
+.guest-mode .pp-edit,
+.guest-mode #pp-phone-row,
+.guest-mode #pp-password-row,
+.guest-mode .pp-logout { display: none !important; }
+.guest-mode .device-id-row { display: flex; }
+.guest-mode .menu { flex: 1; }
 .guest-mode #dt-back { display: none !important; }
 
 .menu { flex: 1; display: flex; flex-direction: column; gap: var(--sp-2); overflow-y: auto; }
@@ -1501,10 +1502,12 @@ ul { list-style: none; }
 }
 .teach-kp-btn:hover .teach-kp-btn-icon { transform: translateY(-1px) scale(1.06); box-shadow: 0 10px 22px rgba(56, 128, 220, .46), inset 0 1px 0 rgba(255,255,255,.5); }
 .teach-kp-btn-icon > svg { width: 21px; height: 21px; }
+.teach-resource-btn .teach-kp-btn-icon { background: linear-gradient(140deg, #16B99A 0%, #28B7C9 52%, #4F8DF0 100%); box-shadow: 0 7px 16px rgba(26, 154, 175, .34), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.teach-resource-btn:hover .teach-kp-btn-icon { box-shadow: 0 10px 22px rgba(26, 154, 175, .42), inset 0 1px 0 rgba(255,255,255,.5); }
 /* 右上角小闪光，点亮"有新知识点"的感觉 */
 .teach-kp-spark { position: absolute; top: -5px; right: -5px; width: 15px; height: 15px; display: grid; place-items: center; color: #FFD24A; filter: drop-shadow(0 1px 3px rgba(180, 120, 0, .45)); }
 .teach-kp-spark svg { width: 15px; height: 15px; }
-.teach-kp-btn-text { font-size: 10.5px; font-weight: 800; line-height: 1.25; text-align: center; }
+.teach-kp-btn-text { font-size: 10.5px; font-weight: 800; line-height: 1.25; text-align: center; white-space: nowrap; }
 /* 切换片段后的一次性提示：按钮外圈脉冲 + 闪光轻跳 */
 .teach-kp-btn.has-new { animation: kpPulse 1.9s ease-out 3; }
 .teach-kp-btn.has-new .teach-kp-spark { animation: kpSpark 1.9s ease-out 3; }
@@ -1556,9 +1559,11 @@ ul { list-style: none; }
 .teach-kp-head-top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .teach-kp-seg { font-size: 11.5px; font-weight: 700; letter-spacing: .4px; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.34); }
 .teach-kp-head-acts { display: flex; gap: 4px; }
-.teach-kp-icon-btn { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: #fff; transition: background .16s; }
+.teach-kp-icon-btn { width: 48px; height: 48px; display: grid; place-items: center; flex: none; border-radius: 14px; color: #fff; transition: background .16s, transform .12s; }
 .teach-kp-icon-btn:hover { background: rgba(255,255,255,.2); }
-.teach-kp-icon-btn svg { width: 16px; height: 16px; }
+.teach-kp-icon-btn:active { background: rgba(255,255,255,.3); transform: scale(.94); }
+.teach-kp-icon-btn:focus-visible { outline: 3px solid rgba(255,255,255,.86); outline-offset: 2px; }
+.teach-kp-icon-btn svg { width: 22px; height: 22px; }
 .teach-kp-title { position: relative; font-size: 21px; font-weight: 800; letter-spacing: .5px; line-height: 1.3; }
 /* 卡片正文 */
 .teach-kp-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 18px 20px 20px; }
@@ -1640,6 +1645,98 @@ ul { list-style: none; }
 .teach-kp-panel.zoomed .teach-kp-foot { padding: 14px 30px 20px; gap: 12px; }
 .teach-kp-panel.zoomed .teach-kp-zoom-btn { min-height: 60px; font-size: 16px; padding: 0 22px; }
 .teach-kp-panel.zoomed .teach-kp-close-btn { min-height: 60px; font-size: 18px; }
+
+/* 本课资源：从右下方向上生长，避免高处操作不便；超过上限时仅列表滚动 */
+.teach-resource-scrim { position: fixed; inset: 0; z-index: 6; background: rgba(4, 24, 36, .16); animation: kpFade .18s ease; }
+.teach-resource-scrim[hidden] { display: none; }
+.teach-resource-panel {
+  position: fixed; z-index: 7; right: clamp(88px, 7.2vw, 146px); bottom: clamp(72px, 9vh, 112px);
+  width: clamp(300px, 26vw, 440px); max-height: min(58vh, 500px); display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.8); border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(244,251,253,.97));
+  box-shadow: 0 22px 52px rgba(4, 35, 51, .28), inset 0 1px 0 #fff;
+  -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
+  animation: teachResourceIn .22s cubic-bezier(.22,1,.36,1);
+}
+.teach-resource-panel[hidden] { display: none; }
+@keyframes teachResourceIn { from { opacity: 0; transform: translate(10px, 14px); } to { opacity: 1; transform: none; } }
+.teach-resource-head {
+  position: relative; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 13px 15px; color: #fff; overflow: hidden;
+  background: linear-gradient(135deg, #16B99A 0%, #28B7C9 54%, #4F8DF0 100%);
+}
+.teach-resource-head::after { content: ""; position: absolute; right: -22px; top: -58px; width: 130px; height: 130px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255,255,255,.28), transparent 68%); }
+.teach-resource-head > * { position: relative; z-index: 1; }
+.teach-resource-eyebrow { display: block; margin-bottom: 3px; font-size: 11px; font-weight: 700; letter-spacing: .5px; opacity: .84; }
+.teach-resource-head h3 { font-size: 17px; font-weight: 800; line-height: 1.25; }
+.teach-resource-head-actions { display: flex; align-items: center; gap: 5px; }
+.teach-resource-upload { min-width: 60px; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; border-radius: 11px; color: #fff; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.16); transition: background .16s, transform .12s; }
+.teach-resource-upload:hover { background: rgba(255,255,255,.26); }
+.teach-resource-upload:active { background: rgba(255,255,255,.32); transform: scale(.94); }
+.teach-resource-upload:focus-visible { outline: 3px solid rgba(255,255,255,.85); outline-offset: 2px; }
+.teach-resource-upload svg { width: 17px; height: 17px; }
+.teach-resource-list { min-height: 0; overflow-y: auto; padding: 7px; overscroll-behavior: contain; }
+.teach-resource-item { width: 100%; display: grid; grid-template-columns: 34px minmax(0,1fr) 18px; align-items: center; gap: 10px; padding: 9px; border-radius: 12px; text-align: left; transition: background .16s, transform .16s; }
+.teach-resource-item:hover { background: rgba(38,158,216,.08); transform: translateX(-2px); }
+.teach-resource-item:focus-visible { outline: 3px solid rgba(40,183,201,.52); outline-offset: -2px; }
+.teach-resource-file-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: #168CA3; background: linear-gradient(145deg, rgba(22,185,154,.14), rgba(79,141,240,.14)); }
+.teach-resource-file-icon svg { width: 18px; height: 18px; }
+.teach-resource-copy { min-width: 0; display: grid; gap: 3px; }
+.teach-resource-copy b { overflow: hidden; color: var(--text-main); font-size: 13px; font-weight: 750; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.teach-resource-copy small { overflow: hidden; color: var(--text-sub); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.teach-resource-arrow { color: #73A7B2; }
+.teach-resource-arrow svg { width: 17px; height: 17px; }
+.teach-resource-empty { padding: 24px 12px; color: var(--text-sub); text-align: center; font-size: 13px; }
+
+/* PPT 预览：中置 16:9 画布，提供讲台可触达的全屏与关闭操作 */
+.ppt-preview-scrim { position: fixed; inset: 0; z-index: 8; background: rgba(2, 20, 31, .7); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+.ppt-preview-scrim[hidden] { display: none; }
+.ppt-preview-dialog {
+  position: fixed; z-index: 9; inset: 50% auto auto 50%; transform: translate(-50%, -50%);
+  width: min(88vw, 1280px); height: min(82vh, 820px);
+  display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.42); border-radius: 20px;
+  background: #092635; box-shadow: 0 32px 100px rgba(0,0,0,.48);
+}
+.ppt-preview-dialog[hidden] { display: none; }
+.ppt-preview-dialog:fullscreen { width: 100vw; height: 100vh; max-height: none; border: 0; border-radius: 0; }
+.ppt-preview-dialog:fullscreen .ppt-slide { width: min(100%, calc((100vh - 132px) * 16 / 9)); max-width: none; }
+.ppt-preview-topbar { min-height: 66px; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 9px 14px 9px 18px; color: #fff; background: linear-gradient(90deg, #08394E, #145F78); }
+.ppt-preview-file { min-width: 0; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 750; }
+.ppt-preview-file > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ppt-preview-mark { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 9px; color: #fff; background: linear-gradient(145deg, #F57B40, #E84D2D); font-family: Georgia, serif; font-size: 21px; font-weight: 800; }
+.ppt-preview-actions { display: flex; align-items: center; gap: 8px; }
+.ppt-preview-action, .ppt-preview-close { min-width: 48px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 13px; color: #fff; font-size: 13px; font-weight: 750; transition: background .16s, transform .12s; }
+.ppt-preview-action { padding: 0 13px; background: rgba(255,255,255,.12); }
+.ppt-preview-close { background: rgba(255,255,255,.16); }
+.ppt-preview-action:hover, .ppt-preview-close:hover { background: rgba(255,255,255,.25); }
+.ppt-preview-action:active, .ppt-preview-close:active { transform: scale(.94); }
+.ppt-preview-action:focus-visible, .ppt-preview-close:focus-visible { outline: 3px solid rgba(255,255,255,.85); outline-offset: 2px; }
+.ppt-preview-action svg, .ppt-preview-close svg { width: 21px; height: 21px; }
+.ppt-icon-exit { display: none; }
+.ppt-preview-dialog:fullscreen .ppt-icon-enter { display: none; }
+.ppt-preview-dialog:fullscreen .ppt-icon-exit { display: block; }
+.ppt-preview-stage { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; padding: 16px; background: #061923; }
+.ppt-slide { position: relative; width: min(100%, 1000px); aspect-ratio: 16 / 9; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 6vw, 86px); color: #fff; background: linear-gradient(135deg, #194C72 0%, #216C91 48%, #2D9BAA 100%); box-shadow: 0 14px 34px rgba(0,0,0,.34); }
+.ppt-slide::before, .ppt-slide::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+.ppt-slide::before { width: 46%; aspect-ratio: 1; right: -13%; top: -23%; background: radial-gradient(circle, rgba(140,244,255,.58), rgba(140,244,255,0) 67%); }
+.ppt-slide::after { width: 38%; aspect-ratio: 1; left: -13%; bottom: -25%; background: radial-gradient(circle, rgba(125,119,255,.4), rgba(125,119,255,0) 68%); }
+.ppt-slide > * { position: relative; }
+.ppt-slide-kicker { margin-bottom: 13px; color: #BFF6FF; font-size: clamp(12px, 1.5vw, 20px); font-weight: 800; letter-spacing: .18em; }
+.ppt-slide h2 { max-width: 76%; font-size: clamp(32px, 5.1vw, 72px); line-height: 1.15; letter-spacing: .02em; }
+.ppt-slide p { max-width: 67%; margin-top: 19px; color: rgba(255,255,255,.88); font-size: clamp(15px, 2vw, 26px); line-height: 1.7; }
+.ppt-slide-index { position: absolute !important; right: clamp(26px, 4vw, 56px); bottom: clamp(20px, 3vw, 40px); color: rgba(255,255,255,.72); font-size: clamp(16px, 2vw, 25px); font-weight: 800; }
+.ppt-slide-list { max-width: 76%; display: grid; gap: 13px; margin-top: 24px; }
+.ppt-slide-list span { display: flex; align-items: center; gap: 12px; font-size: clamp(15px, 2vw, 25px); font-weight: 700; }
+.ppt-slide-list span::before { content: ""; width: .62em; height: .62em; flex: none; border-radius: 50%; background: #A9F5F0; box-shadow: 0 0 0 5px rgba(169,245,240,.18); }
+.ppt-preview-footer { min-height: 66px; flex: none; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 9px 16px; color: #fff; background: #0A3142; }
+.ppt-preview-footer .ppt-preview-action { margin-left: 12px; background: rgba(255,255,255,.13); }
+.ppt-preview-nav { min-width: 112px; min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; color: #fff; font-size: 14px; font-weight: 750; }
+.ppt-preview-nav.primary { border-color: transparent; background: linear-gradient(135deg, #2AAEC5, #3385DE); }
+.ppt-preview-nav:disabled { cursor: default; opacity: .38; }
+.ppt-preview-nav:not(:disabled):hover { background: rgba(255,255,255,.12); }
+.ppt-preview-nav.primary:not(:disabled):hover { background: linear-gradient(135deg, #3BBFD2, #4A97EA); }
+.ppt-preview-nav svg { width: 18px; height: 18px; }
+.ppt-preview-count { min-width: 54px; text-align: center; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
 .teach-player {
   left: 18px; bottom: 18px; width: min(470px, calc(100vw - 360px)); min-height: 58px;
@@ -1767,6 +1864,15 @@ ul { list-style: none; }
   .teach-content.is-interactive { padding: 86px 76px 82px 8px; }
   .teach-content.is-report { padding: 104px 12px 104px; }
   .teach-tools { right: 8px; width: 66px; padding: 5px; }
+  .teach-resource-panel { right: 82px; bottom: max(70px, 9vh); width: calc(100vw - 98px); max-height: min(54vh, calc(100vh - 86px)); }
+  .ppt-preview-dialog { width: calc(100vw - 16px); height: calc(100vh - 16px); border-radius: 14px; }
+  .ppt-preview-topbar { min-height: 60px; padding-left: 11px; padding-right: 8px; }
+  .ppt-preview-file { font-size: 13px; }
+  .ppt-preview-action { padding: 0; min-width: 48px; }
+  .ppt-preview-action span { display: none; }
+  .ppt-preview-stage { padding: 8px; }
+  .ppt-preview-footer { min-height: 60px; padding: 7px 10px; }
+  .ppt-preview-nav { min-width: 92px; min-height: 44px; }
   .teach-tool { width: 54px; min-height: 48px; }
   .teach-player { display: none; }
   .teach-step-nav { right: 8px; bottom: 8px; }
@@ -1926,7 +2032,10 @@ ul { list-style: none; }
 .file-row .col-act button { font-size: 13px; font-weight: 500; color: var(--primary-dark); transition: color .15s; }
 .file-row .col-act button:hover { color: var(--primary); text-decoration: underline; }
 .file-row .col-act button.muted { color: var(--text-sub); }
+.file-row .col-act button.danger { color: var(--danger); }
+.file-row .col-act button.danger:hover { color: #DC2626; }
 .file-row .col-act button:disabled { color: #C6D2D7; cursor: not-allowed; text-decoration: none; }
+.my-resource-tag { flex: none; padding: 2px 7px; border-radius: 9px; color: #6D5AE0; background: rgba(139, 92, 246, .12); border: 1px solid rgba(139, 92, 246, .2); font-size: 11px; font-weight: 800; }
 
 .drive-empty { padding: var(--sp-10); text-align: center; color: var(--text-sub); font-size: 14px; }
 
@@ -2167,6 +2276,17 @@ ul { list-style: none; }
 }
 .block-head .bar { width: 4px; height: 17px; border-radius: 2px; background: var(--accent); }
 
+.series-section-panel {
+  margin-bottom: var(--sp-8); padding: var(--sp-6);
+  background: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .85); border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(20, 58, 64, .04), 0 12px 30px rgba(20, 58, 64, .08), inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+.series-section-panel .book-row { margin-bottom: 0; }
+.series-course-panel { margin-bottom: 0; }
+
 /* ---- 读本详情 ---- */
 .book-row {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--sp-5);
@@ -2210,6 +2330,30 @@ ul { list-style: none; }
 .book-label { font-size: 14px; font-weight: 600; color: var(--text-main); }
 
 /* ---- 课程列表 ---- */
+.series-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-5); flex-wrap: wrap; margin-bottom: var(--sp-5);
+}
+.series-section-head .block-head { flex: none; margin-bottom: 0; }
+.grade-filter {
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap;
+  margin: 0 0 0 auto; padding: var(--sp-2);
+  border: 1px solid rgba(228, 236, 239, .9); border-radius: 18px;
+  background: rgba(255, 255, 255, .62); width: fit-content;
+}
+.grade-filter[hidden] { display: none; }
+.grade-filter-label { padding: 0 var(--sp-2); font-size: 13px; font-weight: 700; color: var(--text-sub); }
+.grade-filter button {
+  min-height: 36px; padding: 0 15px; border-radius: 14px;
+  color: var(--text-mid); font-size: 13px; font-weight: 600;
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.grade-filter button:hover { background: var(--primary-light); color: var(--primary-dark); }
+.grade-filter button.active {
+  background: var(--primary); color: #fff;
+  box-shadow: 0 4px 10px rgba(38, 158, 216, .24);
+}
+.grade-filter button:focus-visible { outline: 3px solid rgba(38, 158, 216, .25); outline-offset: 2px; }
 .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--sp-6); }
 .lesson-card {
   background: var(--bg-card); border: 1px solid var(--border);
@@ -2625,6 +2769,19 @@ tbody tr:hover { background: #FAFCFD; }
   border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
   transition: border-color .15s, box-shadow .15s;
 }
+.school-name-label {
+  display: block; margin-bottom: var(--sp-2); font-size: 13px; font-weight: 600; color: var(--text-mid);
+}
+.school-name-label .required { color: var(--danger); margin-left: 2px; }
+.school-name-help {
+  margin: calc(var(--sp-2) * -1) 0 var(--sp-3); font-size: 12.5px; line-height: 1.6; color: var(--text-sub);
+}
+.school-name-error {
+  margin: calc(var(--sp-2) * -1) 0 var(--sp-3); font-size: 12.5px; line-height: 1.5; color: var(--danger);
+}
+.school-search.has-error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, .10); }
+.guest-mode .school-count,
+.guest-mode .school-list { display: none; }
 .school-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(38, 158, 216, .10); background: #fff; }
 .school-search svg { width: 18px; height: 18px; color: var(--text-sub); flex-shrink: 0; }
 .school-search input { flex: 1; min-height: 46px; border: none; background: none; outline: none; font-size: 14px; color: var(--text-main); }
@@ -2647,6 +2804,10 @@ tbody tr:hover { background: #FAFCFD; }
 .school-count { font-size: 12.5px; color: var(--text-sub); margin: var(--sp-2) 0 var(--sp-3); }
 .school-option-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .school-option-text i { font-style: normal; font-size: 12px; color: var(--text-sub); }
+
+@media (max-width: 640px) {
+  .school-region { grid-template-columns: 1fr; gap: 0; }
+}
 
 /* ---------- 班级表单弹窗：表单项 ---------- */
 .form-field { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-4); }
@@ -2756,6 +2917,7 @@ tbody tr:hover { background: #FAFCFD; }
   .course-grid { gap: var(--sp-4); }
   .book-row { gap: var(--sp-4); }
   .intro-card, .feature-card { padding: var(--sp-5); }
+  .series-section-panel { padding: var(--sp-5); }
   .modal-backdrop { padding: var(--sp-4); align-items: flex-start; overflow-y: auto; }
   .modal-book-art { width: min(190px, 72vw); }
   .package-copy h2 { font-size: 19px; }

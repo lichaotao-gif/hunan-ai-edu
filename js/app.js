@@ -69,11 +69,11 @@
     });
   });
 
-  // 游客模式固定从开放课程首页开始，避免落入任何个人功能页面。
+  // 免登录设备模式保留完整教学功能，默认进入日常教学主页。
   if (isGuestMode) {
     const labLabel = document.querySelector('.menu-item[data-target="ai-lab"] span');
     if (labLabel) labLabel.textContent = "AI 实验";
-    activate("dual-teacher");
+    activate("my-courses");
   }
 
   // ===== 双师AI课：科目 -> 科目详情 下钻 =====
@@ -126,7 +126,10 @@
     desc: "<p>人工智能课程系列覆盖四至九年级完整教学内容，上下册统一编排，老师可按年级与学期直接选择课程开始教学。</p>" + introText,
     coverImg: IMG + "ai-course-autumn-redesign.png",
     lessons: courses.autumn.lessons.flatMap((upper, index) =>
-      [upper, courses.spring.lessons[index]].filter(Boolean)
+      [upper, courses.spring.lessons[index]].filter(Boolean).map((lesson) => ({
+        ...lesson,
+        name: lesson.name.replace(/（([四五六七八九])([上下])）/, "（$1年级 $2册）"),
+      }))
     ),
   };
 
@@ -135,6 +138,7 @@
   const dtLessonDetail = document.getElementById("dt-lesson-detail");
   const dtBooks = document.getElementById("dt-books");
   const dtLessons = document.getElementById("dt-lessons");
+  const dtGradeFilter = document.getElementById("dt-grade-filter");
   const bookModal = document.getElementById("book-modal");
   const bookModalClose = document.getElementById("book-modal-close");
   const classModal = document.getElementById("class-modal");
@@ -143,12 +147,25 @@
   const classEmptyEl = document.getElementById("class-empty");
   const classActionsEl = document.getElementById("class-modal-actions");
   // ===== 班级 & 学校：本地存储数据层 =====
-  const SCHOOL_KEY = "hndj_school";
-  const CLASS_KEY = "hndj_classes";
+  // 免登录模式以本机设备为独立身份，班级、学校与教学记录均跟随本机保存。
+  const DEVICE_ID_KEY = "hndj_device_id";
+  function getDeviceId() {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) {
+      id = `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+  }
+  const deviceId = isGuestMode ? getDeviceId() : "";
+  const DEVICE_AVATAR_KEY = isGuestMode ? `hndj_device_avatar_${deviceId}` : "";
+  const SCHOOL_KEY = isGuestMode ? `hndj_device_school_${deviceId}` : "hndj_school";
+  const SCHOOL_REGION_KEY = isGuestMode ? `hndj_device_school_region_${deviceId}` : "hndj_school_region";
+  const CLASS_KEY = isGuestMode ? `hndj_device_classes_${deviceId}` : "hndj_classes";
 
   // 当前登录老师姓名（用作新班级的默认管理教师）
-  let currentTeacher = "老师";
-  try {
+  let currentTeacher = isGuestMode ? "设备用户" : "老师";
+  if (!isGuestMode) try {
     const u = JSON.parse(localStorage.getItem("hndj_user") || "{}");
     if (u && u.name) currentTeacher = u.name;
   } catch (e) { /* ignore */ }
@@ -163,6 +180,12 @@
 
   function loadSchool() { return localStorage.getItem(SCHOOL_KEY) || ""; }
   function saveSchool(name) { localStorage.setItem(SCHOOL_KEY, name); }
+  function loadSchoolRegion() {
+    try { return JSON.parse(localStorage.getItem(SCHOOL_REGION_KEY) || "{}"); } catch (e) { return {}; }
+  }
+  function saveSchoolRegion() {
+    localStorage.setItem(SCHOOL_REGION_KEY, JSON.stringify({ province: REGION_PROVINCE, city: schoolScope.city, district: schoolScope.district }));
+  }
 
   function loadClasses() {
     try {
@@ -179,6 +202,11 @@
         return arr;
       }
     } catch (e) { /* ignore */ }
+    // 新设备首次进入从空班级开始，不强制绑定学校，由老师按实际情况创建。
+    if (isGuestMode) {
+      localStorage.setItem(CLASS_KEY, "[]");
+      return [];
+    }
     // 首次种子数据
     const seed = [
       { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime(), courses: [
@@ -196,7 +224,12 @@
   function saveClasses() { localStorage.setItem(CLASS_KEY, JSON.stringify(classStore)); }
 
   let classStore = loadClasses();
+  const classPageSub = document.getElementById("class-page-sub");
+  if (isGuestMode && classPageSub) {
+    classPageSub.textContent = "可直接创建和管理班级，学校信息可在后期绑定";
+  }
   let activeCourseKey = "autumn";
+  let activeGradeFilter = "all";
   let activeLessonName = "";
   let selectedClassId = classStore[0] && classStore[0].id;
 
@@ -342,10 +375,44 @@
     document.body.classList.remove("modal-open");
   }
 
+  function renderDtLessons(c, key) {
+    const visibleLessons = c.lessons
+      .map((lesson, index) => ({ lesson, index }))
+      .filter(({ lesson }) => activeGradeFilter === "all" || getGrade(lesson.name) === activeGradeFilter);
+    dtLessons.innerHTML = visibleLessons.map(({ lesson: l, index: idx }) => {
+      const validity = l.validity === "off"
+        ? '有效期：<span class="off">未开通</span>'
+        : `有效期：<b>${l.validity}</b>`;
+      const validityMarkup = key === "combined"
+        ? ""
+        : `<div class="lesson-validity">${validity}</div>`;
+      return `<article class="lesson-card" data-lesson-index="${idx}" role="button" tabindex="0" aria-label="进入${l.name}课程包详情">
+        <div class="lesson-cover">
+          <img src="${l.img}" alt="${l.name}">
+          <div class="lesson-periods">${l.periods}</div>
+        </div>
+        <div class="lesson-info">
+          <h4>${l.name}</h4>
+          ${validityMarkup}
+          <div class="desc">${l.desc}</div>
+        </div>
+      </article>`;
+    }).join("");
+    if (dtGradeFilter) {
+      dtGradeFilter.querySelectorAll("button[data-grade]").forEach((button) => {
+        const active = button.dataset.grade === activeGradeFilter;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
+  }
+
   function openCourse(key) {
     const c = courses[key];
     if (!c) return;
     activeCourseKey = key;
+    activeGradeFilter = "all";
+    if (dtGradeFilter) dtGradeFilter.hidden = key !== "combined";
     document.getElementById("dt-title").textContent = c.title;
     document.getElementById("dt-desc").innerHTML = c.desc;
     document.getElementById("dt-cover").innerHTML = key === "combined"
@@ -370,23 +437,7 @@
         <span class="book-label">${label}</span>
       </div>`;
     }).join("");
-
-    dtLessons.innerHTML = c.lessons.map((l, idx) => {
-      const validity = l.validity === "off"
-        ? '有效期：<span class="off">未开通</span>'
-        : `有效期：<b>${l.validity}</b>`;
-      return `<article class="lesson-card" data-lesson-index="${idx}" role="button" tabindex="0" aria-label="进入${l.name}课程包详情">
-        <div class="lesson-cover">
-          <img src="${l.img}" alt="${l.name}">
-          <div class="lesson-periods">${l.periods}</div>
-        </div>
-        <div class="lesson-info">
-          <h4>${l.name}</h4>
-          <div class="lesson-validity">${validity}</div>
-          <div class="desc">${l.desc}</div>
-        </div>
-      </article>`;
-    }).join("");
+    renderDtLessons(c, key);
 
     dtList.classList.remove("active");
     dtLessonDetail.classList.remove("active");
@@ -399,6 +450,14 @@
   });
   document.getElementById("dt-back").addEventListener("click", showDtList);
   document.getElementById("lesson-back").addEventListener("click", showDtDetail);
+  if (dtGradeFilter) {
+    dtGradeFilter.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-grade]");
+      if (!button || activeCourseKey !== "combined") return;
+      activeGradeFilter = button.dataset.grade;
+      renderDtLessons(courses.combined, "combined");
+    });
+  }
   dtLessons.addEventListener("click", (event) => {
     const card = event.target.closest(".lesson-card");
     if (!card) return;
@@ -487,10 +546,13 @@
   function renderSchoolBanner() {
     const school = loadSchool();
     if (school) {
+      const region = isGuestMode ? loadSchoolRegion() : {};
+      const regionText = [region.province, region.city, region.district].filter(Boolean).join(" · ");
       schoolBanner.className = "school-banner bound";
       schoolBanner.innerHTML =
         `<div class="sb-icon">${ICON_SCHOOL}</div>` +
         `<div class="sb-text"><span class="sb-name">${esc(school)}</span>` +
+        `${regionText ? `<span class="sb-sub">${esc(regionText)}</span>` : ""}` +
         `<span class="sb-badge">${ICON_CHECK}已绑定</span></div>` +
         `<div class="sb-action"><button class="ghost-btn" id="change-school-btn" type="button">修改学校</button></div>`;
       document.getElementById("change-school-btn").addEventListener("click", openSchoolModal);
@@ -499,7 +561,7 @@
       schoolBanner.innerHTML =
         `<div class="sb-icon">${ICON_SCHOOL}</div>` +
         `<div class="sb-text"><span class="sb-name">尚未绑定学校</span>` +
-        `<span class="sb-sub">绑定学校后才能创建班级</span></div>` +
+        `<span class="sb-sub">${isGuestMode ? "可先创建和使用班级，学校信息后期再绑定" : "绑定学校后才能创建班级"}</span></div>` +
         `<div class="sb-action"><button class="solid-btn" id="bind-school-btn" type="button">${ICON_PLUS}绑定学校</button></div>`;
       document.getElementById("bind-school-btn").addEventListener("click", openSchoolModal);
     }
@@ -550,6 +612,11 @@
   const schoolSearchInput = document.getElementById("school-search-input");
   const schoolListEl = document.getElementById("school-list");
   const schoolCountEl = document.getElementById("school-count");
+  const schoolModalSub = document.getElementById("school-modal-sub");
+  const schoolNameLabel = document.getElementById("school-name-label");
+  const schoolNameField = document.getElementById("school-name-field");
+  const schoolNameHelp = document.getElementById("school-name-help");
+  const schoolNameError = document.getElementById("school-name-error");
   const spProvince = document.getElementById("school-province");
   const spCity = document.getElementById("school-city");
   const spDistrict = document.getElementById("school-district");
@@ -609,12 +676,20 @@
 
   function openSchoolModal() {
     schoolSelection = loadSchool();
-    const from = scopeFromSchool(schoolSelection);
+    const savedRegion = loadSchoolRegion();
+    const from = isGuestMode && savedRegion.city ? savedRegion : scopeFromSchool(schoolSelection);
     schoolScope.city = from.city;
     schoolScope.district = from.district;
-    schoolSearchInput.value = "";
+    schoolModalSub.textContent = isGuestMode
+      ? "请选择学校所在地区，并准确填写学校的正式全称"
+      : "先选择所在区域，再从该区域下的学校中选择绑定";
+    schoolNameLabel.innerHTML = isGuestMode ? '正式学校名称<span class="required" aria-hidden="true">*</span>' : "搜索学校";
+    schoolNameHelp.hidden = !isGuestMode;
+    schoolSearchInput.placeholder = isGuestMode ? "请输入学校正式全称，如：长沙市第一中学" : "在所选区域内搜索学校名称";
+    schoolSearchInput.value = isGuestMode ? schoolSelection : "";
+    clearSchoolError();
     renderSchoolRegionSelects();
-    renderSchoolOptions("");
+    if (!isGuestMode) renderSchoolOptions("");
     schoolModal.hidden = false;
     document.body.classList.add("modal-open");
     schoolSearchInput.focus();
@@ -623,16 +698,33 @@
     schoolModal.hidden = true;
     document.body.classList.remove("modal-open");
   }
-  schoolSearchInput.addEventListener("input", () => renderSchoolOptions(schoolSearchInput.value));
+  function clearSchoolError() {
+    schoolNameField.classList.remove("has-error");
+    schoolNameError.hidden = true;
+    schoolNameError.textContent = "";
+  }
+  function showSchoolError(message, target) {
+    schoolNameField.classList.toggle("has-error", target === schoolSearchInput);
+    schoolNameError.textContent = message;
+    schoolNameError.hidden = false;
+    (target || schoolSearchInput).focus();
+  }
+  schoolSearchInput.addEventListener("input", () => {
+    clearSchoolError();
+    if (isGuestMode) schoolSelection = schoolSearchInput.value.trim();
+    else renderSchoolOptions(schoolSearchInput.value);
+  });
   spCity.addEventListener("change", () => {
+    clearSchoolError();
     schoolScope.city = spCity.value;
     schoolScope.district = "";       // 切换市后重置区/县
     renderSchoolRegionSelects();
-    renderSchoolOptions(schoolSearchInput.value);
+    if (!isGuestMode) renderSchoolOptions(schoolSearchInput.value);
   });
   spDistrict.addEventListener("change", () => {
+    clearSchoolError();
     schoolScope.district = spDistrict.value;
-    renderSchoolOptions(schoolSearchInput.value);
+    if (!isGuestMode) renderSchoolOptions(schoolSearchInput.value);
   });
   schoolListEl.addEventListener("change", (e) => {
     if (e.target.name === "school-pick") schoolSelection = e.target.value;
@@ -641,8 +733,21 @@
   document.getElementById("school-cancel").addEventListener("click", closeSchoolModal);
   schoolModal.addEventListener("click", (e) => { if (e.target === schoolModal) closeSchoolModal(); });
   document.getElementById("school-confirm").addEventListener("click", () => {
-    if (!schoolSelection) { showToast("请选择学校"); return; }
+    if (isGuestMode) {
+      schoolSelection = schoolSearchInput.value.trim();
+      if (!schoolScope.city) { showSchoolError("请选择学校所在的市。", spCity); return; }
+      if (!schoolScope.district) { showSchoolError("请选择学校所在的区或县。", spDistrict); return; }
+      if (!schoolSelection || schoolSelection.length < 4) { showSchoolError("请填写完整的学校正式名称，不要使用简称。", schoolSearchInput); return; }
+      if (/\s/.test(schoolSelection)) { showSchoolError("学校名称中请不要包含空格，请按正式名称逐字填写。", schoolSearchInput); return; }
+      saveSchoolRegion();
+    } else if (!schoolSelection) { showToast("请选择学校"); return; }
     saveSchool(schoolSelection);
+    if (isGuestMode) {
+      classStore.forEach((item) => {
+        if (!item.school) item.school = schoolSelection;
+      });
+      saveClasses();
+    }
     renderSchoolBanner();
     renderProfileSchool();
     if (typeof refreshMcClasses === "function") refreshMcClasses();
@@ -685,13 +790,13 @@
 
   function openClassForm(id) {
     const school = loadSchool();
-    if (!school) {
+    if (!school && !isGuestMode) {
       showToast("请先绑定学校");
       openSchoolModal();
       return;
     }
     editingClassId = id || null;
-    cfSchool.textContent = "所属学校：" + school;
+    cfSchool.textContent = school ? "所属学校：" + school : "所属学校：暂未绑定（可后期绑定）";
     cfGrade.value = "";
     cfClassNo.value = "";
     cfName.value = "";
@@ -747,7 +852,7 @@
     classStore.unshift({
       id: newId,
       name, type: cfType.value, teacher: currentTeacher,
-      students: 0, intro: cfIntro.value.trim(), createdAt: Date.now(), courses: [],
+      school: loadSchool(), students: 0, intro: cfIntro.value.trim(), createdAt: Date.now(), courses: [],
     });
     if (!selectedClassId) selectedClassId = newId;
     saveClasses();
@@ -1700,7 +1805,12 @@
     return {
       name: "全部资源",
       children: [
+        { type: "folder", name: "我的资源", mine: true, children: [
+          { type: "file", id: "my-culture-ppt", mine: true, name: "中华传统节日课堂补充.pptx", ext: "pptx", size: "4.6 MB", url: "" },
+          { type: "file", id: "my-culture-pdf", mine: true, name: "传统节日文化阅读材料.pdf", ext: "pdf", size: "1.2 MB", url: "" },
+        ].filter((resource) => !removedMyResourceIds.has(resource.id)) },
         { type: "folder", name: "课件", children: [
+          { type: "file", id: "demo-ai-ppt", demoPpt: true, name: "示例 · 人工智能课堂导入.pptx", ext: "pptx", size: "17 KB", url: "assets/resources/ai-classroom-intro-demo.pptx" },
           { type: "file", name: `${name}-授课课件.pptx`, ext: "pptx", size: "5.2 MB", date: "2024-06-18" },
           { type: "file", name: "互动演示动画.mp4", ext: "mp4", size: "48 MB", date: "2024-06-12" },
         ] },
@@ -1718,7 +1828,9 @@
       ],
     };
   }
+  let removedMyResourceIds = new Set();
   let driveRoot = buildLessonResources(1, "认识人工智能");
+  let myResources = [];
 
   const fileIcons = {
     folder: { cls: "folder", svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>' },
@@ -1740,6 +1852,51 @@
   const breadcrumbEl = document.getElementById("drive-breadcrumb");
   let drivePath = [driveRoot]; // 文件夹栈
 
+  function findDriveItemById(id, folder = driveRoot) {
+    for (const item of folder.children || []) {
+      if (item.id === id) return item;
+      if (item.type === "folder") {
+        const found = findDriveItemById(id, item);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  function removeDriveItemById(id, folder = driveRoot) {
+    const index = (folder.children || []).findIndex((item) => item.id === id);
+    if (index >= 0) { folder.children.splice(index, 1); return true; }
+    return (folder.children || []).some((item) => item.type === "folder" && removeDriveItemById(id, item));
+  }
+
+  function openOnlineResource(resource) {
+    if (!resource) return;
+    if ((resource.ext === "ppt" || resource.ext === "pptx") && !teachPage.hidden) {
+      openPptPreview(resource);
+      return;
+    }
+    const source = resource.url || resource.localUrl;
+    const office = new Set(["doc", "docx", "ppt", "pptx", "xls", "xlsx"]);
+    if (!source) {
+      showToast(`「${resource.name}」已关联，配置公开资源地址后可在线打开`);
+      return;
+    }
+    if (office.has(resource.ext) && /^https?:\/\//.test(source)) {
+      window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(source)}`, "_blank", "noopener");
+      return;
+    }
+    window.open(source, "_blank", "noopener");
+  }
+
+  // 个人上传/配置的资源始终优先，官方资源统一排在其后。
+  function sortResources(items) {
+    return [...items].sort((a, b) => {
+      if (!!a.mine !== !!b.mine) return a.mine ? -1 : 1;
+      if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
+      return 0;
+    });
+  }
+
   function renderDrive() {
     const current = drivePath[drivePath.length - 1];
 
@@ -1751,10 +1908,7 @@
       return i === 0 ? node : `<span class="sep">/</span>${node}`;
     }).join("");
 
-    const items = [...current.children].sort((a, b) => {
-      if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
-      return 0;
-    });
+    const items = sortResources(current.children);
 
     if (!items.length) {
       driveListEl.innerHTML = '<div class="drive-empty">此文件夹为空</div>';
@@ -1765,7 +1919,7 @@
       if (it.type === "folder") {
         const ic = fileIcons.folder;
         return `<div class="file-row is-folder" data-folder="${idx}">
-          <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span></span>
+          <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span>${it.mine ? '<span class="my-resource-tag">我的资源</span>' : ""}</span>
           <span class="col-size">${it.children.length} 项</span>
           <span class="col-act"><button class="muted" data-act="open" data-folder="${idx}">打开</button></span>
         </div>`;
@@ -1773,11 +1927,12 @@
       const ic = fileIcons[extMap[it.ext] || "other"];
       const canPreview = previewable.has(it.ext);
       return `<div class="file-row">
-        <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span></span>
+        <span class="col-name"><span class="file-icon ${ic.cls}">${ic.svg}</span><span class="file-name">${it.name}</span>${it.mine ? '<span class="my-resource-tag">我的资源</span>' : ""}</span>
         <span class="col-size">${it.size}</span>
         <span class="col-act">
-          <button data-act="preview" ${canPreview ? "" : "disabled"}>预览</button>
+          <button data-act="preview" data-resource-id="${it.id || ""}" ${canPreview ? "" : "disabled"}>在线打开</button>
           <button data-act="download">下载</button>
+          ${it.mine ? `<button class="danger" data-act="delete" data-resource-id="${it.id}">删除</button>` : ""}
         </span>
       </div>`;
     }).join("");
@@ -1787,6 +1942,8 @@
 
   function openLessonRes(no, name) {
     driveRoot = buildLessonResources(no, name);
+    const myFolder = driveRoot.children.find((item) => item.mine);
+    if (myFolder) myFolder.children.push(...myResources);
     drivePath = [driveRoot];
     document.getElementById("resource-page-title").textContent = `第${no}课时 · ${name}`;
     document.getElementById("resource-page-sub").textContent = "";
@@ -1805,11 +1962,22 @@
       const folderRow = e.target.closest("[data-folder]");
       const actBtn = e.target.closest("[data-act]");
       const current = drivePath[drivePath.length - 1];
-      if (actBtn && actBtn.dataset.act === "preview") { showToast("在线预览（开发中）"); return; }
+      if (actBtn && actBtn.dataset.act === "preview") { openOnlineResource(findDriveItemById(actBtn.dataset.resourceId)); return; }
       if (actBtn && actBtn.dataset.act === "download") { showToast("开始下载（开发中）"); return; }
+      if (actBtn && actBtn.dataset.act === "delete") {
+        const resource = findDriveItemById(actBtn.dataset.resourceId);
+        if (!resource || !resource.mine) return;
+        if (!confirm(`确定删除「${resource.name}」吗？`)) return;
+        removedMyResourceIds.add(resource.id);
+        myResources = myResources.filter((item) => item.id !== resource.id);
+        removeDriveItemById(resource.id);
+        renderDrive();
+        showToast("资源已删除");
+        return;
+      }
       if (folderRow) {
         const idx = Number(folderRow.dataset.folder);
-        const sorted = [...current.children].sort((a, b) => (a.type !== b.type ? (a.type === "folder" ? -1 : 1) : 0));
+        const sorted = sortResources(current.children);
         const target = sorted[idx];
         if (target && target.type === "folder") { drivePath.push(target); renderDrive(); }
       }
@@ -1819,6 +1987,20 @@
       if (crumb) { drivePath = drivePath.slice(0, Number(crumb.dataset.depth) + 1); renderDrive(); }
     });
     document.getElementById("resource-page-back").addEventListener("click", closeLessonRes);
+    document.getElementById("my-resource-upload").addEventListener("click", () => document.getElementById("my-resource-input").click());
+    document.getElementById("my-resource-input").addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const ext = (file.name.split(".").pop() || "").toLowerCase();
+      const resource = { type: "file", id: `my-${Date.now()}`, mine: true, name: file.name, ext, size: file.size < 1024 * 1024 ? `${Math.max(1, Math.round(file.size / 1024))} KB` : `${(file.size / 1024 / 1024).toFixed(1)} MB`, localUrl: URL.createObjectURL(file) };
+      myResources.push(resource);
+      const myFolder = driveRoot.children.find((item) => item.mine);
+      if (myFolder) myFolder.children.push(resource);
+      if (drivePath[drivePath.length - 1] === myFolder) renderDrive();
+      if (teachResourceOpen) renderTeachingResources();
+      event.target.value = "";
+      showToast("资源已上传到「我的资源」");
+    });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !resourcePage.hidden) closeLessonRes(); });
   }
 
@@ -1839,16 +2021,23 @@
   const guides = [
     {
       id: "prepare", icon: "rocket", num: "第一步 · 准备",
-      title: "快速上手：绑定学校 · 创建班级 · 添加课程",
-      summary: "首次使用按此三步完成基础设置，即可开始授课。",
-      intro: "首次使用请依次完成「绑定学校 → 创建班级 → 添加课程」。「我的课程」会根据你的进度自动提示下一步，也可在此按引导逐步完成。",
-      steps: [
+      title: isGuestMode ? "快速上手：创建班级 · 添加课程 · 开始上课" : "快速上手：绑定学校 · 创建班级 · 添加课程",
+      summary: isGuestMode ? "本机首次使用先创建班级，即可开始授课。" : "首次使用按此三步完成基础设置，即可开始授课。",
+      intro: isGuestMode
+        ? "进入「我的课程」直接创建班级并添加课程即可开始使用；学校信息不是必填项，可在后期进入「班级管理」补充绑定。"
+        : "首次使用请依次完成「绑定学校 → 创建班级 → 添加课程」。「我的课程」会根据你的进度自动提示下一步，也可在此按引导逐步完成。",
+      steps: isGuestMode ? [
+        { h: "创建班级", p: "在 <span class=\"path\">我的课程</span> 点击「创建班级」，按实际教学场景选择行政班或兴趣班。" },
+        { h: "添加课程", p: "为班级添加课程包，之后即可排课并进入课堂。" },
+        { h: "选择班级", p: "多班级或机房共用设备时，在课程页选择本次上课对应的班级。" },
+        { h: "绑定学校（可选）", p: "需要完善学校信息时，可在 <span class=\"path\">班级管理</span> 后期绑定。" },
+      ] : [
         { h: "绑定学校", p: "首次进入 <span class=\"path\">我的课程</span> 或 <span class=\"path\">班级管理</span>，点击「绑定学校」，搜索并选择所在学校。" },
         { h: "创建班级", p: "绑定学校后点击「创建班级」，选择行政班（年级 + 班级）或兴趣班（自定义名称），保存后班级即出现在列表中。" },
         { h: "添加课程", p: "为班级添加课程包（如人工智能·四下）：可在 <span class=\"path\">我的课程</span> 空状态点「添加课程」，或在 <span class=\"path\">班级管理</span> 对应班级点「添加」。" },
         { h: "排课（可选）", p: "在课程的「编辑授课计划」中开启并选择每周上课日，今日课表与课程日历会自动显示对应安排。" },
       ],
-      tip: "「我的课程」会依据是否已绑定学校 / 是否有班级 / 班级是否有课程，自动给出下一步引导。",
+      tip: isGuestMode ? "班级、课程和教学记录会保留在本机，后续老师可继续查看。" : "「我的课程」会依据是否已绑定学校 / 是否有班级 / 班级是否有课程，自动给出下一步引导。",
     },
     {
       id: "my-courses", icon: "book", num: "教学主页",
@@ -1928,9 +2117,11 @@
       id: "class", icon: "users", num: "班级",
       title: "班级与学生管理",
       summary: "维护学校、班级、学生名单与班级课程。",
-      intro: "在 <span class=\"path\">班级管理</span> 可维护所有任教班级：绑定学校、增删班级、管理学生名单并为班级配置课程。",
+      intro: isGuestMode
+        ? "在 <span class=\"path\">班级管理</span> 可维护本机历史班级、学生名单和班级课程，学校信息可按需后期绑定。"
+        : "在 <span class=\"path\">班级管理</span> 可维护所有任教班级：绑定学校、增删班级、管理学生名单并为班级配置课程。",
       steps: [
-        { h: "绑定 / 修改学校", p: "顶部点「绑定学校」完成绑定；已绑定后可点「修改学校」更换。" },
+        { h: isGuestMode ? "绑定学校（可选）" : "绑定 / 修改学校", p: isGuestMode ? "不绑定学校也可建班和上课，需要时再补充学校信息。" : "顶部点「绑定学校」完成绑定；已绑定后可点「修改学校」更换。" },
         { h: "创建 / 编辑班级", p: "点「创建班级」新增，或在班级行点「编辑班级」修改信息，「删除班级」移除。" },
         { h: "导入学生", p: "在班级行点「导入学生」维护名单；点班级名旁的二维码可生成班级码供学生加入。" },
         { h: "添加课程与排课", p: "在班级行点「添加」加入课程包；在课程的「编辑授课计划」中设置每周上课日。" },
@@ -2199,7 +2390,7 @@
     if (classStore.length === 0) {
       if (mcCourseCountEl) mcCourseCountEl.textContent = "";
       const school = loadSchool();
-      if (!school) {
+      if (!school && !isGuestMode) {
         mcCourseListEl.innerHTML = mcGuideHTML({
           icon: ICON_SCHOOL, action: "bind", btnText: "绑定学校",
           title: "先绑定所在学校",
@@ -2209,7 +2400,9 @@
         mcCourseListEl.innerHTML = mcGuideHTML({
           icon: ICON_USERS, action: "create", btnText: "创建班级",
           title: "创建你的第一个班级",
-          desc: `已绑定「${esc(school)}」，现在创建班级并为它添加课程。`,
+          desc: school
+            ? `已绑定「${esc(school)}」，现在创建班级并为它添加课程。`
+            : "无需绑定学校，创建班级后即可添加课程并开始上课。",
         });
       }
       return;
@@ -2734,6 +2927,7 @@
 
   /* ---------- 本片段知识点：入口胶囊 + 右侧抽屉 ---------- */
   const kpBtn = document.getElementById("teach-kp-btn");
+  const teachResourceBtn = document.getElementById("teach-resource-btn");
   const kpPanel = document.getElementById("teach-kp-panel");
   const kpScrim = document.getElementById("teach-kp-scrim");
   const kpBody = document.getElementById("teach-kp-body");
@@ -2796,6 +2990,7 @@
 
   function openKnowledge() {
     if (!kpPanel || !TEACH_KNOWLEDGE[teachIndex]) return;
+    closeTeachingResources();
     renderKnowledge(teachIndex);
     kpPanel.hidden = false;
     kpScrim.hidden = false;
@@ -2823,6 +3018,148 @@
       const btn = e.currentTarget;
       btn.setAttribute("title", zoomed ? "退出放大，回到侧边栏" : "投屏放大给学生看");
       document.getElementById("teach-kp-zoom-text").textContent = zoomed ? "还原" : "放大";
+    });
+  }
+
+  /* ---------- 本课资源：紧凑右下角抽屉 ---------- */
+  const teachResourcePanel = document.getElementById("teach-resource-panel");
+  const teachResourceScrim = document.getElementById("teach-resource-scrim");
+  const teachResourceList = document.getElementById("teach-resource-list");
+  let teachResourceOpen = false;
+  let teachingResourceItems = [];
+
+  function getTeachingResourceFiles() {
+    const root = buildLessonResources(teachNo, lessonNameOf(teachNo));
+    const myFolder = root.children.find((item) => item.mine);
+    if (myFolder) myFolder.children.push(...myResources);
+    const files = [];
+    const collect = (folder, group = "") => (folder.children || []).forEach((item) => {
+      if (item.type === "folder") collect(item, item.name);
+      else files.push({ ...item, group });
+    });
+    collect(root);
+    return sortResources(files);
+  }
+
+  function renderTeachingResources() {
+    teachingResourceItems = getTeachingResourceFiles();
+    document.getElementById("teach-resource-lesson").textContent = `第 ${teachNo} 课时`;
+    if (!teachingResourceItems.length) {
+      teachResourceList.innerHTML = '<div class="teach-resource-empty">本课暂未配置资源</div>';
+      return;
+    }
+    teachResourceList.innerHTML = teachingResourceItems.map((file, index) => {
+      const icon = fileIcons[extMap[file.ext] || "other"];
+      const meta = `${file.group || "本课资源"}${file.mine ? " · 我的资源" : ""} · ${file.size || ""}`;
+      return `<button class="teach-resource-item" type="button" data-teach-resource-index="${index}" title="打开 ${esc(file.name)}">
+        <span class="teach-resource-file-icon ${icon.cls}">${icon.svg}</span>
+        <span class="teach-resource-copy"><b>${esc(file.name)}</b><small>${esc(meta)}</small></span>
+        <span class="teach-resource-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </button>`;
+    }).join("");
+    teachResourceList.scrollTop = 0;
+  }
+
+  function openTeachingResources() {
+    if (!teachResourcePanel) return;
+    closeKnowledge();
+    renderTeachingResources();
+    teachResourcePanel.hidden = false;
+    teachResourceScrim.hidden = false;
+    teachResourceOpen = true;
+    teachResourceBtn.setAttribute("aria-expanded", "true");
+    document.getElementById("teach-resource-close").focus();
+  }
+
+  function closeTeachingResources() {
+    if (!teachResourcePanel) return;
+    teachResourcePanel.hidden = true;
+    teachResourceScrim.hidden = true;
+    teachResourceOpen = false;
+    teachResourceBtn.setAttribute("aria-expanded", "false");
+  }
+
+  if (teachResourceBtn) {
+    teachResourceBtn.addEventListener("click", () => (teachResourceOpen ? closeTeachingResources() : openTeachingResources()));
+    teachResourceScrim.addEventListener("click", closeTeachingResources);
+    document.getElementById("teach-resource-close").addEventListener("click", closeTeachingResources);
+    document.getElementById("teach-resource-upload").addEventListener("click", () => document.getElementById("my-resource-input").click());
+    teachResourceList.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-teach-resource-index]");
+      if (!item) return;
+      openOnlineResource(teachingResourceItems[Number(item.dataset.teachResourceIndex)]);
+    });
+  }
+
+  /* ---------- PPT 课堂预览：本地示例内容，便于演示投屏效果 ---------- */
+  const pptPreviewDialog = document.getElementById("ppt-preview-dialog");
+  const pptPreviewScrim = document.getElementById("ppt-preview-scrim");
+  const pptPreviewStage = document.getElementById("ppt-preview-stage");
+  const PPT_DEMO_SLIDES = [
+    { kicker: "人工智能 · 第一课", title: "人工智能就在身边", text: "从熟悉的生活场景出发，发现人工智能如何感知、判断并提供帮助。" },
+    { kicker: "课堂观察", title: "找一找：哪些地方有 AI？", list: ["语音助手能听懂你的问题", "导航软件会推荐更合适的路线", "刷脸设备可以识别人脸信息"] },
+    { kicker: "小组讨论", title: "AI 能帮我们做什么？", text: "请和同桌选择一个生活场景，说一说 AI 是怎样帮助人的。" },
+  ];
+  let pptPreviewOpen = false;
+  let pptSlideIndex = 0;
+
+  function renderPptSlide() {
+    const slide = PPT_DEMO_SLIDES[pptSlideIndex];
+    const body = slide.list
+      ? `<div class="ppt-slide-list">${slide.list.map((item) => `<span>${esc(item)}</span>`).join("")}</div>`
+      : `<p>${esc(slide.text)}</p>`;
+    pptPreviewStage.innerHTML = `<article class="ppt-slide"><span class="ppt-slide-kicker">${esc(slide.kicker)}</span><h2>${esc(slide.title)}</h2>${body}<span class="ppt-slide-index">${String(pptSlideIndex + 1).padStart(2, "0")}</span></article>`;
+    document.getElementById("ppt-preview-count").textContent = `${pptSlideIndex + 1} / ${PPT_DEMO_SLIDES.length}`;
+    document.getElementById("ppt-preview-prev").disabled = pptSlideIndex === 0;
+    document.getElementById("ppt-preview-next").disabled = pptSlideIndex === PPT_DEMO_SLIDES.length - 1;
+  }
+
+  function movePptSlide(delta) {
+    const next = pptSlideIndex + delta;
+    if (next < 0 || next >= PPT_DEMO_SLIDES.length) return;
+    pptSlideIndex = next;
+    renderPptSlide();
+  }
+
+  function openPptPreview(resource) {
+    if (!pptPreviewDialog) return;
+    closeTeachingResources();
+    closeKnowledge();
+    pptSlideIndex = 0;
+    document.getElementById("ppt-preview-title").textContent = resource.name;
+    renderPptSlide();
+    pptPreviewDialog.hidden = false;
+    pptPreviewScrim.hidden = false;
+    pptPreviewOpen = true;
+    document.getElementById("ppt-preview-close").focus();
+  }
+
+  function closePptPreview() {
+    if (!pptPreviewDialog) return;
+    if (document.fullscreenElement === pptPreviewDialog && document.exitFullscreen) document.exitFullscreen();
+    pptPreviewDialog.hidden = true;
+    pptPreviewScrim.hidden = true;
+    pptPreviewOpen = false;
+  }
+
+  function togglePptFullscreen() {
+    if (document.fullscreenElement === pptPreviewDialog) {
+      if (document.exitFullscreen) document.exitFullscreen();
+    } else if (pptPreviewDialog.requestFullscreen) {
+      pptPreviewDialog.requestFullscreen();
+    }
+  }
+
+  if (pptPreviewDialog) {
+    pptPreviewScrim.addEventListener("click", closePptPreview);
+    document.getElementById("ppt-preview-close").addEventListener("click", closePptPreview);
+    document.getElementById("ppt-preview-fullscreen").addEventListener("click", togglePptFullscreen);
+    document.getElementById("ppt-preview-prev").addEventListener("click", () => movePptSlide(-1));
+    document.getElementById("ppt-preview-next").addEventListener("click", () => movePptSlide(1));
+    document.addEventListener("fullscreenchange", () => {
+      const full = document.fullscreenElement === pptPreviewDialog;
+      document.getElementById("ppt-preview-fullscreen-text").textContent = full ? "退出全屏" : "全屏";
+      document.getElementById("ppt-preview-fullscreen").setAttribute("aria-label", full ? "退出全屏播放" : "全屏播放");
     });
   }
 
@@ -2955,6 +3292,7 @@
 
   function renderTeach() {
     const segment = TEACH_SEGMENTS[teachIndex];
+    if (pptPreviewOpen) closePptPreview();
     stopTeachVideo();
     teachSeconds = 0;
     document.getElementById("teach-step-count").textContent = `${teachIndex + 1} / ${TEACH_SEGMENTS.length}`;
@@ -2964,6 +3302,8 @@
     teachContent.className = "teach-content";
     teachPlayer.hidden = segment.type !== "video";
     teachTools.hidden = segment.type === "report";
+    teachResourceBtn.hidden = segment.type === "report";
+    if (segment.type === "report" && teachResourceOpen) closeTeachingResources();
     // 课堂报告不需要上一步/下一步，但全屏按钮仍要留着，避免全屏后无处退出
     teachStepNav.classList.toggle("only-fs", segment.type === "report");
     teachPage.classList.remove("chrome-hidden");
@@ -3012,6 +3352,8 @@
   function closeTeach() {
     stopTeachVideo();
     closeKnowledge();
+    closeTeachingResources();
+    closePptPreview();
     if (teachChromeTimer) clearTimeout(teachChromeTimer);
     teachPage.hidden = true;
     teachPage.classList.remove("chrome-hidden");
@@ -3050,7 +3392,7 @@
     document.getElementById("teach-fullscreen").addEventListener("click", toggleTeachFullscreen);
     // 同步按钮状态（用户按 F11 或 Esc 退出时也要跟着变）
     document.addEventListener("fullscreenchange", () => {
-      const on = !!document.fullscreenElement;
+      const on = document.fullscreenElement === teachPage;
       teachPage.classList.toggle("is-fullscreen", on);
       const btn = document.getElementById("teach-fullscreen");
       btn.title = on ? "退出全屏" : "全屏授课";
@@ -3115,8 +3457,13 @@
     ["mousemove", "pointerdown", "keydown"].forEach((eventName) => teachPage.addEventListener(eventName, showTeachChrome));
     document.addEventListener("keydown", (event) => {
       if (teachPage.hidden) return;
-      // Esc 优先关闭知识点抽屉，再次按下才退出课堂
+      // Esc 优先关闭侧栏抽屉，再次按下才退出课堂
+      if (event.key === "Escape" && pptPreviewOpen) { closePptPreview(); return; }
       if (event.key === "Escape" && kpOpen) { closeKnowledge(); return; }
+      if (event.key === "Escape" && teachResourceOpen) { closeTeachingResources(); return; }
+      if (pptPreviewOpen && event.key === "ArrowLeft") { event.preventDefault(); movePptSlide(-1); return; }
+      if (pptPreviewOpen && event.key === "ArrowRight") { event.preventDefault(); movePptSlide(1); return; }
+      if (pptPreviewOpen) return;
       if (event.key === "Escape" && !document.fullscreenElement) closeTeach();
       if (event.key === "ArrowLeft") moveTeachTo(teachIndex - 1);
       if (event.key === "ArrowRight") moveTeachTo(teachIndex + 1);
@@ -3309,14 +3656,14 @@
       window.history.replaceState({}, "", nextUrl);
       if (toGuest) {
         localStorage.setItem(GUEST_MODE_KEY, "1");
-        showToast("正在进入游客演示模式");
+        showToast("正在进入免登录设备模式");
       } else {
         localStorage.removeItem(GUEST_MODE_KEY);
         // 从免登录直达页返回演示时补充演示身份，确保可直接查看完整模式。
         if (!localStorage.getItem("hndj_user")) {
           localStorage.setItem("hndj_user", JSON.stringify({ name: "陈老师", account: "13800138000" }));
         }
-        showToast("正在返回教师演示模式");
+        showToast("正在返回标准演示模式");
       }
       setTimeout(() => location.reload(), 450);
     }
@@ -3430,6 +3777,25 @@
   // ===== 个人中心下拉面板 =====
   const profilePop = document.getElementById("profile-pop");
   const avatarBtn = document.getElementById("topbar-avatar");
+  const avatarInput = document.getElementById("device-avatar-input");
+  const PERSON_AVATAR = '<svg class="device-person-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>';
+
+  function renderDeviceAvatar() {
+    const savedAvatar = localStorage.getItem(DEVICE_AVATAR_KEY) || "";
+    ["sidebar-avatar", "topbar-av", "pp-av"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = "";
+      if (savedAvatar) {
+        const img = document.createElement("img");
+        img.src = savedAvatar;
+        img.alt = "";
+        el.appendChild(img);
+      } else {
+        el.innerHTML = PERSON_AVATAR;
+      }
+    });
+  }
 
   function applyUserToUI(name) {
     const initial = name.charAt(0) || "";
@@ -3448,12 +3814,20 @@
     const el = document.getElementById("pp-school");
     if (el) el.textContent = name || "未绑定学校";
     const side = document.getElementById("sidebar-school");
-    if (side) side.textContent = name || "未绑定学校";
+    if (side) side.textContent = isGuestMode ? `UID · ${deviceId.replace(/^dev-/, "").toUpperCase()}` : (name || "未绑定学校");
   }
 
   // 初始化面板信息
   (function initProfile() {
-    if (isGuestMode) return;
+    if (isGuestMode) {
+      const displayId = deviceId.replace(/^dev-/, "").toUpperCase();
+      applyUserToUI("设备用户");
+      renderDeviceAvatar();
+      document.getElementById("pp-device-id").textContent = `设备 UID · ${displayId}`;
+      avatarBtn.title = "设备身份";
+      renderProfileSchool();
+      return;
+    }
     let u = {};
     try { u = JSON.parse(localStorage.getItem("hndj_user") || "{}"); } catch (e) { /* ignore */ }
     document.getElementById("pp-av").textContent = (u.name || "").charAt(0);
@@ -3490,6 +3864,7 @@
 
   // 退出登录
   document.getElementById("pp-logout").addEventListener("click", () => {
+    if (isGuestMode) return;
     if (confirm("是否退出登录？")) {
       localStorage.removeItem("hndj_user");
       window.location.href = "login.html";
@@ -3498,6 +3873,7 @@
 
   // 行内编辑姓名
   document.getElementById("pp-edit-name").addEventListener("click", () => {
+    if (isGuestMode) return;
     if (document.getElementById("pp-name-input")) return;
     const nameEl = document.getElementById("pp-name");
     const cur = nameEl.textContent;
@@ -3534,9 +3910,40 @@
     input.addEventListener("blur", commit, { once: true });
   });
 
+  document.getElementById("pp-photo").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!isGuestMode) { showToast("更换头像功能开发中"); return; }
+    avatarInput.click();
+  });
+  avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showToast("请选择图片文件");
+      avatarInput.value = "";
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("头像图片不能超过 2MB");
+      avatarInput.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      try {
+        localStorage.setItem(DEVICE_AVATAR_KEY, String(reader.result || ""));
+        renderDeviceAvatar();
+        showToast("头像已更新");
+      } catch (e) {
+        showToast("图片存储失败，请选择更小的图片");
+      }
+      avatarInput.value = "";
+    });
+    reader.readAsDataURL(file);
+  });
+
   // 暂未接入后端的占位操作
   const placeholders = {
-    "pp-photo": "更换头像功能开发中",
     "pp-edit-phone": "修改手机号功能开发中",
     "pp-edit-pwd": "修改密码功能开发中",
   };
