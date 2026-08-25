@@ -133,12 +133,206 @@
     ),
   };
 
+  // 双师 AI 课资源展示：课程专家与生态联盟资料后续可替换为后台数据。
+  // teachingKeys 表示实际承担讲授的课程系列，不等同于课程研发或学术指导关系。
+  const TEACHING_EXPERTS = [
+    {
+      id: "zhou-mingyuan", name: "周明远", role: "人工智能通识课程专家", title: "教授 · 博士生导师", institution: "天府智能教育研究院",
+      portrait: "assets/img/dual-teacher/experts/zhou-mingyuan.png",
+      bio: "长期从事基础教育阶段人工智能通识课程与学习科学研究，关注如何将算法思维转化为适合中小学生理解的课堂活动。参与多项青少年人工智能课程设计与教师培训工作，擅长以生活案例讲解机器学习、数据与智能决策等核心概念。",
+      courses: [
+        { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
+        { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
+        { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
+      ], teachingKeys: ["autumn", "combined"], tone: "blue",
+    },
+    {
+      id: "chen-zhixing", name: "陈知行", role: "智能机器人课程专家", title: "副教授 · 青少年科技教育专家", institution: "成都创新大学联合实验室",
+      portrait: "assets/img/dual-teacher/experts/chen-zhixing.png",
+      bio: "研究方向涵盖计算机视觉、智能机器人与项目式学习，持续探索低门槛人工智能实验在学校课堂中的应用。具有丰富的青少年科技教育和教师研修经验，注重通过观察、动手验证与小组协作培养学生解决真实问题的能力。",
+      courses: [
+        { label: "人工智能（五年级下册）", courseKey: "spring", lessonIndex: 1 },
+        { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
+        { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
+      ], teachingKeys: ["spring", "combined"], tone: "violet",
+    },
+    {
+      id: "lin-ruochuan", name: "林若川", role: "生成式人工智能课程专家", title: "教授 · 科普教育导师", institution: "四川青少年科学教育中心",
+      portrait: "assets/img/dual-teacher/experts/lin-ruochuan.png",
+      bio: "专注生成式人工智能、数字素养与人工智能伦理教育，长期参与面向青少年的科技传播和课程实践。课堂强调技术原理与责任意识并重，通过真实情境引导学生理解内容生成、信息辨别、隐私保护及负责任使用人工智能。",
+      courses: [
+        { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
+        { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
+        { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
+      ], teachingKeys: ["spring", "combined"], tone: "teal",
+    },
+    {
+      id: "song-jianing", name: "宋嘉宁", role: "人工智能素养课程专家", title: "副教授 · 课程设计导师", institution: "成都未来学习研究中心",
+      portrait: "assets/img/dual-teacher/experts/chen-zhixing.png",
+      bio: "长期关注儿童认知发展与人工智能素养教育，擅长将抽象技术概念转化为适合小学阶段的观察、讨论和协作任务。参与区域人工智能课程建设与教师研修，强调学生在真实情境中形成提问、验证与表达能力。",
+      courses: [
+        { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
+        { label: "人工智能（五年级上册）", courseKey: "autumn", lessonIndex: 1 },
+        { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
+      ], teachingKeys: ["autumn", "combined"], tone: "violet",
+    },
+    {
+      id: "gao-zhiyuan", name: "高致远", role: "机器人与编程课程专家", title: "高级工程师 · 科创教育导师", institution: "西南智能教育协同中心",
+      portrait: "assets/img/dual-teacher/experts/zhou-mingyuan.png",
+      bio: "具有智能机器人研发与学校科技课程实践经验，关注传感器、控制算法和工程设计在青少年课堂中的融合。课程强调动手搭建、程序调试与团队协作，引导学生通过迭代解决具体工程问题。",
+      courses: [
+        { label: "人工智能（四年级下册）", courseKey: "spring", lessonIndex: 0 },
+        { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
+        { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
+      ], teachingKeys: ["spring", "combined"], tone: "blue",
+    },
+    {
+      id: "xu-qinghe", name: "许清和", role: "人工智能伦理课程专家", title: "教授 · 数字素养研究者", institution: "天府青少年创新中心",
+      portrait: "assets/img/dual-teacher/experts/lin-ruochuan.png",
+      bio: "主要研究数字素养、人工智能伦理与青少年媒介教育，持续参与学校人工智能综合实践课程。教学中注重把隐私、安全、信息判断和技术责任融入案例讨论，帮助学生建立理性而负责任的技术观。",
+      courses: [
+        { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
+        { label: "人工智能（八年级上册）", courseKey: "autumn", lessonIndex: 4 },
+        { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
+      ], teachingKeys: ["autumn", "spring", "combined"], tone: "teal",
+    },
+  ];
+
+  const ECOSYSTEM_ALLIANCE = [
+    {
+      id: "tianfu-education-research", logo: "assets/img/dual-teacher/alliance/tianfu-education-research.png", name: "天府智能教育研究院", desc: "人工智能教育研究与课堂成果转化",
+      intro: "天府智能教育研究院聚焦人工智能与基础教育的融合应用，围绕课程体系、学习评价和教师专业发展开展持续研究。研究院通过联合教研、教学案例开发与课堂实践验证，推动人工智能研究成果转化为适合中小学使用的课程资源。",
+      areas: ["课程体系研究", "教师专业发展", "课堂成果转化"],
+    },
+    {
+      id: "chengdu-university-lab", logo: "assets/img/dual-teacher/alliance/chengdu-university-lab.png", name: "成都创新大学联合实验室", desc: "智能科学课程与跨学科实践研究",
+      intro: "成都创新大学联合实验室面向智能科学、机器人与跨学科项目学习开展研究实践。实验室连接高校科研团队与学校课堂，通过开放实验项目、专题课程和师生研学活动，帮助学生在真实任务中理解人工智能技术及其应用。",
+      areas: ["智能科学研究", "跨学科课程", "开放实验项目"],
+    },
+    {
+      id: "sichuan-youth-science", logo: "assets/img/dual-teacher/alliance/sichuan-youth-science.png", name: "四川青少年科学教育中心", desc: "青少年人工智能实践与科学传播",
+      intro: "四川青少年科学教育中心致力于面向中小学生开展科学传播、人工智能启蒙和创新实践活动。中心通过科普课程、主题工作坊与校园科技活动，引导学生关注真实世界中的科技问题，培养科学兴趣、实践能力与责任意识。",
+      areas: ["青少年科普", "人工智能启蒙", "校园科技活动"],
+    },
+    {
+      id: "chengdu-innovation-center", logo: "assets/img/dual-teacher/alliance/chengdu-innovation-center.png", name: "成都智能科技创新中心", desc: "教育智能硬件与实验场景共建",
+      intro: "成都智能科技创新中心关注人工智能技术在教育场景中的产品研发与应用验证，围绕智能硬件、实验工具和数字化学习空间开展协同创新。中心与学校共同建设实践环境，为课程教学提供可操作、可观察的技术体验。",
+      areas: ["教育智能硬件", "实验场景建设", "技术应用验证"],
+    },
+  ];
+
+  function expertCard(expert, compact) {
+    const totalCourseCount = expert.courses.length;
+    const visibleCourses = expert.courses.slice(0, 2);
+    const courseSummary = visibleCourses.length
+      ? `${visibleCourses.map((course) => `<button class="expert-course-link" type="button" data-course-key="${course.courseKey}" data-lesson-index="${course.lessonIndex}" aria-label="进入${esc(course.label)}课程">${esc(course.label)}</button>`).join("")}${totalCourseCount > visibleCourses.length ? `<button class="expert-course-overflow" type="button" data-expert-id="${expert.id}" aria-label="查看${esc(expert.name)}更多授课内容">···</button>` : ""}`
+      : '<span class="expert-course-empty">暂无课程</span>';
+    const courseLabel = compact ? "本节授课内容" : "授课内容";
+    return `<article class="teaching-expert-card ${compact ? "is-compact" : ""}">
+      <div class="expert-profile">
+        <span class="expert-avatar"><img src="${expert.portrait}" alt="${esc(expert.name)}专家头像" loading="lazy"></span>
+        <div class="expert-identity"><h3>${esc(expert.name)}</h3><span>${esc(expert.role)}</span><small>${esc(expert.title)} · ${esc(expert.institution)}</small></div>
+      </div>
+      <div class="expert-bio"><b>简介</b><p>${esc(expert.bio)}</p><button type="button" class="expert-more" data-expert-id="${expert.id}" aria-label="查看${esc(expert.name)}完整介绍">更多</button></div>
+      <div class="expert-courses"><b>${courseLabel}</b><div>${courseSummary}</div></div>
+    </article>`;
+  }
+
+  function renderDualTeacherResources() {
+    const expertHome = document.getElementById("dt-home-experts");
+    const allianceList = document.getElementById("dt-alliance-list");
+    if (expertHome) expertHome.innerHTML = TEACHING_EXPERTS.map((expert) => expertCard(expert, false)).join("");
+    if (allianceList) allianceList.innerHTML = ECOSYSTEM_ALLIANCE.map((item) => `<button class="alliance-card" type="button" data-alliance-id="${item.id}" aria-haspopup="dialog" aria-label="查看${esc(item.name)}介绍">
+      <span class="alliance-mark"><img src="${item.logo}" alt="" loading="lazy"></span>
+      <span class="alliance-card-body"><strong class="alliance-card-title">${esc(item.name)}</strong><span class="alliance-card-desc">${esc(item.desc)}</span><span class="alliance-card-more">查看介绍</span></span>
+    </button>`).join("");
+  }
+
+  const expertDetailModal = document.getElementById("expert-detail-modal");
+  const expertDetailContent = document.getElementById("expert-detail-content");
+  const expertDetailClose = document.getElementById("expert-detail-close");
+  let expertDetailTrigger = null;
+
+  function openExpertDetail(expertId, trigger) {
+    const expert = TEACHING_EXPERTS.find((item) => item.id === expertId);
+    if (!expert) return;
+    expertDetailTrigger = trigger || null;
+    expertDetailContent.innerHTML = `<div class="expert-detail-head">
+      <span class="expert-detail-photo"><img src="${expert.portrait}" alt="${esc(expert.name)}专家头像"></span>
+      <div><span>${esc(expert.role)}</span><h2 id="expert-detail-name">${esc(expert.name)}</h2><p>${esc(expert.title)} · ${esc(expert.institution)}</p></div>
+    </div>
+    <div class="expert-detail-section"><h3>专家简介</h3><p id="expert-detail-bio">${esc(expert.bio)}</p></div>
+    <div class="expert-detail-section"><h3>全部授课内容</h3><div class="expert-detail-courses">${expert.courses.map((course) => `<button class="expert-course-link" type="button" data-course-key="${course.courseKey}" data-lesson-index="${course.lessonIndex}" aria-label="进入${esc(course.label)}课程">${esc(course.label)}</button>`).join("")}</div></div>`;
+    expertDetailModal.hidden = false;
+    expertDetailClose.focus();
+  }
+
+  function closeExpertDetail() {
+    if (expertDetailModal.hidden) return;
+    expertDetailModal.hidden = true;
+    if (expertDetailTrigger) expertDetailTrigger.focus();
+    expertDetailTrigger = null;
+  }
+
+  function handleExpertMore(event) {
+    const button = event.target.closest(".expert-more[data-expert-id], .expert-course-overflow[data-expert-id]");
+    if (button) openExpertDetail(button.dataset.expertId, button);
+  }
+
+  function handleExpertCourseLink(event) {
+    const button = event.target.closest(".expert-course-link[data-course-key]");
+    if (!button) return;
+    const lessonIndex = Number(button.dataset.lessonIndex);
+    if (!expertDetailModal.hidden) {
+      expertDetailModal.hidden = true;
+      expertDetailTrigger = null;
+    }
+    activate("dual-teacher");
+    openCourse(button.dataset.courseKey);
+    if (Number.isInteger(lessonIndex)) openLesson(lessonIndex);
+  }
+
+  const allianceDetailModal = document.getElementById("alliance-detail-modal");
+  const allianceDetailContent = document.getElementById("alliance-detail-content");
+  const allianceDetailClose = document.getElementById("alliance-detail-close");
+  let allianceDetailTrigger = null;
+
+  function openAllianceDetail(allianceId, trigger) {
+    const alliance = ECOSYSTEM_ALLIANCE.find((item) => item.id === allianceId);
+    if (!alliance) return;
+    allianceDetailTrigger = trigger || null;
+    allianceDetailContent.innerHTML = `<div class="alliance-detail-head">
+      <span class="alliance-detail-logo"><img src="${alliance.logo}" alt="${esc(alliance.name)}标识"></span>
+      <div><span>生态联盟成员</span><h2 id="alliance-detail-name">${esc(alliance.name)}</h2><p>${esc(alliance.desc)}</p></div>
+    </div>
+    <section class="alliance-detail-section"><h3>机构介绍</h3><p id="alliance-detail-desc">${esc(alliance.intro)}</p></section>
+    <section class="alliance-detail-section"><h3>合作方向</h3><div class="alliance-detail-areas">${alliance.areas.map((area) => `<span>${esc(area)}</span>`).join("")}</div></section>`;
+    allianceDetailModal.hidden = false;
+    allianceDetailClose.focus();
+  }
+
+  function closeAllianceDetail() {
+    if (allianceDetailModal.hidden) return;
+    allianceDetailModal.hidden = true;
+    if (allianceDetailTrigger) allianceDetailTrigger.focus();
+    allianceDetailTrigger = null;
+  }
+
+  function handleAllianceCard(event) {
+    const card = event.target.closest(".alliance-card[data-alliance-id]");
+    if (card) openAllianceDetail(card.dataset.allianceId, card);
+  }
+
   const dtList = document.getElementById("dt-list");
   const dtDetail = document.getElementById("dt-detail");
   const dtLessonDetail = document.getElementById("dt-lesson-detail");
   const dtBooks = document.getElementById("dt-books");
   const dtLessons = document.getElementById("dt-lessons");
   const dtGradeFilter = document.getElementById("dt-grade-filter");
+  const dtHomeExperts = document.getElementById("dt-home-experts");
+  const dtHomeExpertsToggle = document.getElementById("dt-home-experts-toggle");
+  const dtCourseExperts = document.getElementById("dt-course-experts");
+  const dtCourseExpertsToggle = document.getElementById("dt-course-experts-toggle");
   const bookModal = document.getElementById("book-modal");
   const bookModalClose = document.getElementById("book-modal-close");
   const classModal = document.getElementById("class-modal");
@@ -234,6 +428,68 @@
   let activeGradeFilter = "all";
   let activeLessonName = "";
   let selectedClassId = classStore[0] && classStore[0].id;
+  let homeExpertsExpanded = false;
+  let courseExpertsExpanded = false;
+
+  function applyHomeExpertsState() {
+    const collapsedHeight = Number(dtHomeExperts.dataset.collapsedHeight || 0);
+    dtHomeExperts.classList.toggle("is-expanded", homeExpertsExpanded);
+    dtHomeExperts.classList.toggle("is-collapsed", !homeExpertsExpanded);
+    dtHomeExperts.style.maxHeight = homeExpertsExpanded ? `${dtHomeExperts.scrollHeight}px` : `${collapsedHeight}px`;
+    dtHomeExpertsToggle.setAttribute("aria-expanded", String(homeExpertsExpanded));
+    dtHomeExpertsToggle.querySelector("span").textContent = homeExpertsExpanded ? "收起" : "展开查看更多";
+  }
+
+  function configureHomeExperts(resetExpanded) {
+    if (resetExpanded) homeExpertsExpanded = false;
+    dtHomeExperts.classList.remove("is-collapsed", "is-expanded");
+    dtHomeExperts.style.maxHeight = "";
+    dtHomeExpertsToggle.hidden = true;
+    requestAnimationFrame(() => {
+      const cards = [...dtHomeExperts.querySelectorAll(".teaching-expert-card")];
+      if (cards.length < 3 || !dtList.classList.contains("active")) return;
+      const rows = [];
+      cards.forEach((card) => {
+        const top = card.getBoundingClientRect().top;
+        if (!rows.some((rowTop) => Math.abs(rowTop - top) < 2)) rows.push(top);
+      });
+      if (rows.length <= 2) return;
+      const secondRowCards = cards.filter((card) => Math.abs(card.getBoundingClientRect().top - rows[1]) < 2);
+      const gridTop = dtHomeExperts.getBoundingClientRect().top;
+      const secondRowBottom = Math.max(...secondRowCards.map((card) => card.getBoundingClientRect().bottom));
+      dtHomeExperts.dataset.collapsedHeight = String(Math.ceil(secondRowBottom - gridTop));
+      dtHomeExpertsToggle.hidden = false;
+      applyHomeExpertsState();
+    });
+  }
+
+  function applyCourseExpertsState() {
+    const collapsedHeight = Number(dtCourseExperts.dataset.collapsedHeight || 0);
+    dtCourseExperts.classList.toggle("is-expanded", courseExpertsExpanded);
+    dtCourseExperts.classList.toggle("is-collapsed", !courseExpertsExpanded);
+    dtCourseExperts.style.maxHeight = courseExpertsExpanded ? `${dtCourseExperts.scrollHeight}px` : `${collapsedHeight}px`;
+    dtCourseExpertsToggle.setAttribute("aria-expanded", String(courseExpertsExpanded));
+    dtCourseExpertsToggle.querySelector("span").textContent = courseExpertsExpanded ? "收起" : "展开更多";
+  }
+
+  function configureCourseExperts(resetExpanded) {
+    if (resetExpanded) courseExpertsExpanded = false;
+    dtCourseExperts.classList.remove("is-collapsed", "is-expanded");
+    dtCourseExperts.style.maxHeight = "";
+    dtCourseExpertsToggle.hidden = true;
+    requestAnimationFrame(() => {
+      const cards = [...dtCourseExperts.querySelectorAll(".teaching-expert-card")];
+      if (cards.length < 2 || !dtDetail.classList.contains("active")) return;
+      const firstTop = cards[0].getBoundingClientRect().top;
+      const firstRow = cards.filter((card) => Math.abs(card.getBoundingClientRect().top - firstTop) < 2);
+      const hasMoreRows = firstRow.length < cards.length;
+      if (!hasMoreRows) return;
+      const firstRowHeight = Math.max(...firstRow.map((card) => card.getBoundingClientRect().height));
+      dtCourseExperts.dataset.collapsedHeight = String(Math.ceil(firstRowHeight));
+      dtCourseExpertsToggle.hidden = false;
+      applyCourseExpertsState();
+    });
+  }
 
   function showDtList() {
     if (isGuestMode) {
@@ -243,6 +499,7 @@
     dtDetail.classList.remove("active");
     dtLessonDetail.classList.remove("active");
     dtList.classList.add("active");
+    configureHomeExperts(false);
   }
 
   function showDtDetail() {
@@ -439,16 +696,88 @@
         <span class="book-label">${label}</span>
       </div>`;
     }).join("");
+    const courseExperts = TEACHING_EXPERTS.filter((expert) => expert.teachingKeys.includes(key));
+    dtCourseExperts.innerHTML = courseExperts.map((expert) => expertCard(expert, true)).join("");
     renderDtLessons(c, key);
 
     dtList.classList.remove("active");
     dtLessonDetail.classList.remove("active");
     dtDetail.classList.add("active");
     document.querySelector(".content").scrollTop = 0;
+    configureCourseExperts(true);
   }
+
+  const dtCourseTabs = document.getElementById("dt-course-tabs");
+  const dtCourseGrid = document.getElementById("dt-course-grid");
+
+  function selectCourseCategory(category, moveFocus = false) {
+    const tabs = Array.from(dtCourseTabs.querySelectorAll('[role="tab"]'));
+    tabs.forEach((tab) => {
+      const active = tab.dataset.courseCategory === category;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      tab.tabIndex = active ? 0 : -1;
+      if (active) {
+        dtCourseGrid.setAttribute("aria-labelledby", tab.id);
+        if (moveFocus) tab.focus();
+      }
+    });
+    dtCourseGrid.querySelectorAll(".course-card[data-course]").forEach((card) => {
+      card.hidden = category !== "all" && card.dataset.course !== category;
+    });
+  }
+
+  dtCourseTabs.addEventListener("click", (event) => {
+    const tab = event.target.closest('[role="tab"][data-course-category]');
+    if (tab) selectCourseCategory(tab.dataset.courseCategory);
+  });
+
+  dtCourseTabs.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const tabs = Array.from(dtCourseTabs.querySelectorAll('[role="tab"]'));
+    const currentIndex = Math.max(0, tabs.indexOf(document.activeElement));
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = tabs.length - 1;
+    event.preventDefault();
+    selectCourseCategory(tabs[nextIndex].dataset.courseCategory, true);
+  });
 
   document.querySelectorAll(".course-card").forEach((card) => {
     card.addEventListener("click", () => openCourse(card.dataset.course));
+  });
+  renderDualTeacherResources();
+  document.getElementById("dt-home-experts").addEventListener("click", handleExpertMore);
+  document.getElementById("dt-home-experts").addEventListener("click", handleExpertCourseLink);
+  document.getElementById("dt-course-experts").addEventListener("click", handleExpertMore);
+  document.getElementById("dt-course-experts").addEventListener("click", handleExpertCourseLink);
+  dtCourseExpertsToggle.addEventListener("click", () => {
+    courseExpertsExpanded = !courseExpertsExpanded;
+    applyCourseExpertsState();
+  });
+  dtHomeExpertsToggle.addEventListener("click", () => {
+    homeExpertsExpanded = !homeExpertsExpanded;
+    applyHomeExpertsState();
+  });
+  let courseExpertResizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(courseExpertResizeTimer);
+    courseExpertResizeTimer = window.setTimeout(() => {
+      configureHomeExperts(false);
+      configureCourseExperts(false);
+    }, 120);
+  });
+  expertDetailClose.addEventListener("click", closeExpertDetail);
+  expertDetailModal.addEventListener("click", (event) => {
+    if (event.target === expertDetailModal) closeExpertDetail();
+  });
+  expertDetailModal.addEventListener("click", handleExpertCourseLink);
+  document.getElementById("dt-alliance-list").addEventListener("click", handleAllianceCard);
+  allianceDetailClose.addEventListener("click", closeAllianceDetail);
+  allianceDetailModal.addEventListener("click", (event) => {
+    if (event.target === allianceDetailModal) closeAllianceDetail();
   });
   document.getElementById("dt-back").addEventListener("click", showDtList);
   document.getElementById("lesson-back").addEventListener("click", showDtDetail);
@@ -492,6 +821,8 @@
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !bookModal.hidden) closeBookInfo();
     if (event.key === "Escape" && !classModal.hidden) closeClassModal();
+    if (event.key === "Escape" && !expertDetailModal.hidden) closeExpertDetail();
+    if (event.key === "Escape" && !allianceDetailModal.hidden) closeAllianceDetail();
   });
   classListEl.addEventListener("change", (event) => {
     if (event.target.name === "target-class") selectedClassId = event.target.value;
@@ -1198,11 +1529,14 @@
     importDrop.classList.remove("has-file");
     importConfirmBtn.disabled = true;
     document.getElementById("import-modal-class").textContent = c.name;
+    // 从沉浸课堂的「抽问」进入时，弹窗需要显示在课堂全屏层之上。
+    importModal.classList.toggle("teach-modal-layer", teachPage && !teachPage.hidden);
     importModal.hidden = false;
     document.body.classList.add("modal-open");
   }
   function closeImportModal() {
     importModal.hidden = true;
+    importModal.classList.remove("teach-modal-layer");
     document.body.classList.remove("modal-open");
   }
   document.getElementById("import-modal-close").addEventListener("click", closeImportModal);
@@ -1261,8 +1595,12 @@
     if (name.endsWith(".csv")) {
       const reader = new FileReader();
       reader.onload = () => {
-        const count = countCsvStudents(String(reader.result || ""));
+        const text = String(reader.result || "");
+        const count = countCsvStudents(text);
         if (count === 0) { showToast("未识别到学生数据，请检查模板格式"); return; }
+        const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        const start = lines[0] && lines[0].includes("姓名") ? 1 : 0;
+        c.studentNames = lines.slice(start).map((line) => line.split(",")[0].trim()).filter(Boolean);
         c.students = count;
         saveClasses();
         renderClassTable();
@@ -2920,6 +3258,236 @@
   let teachPlaying = false;
   let teachRankTab = "group";
 
+  const askModal = document.getElementById("ask-modal");
+  const askModalBody = document.getElementById("ask-modal-body");
+  let askClassId = null;
+
+  function closeAskModal() {
+    askModal.hidden = true;
+  }
+
+  function renderAskModal() {
+    const cls = classStore.find((item) => item.id === askClassId);
+    if (!cls) return;
+    const names = Array.isArray(cls.studentNames) ? cls.studentNames.filter(Boolean) : [];
+    document.getElementById("ask-modal-class").textContent = cls.name;
+    askModalBody.innerHTML = names.length
+      ? `<div class="ask-ready">
+          <span class="ask-count">本班名单 · ${names.length} 人</span>
+          <div class="ask-result" id="ask-result"><span>点击下方按钮开始抽问</span></div>
+          <button class="primary-action ask-draw-btn" id="ask-draw" type="button">随机抽一名</button>
+          <button class="ask-import-link" id="ask-import" type="button">更新学生名单</button>
+        </div>`
+      : `<div class="ask-empty">
+          <div class="ask-empty-illustration">${TEACH_ICON.ask}</div>
+          <h3>还没有学生名单</h3>
+          <p>导入学生姓名后，即可在课堂中随机抽取学生回答问题。</p>
+          <button class="primary-action" id="ask-import" type="button">导入学生名单</button>
+          <span>支持使用 CSV / Excel 模板导入</span>
+        </div>`;
+  }
+
+  function openAskModal() {
+    askClassId = mcActiveClassId || (classStore[0] && classStore[0].id);
+    if (!askClassId) {
+      showToast("请先创建班级，再使用随机抽问");
+      return;
+    }
+    renderAskModal();
+    askModal.hidden = false;
+    document.body.classList.add("modal-open");
+  }
+
+  document.getElementById("ask-modal-close").addEventListener("click", closeAskModal);
+  askModal.addEventListener("click", (event) => { if (event.target === askModal) closeAskModal(); });
+  askModalBody.addEventListener("click", (event) => {
+    if (event.target.closest("#ask-import")) {
+      closeAskModal();
+      openImportModal(askClassId);
+      return;
+    }
+    if (event.target.closest("#ask-draw")) {
+      const cls = classStore.find((item) => item.id === askClassId);
+      const names = cls && Array.isArray(cls.studentNames) ? cls.studentNames.filter(Boolean) : [];
+      if (!names.length) return;
+      const picked = names[Math.floor(Math.random() * names.length)];
+      const result = document.getElementById("ask-result");
+      result.classList.remove("picked");
+      result.innerHTML = `<small>本次抽到</small><strong>${esc(picked)}</strong>`;
+      requestAnimationFrame(() => result.classList.add("picked"));
+    }
+  });
+
+  /* ---------- 分组 PK：建组、课堂积分与排行榜 ---------- */
+  const teachPkPanel = document.getElementById("teach-pk-panel");
+  const teachPkScrim = document.getElementById("teach-pk-scrim");
+  const teachPkBody = document.getElementById("teach-pk-body");
+  const PK_NAMES = ["茄子队", "荷兰豆队", "萝卜队", "香菇队", "莲藕队", "南瓜队", "辣椒队", "玉米队"];
+  const PK_EMOJI = ["茄", "豆", "萝", "菇", "藕", "瓜", "椒", "玉"];
+  let teachPkView = "home";
+  let teachPkGroupCount = 2;
+  let teachPkGroups = [];
+
+  function closeTeachPk() {
+    teachPkPanel.hidden = true;
+    teachPkScrim.hidden = true;
+    const button = teachTools.querySelector('[data-teach-tool="group"]');
+    if (button) button.classList.remove("active");
+  }
+
+  function renderTeachPk() {
+    if (teachPkView === "create") {
+      teachPkBody.innerHTML = `<section class="pk-create">
+        <button class="pk-back" type="button" data-pk-action="home">‹ 返回分组</button><h3>新建分组</h3>
+        <div class="pk-stepper-row"><span>小组数量</span><div class="pk-stepper"><button type="button" data-pk-action="minus" aria-label="减少小组">−</button><strong>${teachPkGroupCount}</strong><button type="button" data-pk-action="plus" aria-label="增加小组">＋</button></div></div>
+        <p class="pk-create-tip">小组名称将使用蔬菜、水果或动物随机命名，创建后可直接开始课堂积分。</p>
+        <div class="pk-name-preview">${PK_NAMES.slice(0, teachPkGroupCount).map((name, i) => `<span>${PK_EMOJI[i]} ${name}</span>`).join("")}</div>
+        <button class="primary-action pk-create-confirm" type="button" data-pk-action="confirm">创建 ${teachPkGroupCount} 个小组</button>
+      </section>`;
+      return;
+    }
+    if (teachPkView === "rank") {
+      const ranked = [...teachPkGroups].sort((a, b) => b.lessonPoints - a.lessonPoints);
+      teachPkBody.innerHTML = `<section class="pk-rank">
+        <button class="pk-back" type="button" data-pk-action="home">‹ 返回分组</button>
+        <div class="pk-rank-title"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/><path d="M12 15v4M8 22h8"/></svg></span><div><h3>排行榜</h3><p>按本节积分排序</p></div></div>
+        <div class="pk-rank-head"><span>排名 / 小组</span><span>累计积分</span><span>本节积分</span></div>
+        <div class="pk-rank-list">${ranked.map((group, i) => `<div class="pk-rank-row"><i class="pk-rank-no n${i + 1}">${i + 1}</i><span class="pk-rank-team"><b>${group.emoji}</b>${esc(group.name)}</span><strong>${group.totalPoints}</strong><strong>${group.lessonPoints}</strong></div>`).join("")}</div>
+      </section>`;
+      return;
+    }
+    teachPkBody.innerHTML = `<section class="pk-home">
+      <div class="pk-home-toolbar"><div><span>选择分组</span><small>${teachPkGroups.length ? `已创建 ${teachPkGroups.length} 组` : "尚未创建小组"}</small></div><button type="button" data-pk-action="rank" ${teachPkGroups.length ? "" : "disabled"}>▥ 排行榜 ›</button></div>
+      ${teachPkGroups.length ? `<div class="pk-group-list">${teachPkGroups.map((group, i) => `<article class="pk-group-card"><span class="pk-group-avatar">${group.emoji}</span><div class="pk-group-copy"><h3>${esc(group.name)}</h3><p>本节积分 <strong>${group.lessonPoints}</strong> · 累计积分 ${group.totalPoints}</p></div><div class="pk-score-actions"><button type="button" data-pk-score="1" data-pk-index="${i}">+1</button><button type="button" data-pk-score="2" data-pk-index="${i}">+2</button></div></article>`).join("")}</div>` : `<div class="pk-empty"><span>${TEACH_ICON.group}</span><h3>创建课堂小组</h3><p>将学生分成多个小组，通过课堂积分鼓励参与、合作与表达。</p></div>`}
+      <button class="pk-new-group" type="button" data-pk-action="create">＋ ${teachPkGroups.length ? "重新分组" : "新建分组"}</button>
+      <p class="pk-safe-copy">积分仅用于课堂激励与学习评价，不涉及虚拟货币或消费。</p>
+    </section>`;
+  }
+
+  function openTeachPk() {
+    closeKnowledge();
+    closeTeachingResources();
+    teachPkView = "home";
+    renderTeachPk();
+    teachPkPanel.hidden = false;
+    teachPkScrim.hidden = false;
+    const button = teachTools.querySelector('[data-teach-tool="group"]');
+    if (button) button.classList.add("active");
+  }
+
+  teachPkScrim.addEventListener("click", closeTeachPk);
+  document.getElementById("teach-pk-close").addEventListener("click", closeTeachPk);
+  teachPkBody.addEventListener("click", (event) => {
+    const score = event.target.closest("[data-pk-score]");
+    if (score) {
+      const group = teachPkGroups[Number(score.dataset.pkIndex)];
+      const points = Number(score.dataset.pkScore);
+      if (group) { group.lessonPoints += points; group.totalPoints += points; renderTeachPk(); showToast(`${group.name} 积分 +${points}`); }
+      return;
+    }
+    const action = event.target.closest("[data-pk-action]");
+    if (!action) return;
+    if (action.dataset.pkAction === "create") teachPkView = "create";
+    else if (action.dataset.pkAction === "rank") teachPkView = "rank";
+    else if (action.dataset.pkAction === "home") teachPkView = "home";
+    else if (action.dataset.pkAction === "minus") teachPkGroupCount = Math.max(2, teachPkGroupCount - 1);
+    else if (action.dataset.pkAction === "plus") teachPkGroupCount = Math.min(8, teachPkGroupCount + 1);
+    else if (action.dataset.pkAction === "confirm") {
+      teachPkGroups = PK_NAMES.slice(0, teachPkGroupCount).map((name, i) => ({ name, emoji: PK_EMOJI[i], lessonPoints: 0, totalPoints: 0 }));
+      teachPkView = "home";
+      showToast(`已创建 ${teachPkGroupCount} 个小组`);
+    }
+    renderTeachPk();
+  });
+
+  /* ---------- 课堂画笔：全屏批注、撤销、清屏 ---------- */
+  const teachDrawCanvas = document.getElementById("teach-draw-canvas");
+  const teachDrawPanel = document.getElementById("teach-draw-panel");
+  const teachDrawCtx = teachDrawCanvas.getContext("2d");
+  let teachDrawColor = "#EF3F2C";
+  let teachDrawSize = 3;
+  let teachDrawStrokes = [];
+  let teachDrawing = null;
+
+  function resizeTeachDraw() {
+    const ratio = Math.max(1, window.devicePixelRatio || 1);
+    teachDrawCanvas.width = Math.round(window.innerWidth * ratio);
+    teachDrawCanvas.height = Math.round(window.innerHeight * ratio);
+    teachDrawCanvas.style.width = `${window.innerWidth}px`;
+    teachDrawCanvas.style.height = `${window.innerHeight}px`;
+    teachDrawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    redrawTeachStrokes();
+  }
+
+  function redrawTeachStrokes() {
+    teachDrawCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    teachDrawCtx.lineCap = "round";
+    teachDrawCtx.lineJoin = "round";
+    teachDrawStrokes.forEach((stroke) => {
+      if (!stroke.points.length) return;
+      teachDrawCtx.beginPath();
+      teachDrawCtx.strokeStyle = stroke.color;
+      teachDrawCtx.lineWidth = stroke.size;
+      stroke.points.forEach((point, index) => {
+        const x = point.x * window.innerWidth;
+        const y = point.y * window.innerHeight;
+        if (index === 0) teachDrawCtx.moveTo(x, y); else teachDrawCtx.lineTo(x, y);
+      });
+      if (stroke.points.length === 1) teachDrawCtx.lineTo(stroke.points[0].x * window.innerWidth + .01, stroke.points[0].y * window.innerHeight + .01);
+      teachDrawCtx.stroke();
+    });
+  }
+
+  function drawPoint(event) {
+    if (!teachDrawing) return;
+    teachDrawing.points.push({ x: event.clientX / window.innerWidth, y: event.clientY / window.innerHeight });
+    redrawTeachStrokes();
+  }
+
+  function openTeachDraw() {
+    closeKnowledge();
+    closeTeachingResources();
+    closeTeachPk();
+    teachDrawCanvas.hidden = false;
+    teachDrawPanel.hidden = false;
+    resizeTeachDraw();
+    const button = teachTools.querySelector('[data-teach-tool="pen"]');
+    if (button) button.classList.add("active");
+  }
+
+  function closeTeachDraw() {
+    teachDrawCanvas.hidden = true;
+    teachDrawPanel.hidden = true;
+    const button = teachTools.querySelector('[data-teach-tool="pen"]');
+    if (button) button.classList.remove("active");
+  }
+
+  teachDrawCanvas.addEventListener("pointerdown", (event) => {
+    teachDrawCanvas.setPointerCapture(event.pointerId);
+    teachDrawing = { color: teachDrawColor, size: teachDrawSize, points: [] };
+    teachDrawStrokes.push(teachDrawing);
+    drawPoint(event);
+  });
+  teachDrawCanvas.addEventListener("pointermove", drawPoint);
+  teachDrawCanvas.addEventListener("pointerup", () => { teachDrawing = null; });
+  teachDrawCanvas.addEventListener("pointercancel", () => { teachDrawing = null; });
+  window.addEventListener("resize", () => { if (!teachDrawCanvas.hidden) resizeTeachDraw(); });
+  document.getElementById("teach-draw-close").addEventListener("click", closeTeachDraw);
+  document.getElementById("teach-draw-undo").addEventListener("click", () => { teachDrawStrokes.pop(); redrawTeachStrokes(); });
+  document.getElementById("teach-draw-clear").addEventListener("click", () => { teachDrawStrokes = []; redrawTeachStrokes(); showToast("课堂批注已清空"); });
+  document.getElementById("teach-draw-sizes").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-draw-size]");
+    if (!button) return;
+    teachDrawSize = Number(button.dataset.drawSize);
+    document.querySelectorAll("[data-draw-size]").forEach((item) => item.classList.toggle("active", item === button));
+  });
+  document.getElementById("teach-draw-colors").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-draw-color]");
+    if (!button) return;
+    teachDrawColor = button.dataset.drawColor;
+    document.querySelectorAll("[data-draw-color]").forEach((item) => item.classList.toggle("active", item === button));
+  });
+
   function toolButton(tool) {
     return `<button class="teach-tool" type="button" data-teach-tool="${tool.key}" title="${tool.label}">` +
       `<span class="teach-tool-ico">${TEACH_ICON[tool.key]}</span><span>${tool.label}</span></button>`;
@@ -3228,7 +3796,7 @@
   function renderTeachReport() {
     const stats = [
       { cls: "s-perf", label: "课堂表现", value: "优秀", icon: '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>' },
-      { cls: "s-coin", label: "累计获得星芒币", value: "1,280", icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1 1.3-1.5 3-1.5s3 .6 3 1.7c0 2.3-6 1.3-6 3.6 0 1.1 1.3 1.7 3 1.7s3-.5 3-1.5"/>' },
+      { cls: "s-coin", label: "累计课堂积分", value: "1,280", icon: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/>' },
       { cls: "s-count", label: "参与答题次数", value: "36 次", icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
       { cls: "s-acc", label: "平均答题正确率", value: "86%", icon: '<path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L7 14"/>' },
     ];
@@ -3358,6 +3926,8 @@
     closeKnowledge();
     closeTeachingResources();
     closePptPreview();
+    closeTeachPk();
+    closeTeachDraw();
     if (teachChromeTimer) clearTimeout(teachChromeTimer);
     teachPage.hidden = true;
     teachPage.classList.remove("chrome-hidden");
@@ -3419,8 +3989,24 @@
     teachTools.addEventListener("click", (event) => {
       const button = event.target.closest("[data-teach-tool]");
       if (!button) return;
-      button.classList.toggle("active");
       const tool = TEACH_TOOLS.find((item) => item.key === button.dataset.teachTool);
+      if (tool && tool.key === "group") {
+        if (teachPkPanel.hidden) openTeachPk(); else closeTeachPk();
+        showTeachChrome();
+        return;
+      }
+      if (tool && tool.key === "pen") {
+        if (teachDrawPanel.hidden) openTeachDraw(); else closeTeachDraw();
+        showTeachChrome();
+        return;
+      }
+      // 抽问使用独立界面；没有姓名名单时，在界面内引导老师导入。
+      if (tool && tool.key === "ask") {
+        openAskModal();
+        showTeachChrome();
+        return;
+      }
+      button.classList.toggle("active");
       showToast(`${tool.label}${button.classList.contains("active") ? "已开启" : "已关闭"}`);
       showTeachChrome();
     });
@@ -3433,7 +4019,7 @@
         const correctIndex = teachIndex > 4 ? 1 : 0;
         const isCorrect = parseInt(answer.dataset.teachAnswer, 10) === correctIndex;
         if (isCorrect) answer.classList.add("correct");
-        document.getElementById("teach-answer-feedback").textContent = isCorrect ? "回答正确，星芒币 +20" : "再想一想：清晰、具体的信息更容易被机器理解。";
+        document.getElementById("teach-answer-feedback").textContent = isCorrect ? "回答正确，课堂积分 +20" : "再想一想：清晰、具体的信息更容易被机器理解。";
         if (isCorrect) teachCompleted.add(teachIndex);
         renderTeachSegments();
       }
@@ -3443,7 +4029,7 @@
       if (sortItem && !sortItem.classList.contains("active")) {
         sortItem.classList.add("active");
         const count = teachContent.querySelectorAll(".teach-sort-item.active").length;
-        teachContent.querySelector(".teach-game-result").textContent = count === 4 ? "挑战完成，指令顺序清晰，星芒币 +30" : `已选择 ${count} / 4 步，继续完成任务。`;
+        teachContent.querySelector(".teach-game-result").textContent = count === 4 ? "挑战完成，指令顺序清晰，课堂积分 +30" : `已选择 ${count} / 4 步，继续完成任务。`;
         if (count === 4) { teachCompleted.add(teachIndex); renderTeachSegments(); }
       }
       const rankTab = event.target.closest("[data-rank-tab]");

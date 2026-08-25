@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=156">
+<link rel="stylesheet" href="css/style.css?v=175">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
@@ -182,26 +182,58 @@
         <!-- 课程列表视图 -->
         <div class="subview active" id="dt-list">
           <div class="page-head">
-            <h1 class="page-title">双师AI课 · 人工智能</h1>
-            <p class="page-sub">请选择课程进入学习</p>
+            <h1 class="page-title">双师AI课</h1>
           </div>
 
-          <div class="page-panel">
-          <div class="course-grid">
-            <article class="course-card" data-course="autumn">
-              <div class="course-cover">
-                <img src="assets/img/ai-course-autumn-redesign.png" alt="人工智能 · 上册">
+          <div class="dt-resource-home">
+            <section class="page-panel dt-home-section" aria-label="课程分类">
+              <div class="course-category-tabs" id="dt-course-tabs" role="tablist" aria-label="课程分类">
+                <button class="active" id="dt-course-tab-all" type="button" role="tab" aria-selected="true" aria-controls="dt-course-grid" tabindex="0" data-course-category="all">
+                  全部课程
+                </button>
+                <button id="dt-course-tab-autumn" type="button" role="tab" aria-selected="false" aria-controls="dt-course-grid" tabindex="-1" data-course-category="autumn">
+                  上册系列
+                </button>
+                <button id="dt-course-tab-spring" type="button" role="tab" aria-selected="false" aria-controls="dt-course-grid" tabindex="-1" data-course-category="spring">
+                  下册系列
+                </button>
               </div>
-              <h3 class="course-title">人工智能 · 上册</h3>
-            </article>
+              <div class="course-grid" id="dt-course-grid" role="tabpanel" aria-labelledby="dt-course-tab-all">
+                <article class="course-card" data-course="autumn">
+                  <div class="course-cover">
+                    <img src="assets/img/ai-course-autumn-redesign.png" alt="人工智能 · 上册">
+                  </div>
+                  <h3 class="course-title">人工智能 · 上册</h3>
+                </article>
 
-            <article class="course-card" data-course="spring">
-              <div class="course-cover">
-                <img src="assets/img/ai-course-spring-redesign.png" alt="人工智能 · 下册">
+                <article class="course-card" data-course="spring">
+                  <div class="course-cover">
+                    <img src="assets/img/ai-course-spring-redesign.png" alt="人工智能 · 下册">
+                  </div>
+                  <h3 class="course-title">人工智能 · 下册</h3>
+                </article>
               </div>
-              <h3 class="course-title">人工智能 · 下册</h3>
-            </article>
-          </div>
+            </section>
+
+            <section class="page-panel dt-home-section" aria-labelledby="dt-expert-heading">
+              <div class="dt-section-heading">
+                <div><h2 id="dt-expert-heading">课程专家</h2></div>
+                <p>由具备相关研究与教学经验的专家承担专题课程讲授</p>
+              </div>
+              <div class="teaching-expert-grid" id="dt-home-experts"></div>
+              <button class="course-experts-toggle" id="dt-home-experts-toggle" type="button" aria-controls="dt-home-experts" aria-expanded="false" hidden>
+                <span>展开查看更多</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </section>
+
+            <section class="page-panel dt-home-section dt-alliance-section" aria-labelledby="dt-alliance-heading">
+              <div class="dt-section-heading">
+                <div><h2 id="dt-alliance-heading">生态联盟</h2></div>
+                <p>汇聚高校、科研机构与科创力量，共建人工智能教育资源</p>
+              </div>
+              <div class="alliance-grid" id="dt-alliance-list"></div>
+            </section>
           </div>
         </div>
 
@@ -228,6 +260,18 @@
           <section class="series-section-panel">
             <div class="block-head"><span class="bar"></span>读本详情</div>
             <div class="book-row" id="dt-books"></div>
+          </section>
+
+          <!-- 课程专家 -->
+          <section class="series-section-panel course-teaching-experts" aria-labelledby="dt-course-expert-heading">
+            <div class="series-section-head">
+              <div class="block-head" id="dt-course-expert-heading"><span class="bar"></span>课程专家</div>
+            </div>
+            <div class="teaching-expert-grid compact" id="dt-course-experts"></div>
+            <button class="course-experts-toggle" id="dt-course-experts-toggle" type="button" aria-controls="dt-course-experts" aria-expanded="false" hidden>
+              <span>展开更多</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
           </section>
 
           <!-- 课程列表 -->
@@ -568,6 +612,24 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="alliance-detail-modal" hidden>
+  <div class="class-modal alliance-detail-modal" role="dialog" aria-modal="true" aria-labelledby="alliance-detail-name" aria-describedby="alliance-detail-desc">
+    <button class="modal-close" id="alliance-detail-close" type="button" aria-label="关闭机构介绍">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="alliance-detail-content"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="expert-detail-modal" hidden>
+  <div class="class-modal expert-detail-modal" role="dialog" aria-modal="true" aria-labelledby="expert-detail-name" aria-describedby="expert-detail-bio">
+    <button class="modal-close" id="expert-detail-close" type="button" aria-label="关闭专家介绍">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="expert-detail-content"></div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="book-modal" hidden>
   <div class="book-modal" role="dialog" aria-modal="true" aria-labelledby="book-modal-title">
     <button class="modal-close" id="book-modal-close" aria-label="关闭图书信息">
@@ -742,6 +804,20 @@
       <button class="secondary-action" id="qr-copy" type="button">复制邀请链接</button>
       <button class="primary-action" id="qr-share" type="button">分享给学生</button>
     </div>
+  </div>
+</div>
+
+<!-- 课堂随机抽问弹窗 -->
+<div class="modal-backdrop teach-modal-layer" id="ask-modal" hidden>
+  <div class="class-modal ask-modal" role="dialog" aria-modal="true" aria-labelledby="ask-modal-title">
+    <button class="modal-close" id="ask-modal-close" aria-label="关闭抽问弹窗">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="ask-modal-head">
+      <span class="ask-modal-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4"/><circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/></svg></span>
+      <div><h2 id="ask-modal-title">随机抽问</h2><p class="class-modal-sub" id="ask-modal-class">—</p></div>
+    </div>
+    <div id="ask-modal-body"></div>
   </div>
 </div>
 
@@ -951,6 +1027,48 @@
     <span class="teach-kp-btn-text">本课资源</span>
   </button>
   </div>
+
+  <!-- 课堂画笔：全屏批注画布与浮动工具卡 -->
+  <canvas class="teach-draw-canvas" id="teach-draw-canvas" aria-label="课堂画笔批注区域" hidden></canvas>
+  <aside class="teach-draw-panel" id="teach-draw-panel" aria-label="画笔工具" hidden>
+    <header class="teach-draw-head"><div><span>课堂批注</span><small>在教学画面上直接标注</small></div><button id="teach-draw-close" type="button" aria-label="关闭画笔">×</button></header>
+    <div class="teach-draw-section">
+      <span class="teach-draw-label">笔迹粗细</span>
+      <div class="teach-draw-sizes" id="teach-draw-sizes">
+        <button class="active" type="button" data-draw-size="3" aria-label="细画笔"><i style="--dot:6px"></i></button>
+        <button type="button" data-draw-size="6" aria-label="中画笔"><i style="--dot:10px"></i></button>
+        <button type="button" data-draw-size="10" aria-label="粗画笔"><i style="--dot:15px"></i></button>
+      </div>
+    </div>
+    <div class="teach-draw-section">
+      <span class="teach-draw-label">颜色</span>
+      <div class="teach-draw-colors" id="teach-draw-colors">
+        <button class="active" type="button" data-draw-color="#EF3F2C" style="--swatch:#EF3F2C" aria-label="红色"></button>
+        <button type="button" data-draw-color="#269ED8" style="--swatch:#269ED8" aria-label="蓝色"></button>
+        <button type="button" data-draw-color="#76D93B" style="--swatch:#76D93B" aria-label="绿色"></button>
+        <button type="button" data-draw-color="#FFE34F" style="--swatch:#FFE34F" aria-label="黄色"></button>
+        <button type="button" data-draw-color="#FFFFFF" style="--swatch:#FFFFFF" aria-label="白色"></button>
+        <button type="button" data-draw-color="#263238" style="--swatch:#263238" aria-label="黑色"></button>
+      </div>
+    </div>
+    <div class="teach-draw-actions">
+      <button id="teach-draw-undo" type="button"><span>↶</span>撤销</button>
+      <button id="teach-draw-clear" type="button"><span>⌫</span>清屏</button>
+    </div>
+    <p>退出画笔后，批注内容会保留在本节课堂中</p>
+  </aside>
+
+  <!-- 分组 PK：分组管理与课堂积分排行 -->
+  <div class="teach-pk-scrim" id="teach-pk-scrim" hidden></div>
+  <aside class="teach-pk-panel" id="teach-pk-panel" role="dialog" aria-modal="false" aria-labelledby="teach-pk-title" hidden>
+    <header class="teach-pk-head">
+      <div><span class="teach-pk-kicker">课堂互动</span><h2 id="teach-pk-title">分组 PK</h2></div>
+      <button class="teach-pk-close" id="teach-pk-close" type="button" aria-label="关闭分组PK">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="teach-pk-body" id="teach-pk-body"></div>
+  </aside>
 
   <!-- 本片段知识点：右侧抽屉 -->
   <div class="teach-kp-scrim" id="teach-kp-scrim" hidden></div>
@@ -1163,6 +1281,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=107"></script>
+<script src="js/app.js?v=124"></script>
 </body>
 </html>
