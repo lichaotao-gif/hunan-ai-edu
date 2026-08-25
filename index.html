@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=175">
+<link rel="stylesheet" href="css/style.css?v=178">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
@@ -142,6 +142,11 @@
           <span>AI实验室</span>
         </button>
 
+        <button class="menu-item" data-target="expert-alliance">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="3"/><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M10.5 8.6 6.5 15M13.5 8.6l4 6.4M8 18h8"/></svg>
+          <span>专家生态联盟</span>
+        </button>
+
         <div class="menu-section-label">我的</div>
 
         <button class="menu-item active" data-target="my-courses">
@@ -186,7 +191,7 @@
           </div>
 
           <div class="dt-resource-home">
-            <section class="page-panel dt-home-section" aria-label="课程分类">
+            <section class="page-panel dt-home-section dt-course-section" aria-label="课程分类">
               <div class="course-category-tabs" id="dt-course-tabs" role="tablist" aria-label="课程分类">
                 <button class="active" id="dt-course-tab-all" type="button" role="tab" aria-selected="true" aria-controls="dt-course-grid" tabindex="0" data-course-category="all">
                   全部课程
@@ -215,25 +220,6 @@
               </div>
             </section>
 
-            <section class="page-panel dt-home-section" aria-labelledby="dt-expert-heading">
-              <div class="dt-section-heading">
-                <div><h2 id="dt-expert-heading">课程专家</h2></div>
-                <p>由具备相关研究与教学经验的专家承担专题课程讲授</p>
-              </div>
-              <div class="teaching-expert-grid" id="dt-home-experts"></div>
-              <button class="course-experts-toggle" id="dt-home-experts-toggle" type="button" aria-controls="dt-home-experts" aria-expanded="false" hidden>
-                <span>展开查看更多</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-            </section>
-
-            <section class="page-panel dt-home-section dt-alliance-section" aria-labelledby="dt-alliance-heading">
-              <div class="dt-section-heading">
-                <div><h2 id="dt-alliance-heading">生态联盟</h2></div>
-                <p>汇聚高校、科研机构与科创力量，共建人工智能教育资源</p>
-              </div>
-              <div class="alliance-grid" id="dt-alliance-list"></div>
-            </section>
           </div>
         </div>
 
@@ -322,6 +308,34 @@
           </div>
         </div>
 
+      </section>
+
+      <section class="content-section" id="sec-expert-alliance">
+        <div class="page-head">
+          <h1 class="page-title">专家生态联盟</h1>
+        </div>
+
+        <div class="dt-resource-home expert-alliance-home">
+          <section class="page-panel dt-home-section dt-expert-section" aria-labelledby="dt-expert-heading">
+            <div class="dt-section-heading">
+              <div><h2 id="dt-expert-heading">课程专家</h2></div>
+              <p>汇聚人工智能、科学教育与综合实践领域的专家力量</p>
+            </div>
+            <div class="teaching-expert-grid" id="dt-home-experts"></div>
+            <button class="course-experts-toggle" id="dt-home-experts-toggle" type="button" aria-controls="dt-home-experts" aria-expanded="false" hidden>
+              <span>展开查看更多</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </section>
+
+          <section class="page-panel dt-home-section dt-alliance-section" aria-labelledby="dt-alliance-heading">
+            <div class="dt-section-heading">
+              <div><h2 id="dt-alliance-heading">生态联盟</h2></div>
+              <p>汇聚高校、科研机构与科创力量，共建人工智能教育资源</p>
+            </div>
+            <div class="alliance-grid" id="dt-alliance-list"></div>
+          </section>
+        </div>
       </section>
 
       <section class="content-section" id="sec-ai-lab">
@@ -1281,6 +1295,6 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=124"></script>
+<script src="js/app.js?v=126"></script>
 </body>
 </html>

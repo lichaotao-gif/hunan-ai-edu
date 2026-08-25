@@ -65,6 +65,10 @@
       if (typeof showMyexpList === "function") showMyexpList();
       if (typeof showGuideList === "function") showGuideList();
       if (item.dataset.target === "my-data" && typeof renderDataSection === "function") renderDataSection();
+      if (item.dataset.target === "expert-alliance") {
+        document.querySelector(".content").scrollTop = 0;
+        configureHomeExperts(true);
+      }
       setSidebarOpen(false);
     });
   });
@@ -144,7 +148,7 @@
         { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
         { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
         { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
-      ], teachingKeys: ["autumn", "combined"], tone: "blue",
+      ], directions: ["人工智能", "数据思维", "综合实践"], teachingKeys: ["autumn", "combined"], tone: "blue",
     },
     {
       id: "chen-zhixing", name: "陈知行", role: "智能机器人课程专家", title: "副教授 · 青少年科技教育专家", institution: "成都创新大学联合实验室",
@@ -154,7 +158,7 @@
         { label: "人工智能（五年级下册）", courseKey: "spring", lessonIndex: 1 },
         { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
         { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
-      ], teachingKeys: ["spring", "combined"], tone: "violet",
+      ], directions: ["智能机器人", "计算机视觉", "项目式学习"], teachingKeys: ["spring", "combined"], tone: "violet",
     },
     {
       id: "lin-ruochuan", name: "林若川", role: "生成式人工智能课程专家", title: "教授 · 科普教育导师", institution: "四川青少年科学教育中心",
@@ -164,7 +168,7 @@
         { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
         { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
         { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
-      ], teachingKeys: ["spring", "combined"], tone: "teal",
+      ], directions: ["生成式人工智能", "数字素养", "人工智能伦理"], teachingKeys: ["spring", "combined"], tone: "teal",
     },
     {
       id: "song-jianing", name: "宋嘉宁", role: "人工智能素养课程专家", title: "副教授 · 课程设计导师", institution: "成都未来学习研究中心",
@@ -174,7 +178,7 @@
         { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
         { label: "人工智能（五年级上册）", courseKey: "autumn", lessonIndex: 1 },
         { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
-      ], teachingKeys: ["autumn", "combined"], tone: "violet",
+      ], directions: ["人工智能素养", "儿童认知", "综合实践"], teachingKeys: ["autumn", "combined"], tone: "violet",
     },
     {
       id: "gao-zhiyuan", name: "高致远", role: "机器人与编程课程专家", title: "高级工程师 · 科创教育导师", institution: "西南智能教育协同中心",
@@ -184,7 +188,7 @@
         { label: "人工智能（四年级下册）", courseKey: "spring", lessonIndex: 0 },
         { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
         { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
-      ], teachingKeys: ["spring", "combined"], tone: "blue",
+      ], directions: ["机器人编程", "工程设计", "创新实践"], teachingKeys: ["spring", "combined"], tone: "blue",
     },
     {
       id: "xu-qinghe", name: "许清和", role: "人工智能伦理课程专家", title: "教授 · 数字素养研究者", institution: "天府青少年创新中心",
@@ -194,7 +198,7 @@
         { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
         { label: "人工智能（八年级上册）", courseKey: "autumn", lessonIndex: 4 },
         { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
-      ], teachingKeys: ["autumn", "spring", "combined"], tone: "teal",
+      ], directions: ["人工智能伦理", "数字素养", "信息安全"], teachingKeys: ["autumn", "spring", "combined"], tone: "teal",
     },
   ];
 
@@ -222,19 +226,14 @@
   ];
 
   function expertCard(expert, compact) {
-    const totalCourseCount = expert.courses.length;
-    const visibleCourses = expert.courses.slice(0, 2);
-    const courseSummary = visibleCourses.length
-      ? `${visibleCourses.map((course) => `<button class="expert-course-link" type="button" data-course-key="${course.courseKey}" data-lesson-index="${course.lessonIndex}" aria-label="进入${esc(course.label)}课程">${esc(course.label)}</button>`).join("")}${totalCourseCount > visibleCourses.length ? `<button class="expert-course-overflow" type="button" data-expert-id="${expert.id}" aria-label="查看${esc(expert.name)}更多授课内容">···</button>` : ""}`
-      : '<span class="expert-course-empty">暂无课程</span>';
-    const courseLabel = compact ? "本节授课内容" : "授课内容";
+    const directionTags = expert.directions.map((direction) => `<span class="expert-direction-tag">${esc(direction)}</span>`).join("");
     return `<article class="teaching-expert-card ${compact ? "is-compact" : ""}">
       <div class="expert-profile">
         <span class="expert-avatar"><img src="${expert.portrait}" alt="${esc(expert.name)}专家头像" loading="lazy"></span>
         <div class="expert-identity"><h3>${esc(expert.name)}</h3><span>${esc(expert.role)}</span><small>${esc(expert.title)} · ${esc(expert.institution)}</small></div>
       </div>
       <div class="expert-bio"><b>简介</b><p>${esc(expert.bio)}</p><button type="button" class="expert-more" data-expert-id="${expert.id}" aria-label="查看${esc(expert.name)}完整介绍">更多</button></div>
-      <div class="expert-courses"><b>${courseLabel}</b><div>${courseSummary}</div></div>
+      <div class="expert-courses"><div>${directionTags}</div></div>
     </article>`;
   }
 
@@ -257,12 +256,13 @@
     const expert = TEACHING_EXPERTS.find((item) => item.id === expertId);
     if (!expert) return;
     expertDetailTrigger = trigger || null;
+    const detailTags = `<div class="expert-detail-section"><h3>专业方向</h3><div class="expert-detail-courses">${expert.directions.map((direction) => `<span class="expert-direction-tag">${esc(direction)}</span>`).join("")}</div></div>`;
     expertDetailContent.innerHTML = `<div class="expert-detail-head">
       <span class="expert-detail-photo"><img src="${expert.portrait}" alt="${esc(expert.name)}专家头像"></span>
       <div><span>${esc(expert.role)}</span><h2 id="expert-detail-name">${esc(expert.name)}</h2><p>${esc(expert.title)} · ${esc(expert.institution)}</p></div>
     </div>
     <div class="expert-detail-section"><h3>专家简介</h3><p id="expert-detail-bio">${esc(expert.bio)}</p></div>
-    <div class="expert-detail-section"><h3>全部授课内容</h3><div class="expert-detail-courses">${expert.courses.map((course) => `<button class="expert-course-link" type="button" data-course-key="${course.courseKey}" data-lesson-index="${course.lessonIndex}" aria-label="进入${esc(course.label)}课程">${esc(course.label)}</button>`).join("")}</div></div>`;
+    ${detailTags}`;
     expertDetailModal.hidden = false;
     expertDetailClose.focus();
   }
@@ -277,19 +277,6 @@
   function handleExpertMore(event) {
     const button = event.target.closest(".expert-more[data-expert-id], .expert-course-overflow[data-expert-id]");
     if (button) openExpertDetail(button.dataset.expertId, button);
-  }
-
-  function handleExpertCourseLink(event) {
-    const button = event.target.closest(".expert-course-link[data-course-key]");
-    if (!button) return;
-    const lessonIndex = Number(button.dataset.lessonIndex);
-    if (!expertDetailModal.hidden) {
-      expertDetailModal.hidden = true;
-      expertDetailTrigger = null;
-    }
-    activate("dual-teacher");
-    openCourse(button.dataset.courseKey);
-    if (Number.isInteger(lessonIndex)) openLesson(lessonIndex);
   }
 
   const allianceDetailModal = document.getElementById("alliance-detail-modal");
@@ -447,7 +434,8 @@
     dtHomeExpertsToggle.hidden = true;
     requestAnimationFrame(() => {
       const cards = [...dtHomeExperts.querySelectorAll(".teaching-expert-card")];
-      if (cards.length < 3 || !dtList.classList.contains("active")) return;
+      const homeSection = dtHomeExperts.closest(".content-section");
+      if (cards.length < 3 || !homeSection || !homeSection.classList.contains("active")) return;
       const rows = [];
       cards.forEach((card) => {
         const top = card.getBoundingClientRect().top;
@@ -499,7 +487,6 @@
     dtDetail.classList.remove("active");
     dtLessonDetail.classList.remove("active");
     dtList.classList.add("active");
-    configureHomeExperts(false);
   }
 
   function showDtDetail() {
@@ -750,9 +737,7 @@
   });
   renderDualTeacherResources();
   document.getElementById("dt-home-experts").addEventListener("click", handleExpertMore);
-  document.getElementById("dt-home-experts").addEventListener("click", handleExpertCourseLink);
   document.getElementById("dt-course-experts").addEventListener("click", handleExpertMore);
-  document.getElementById("dt-course-experts").addEventListener("click", handleExpertCourseLink);
   dtCourseExpertsToggle.addEventListener("click", () => {
     courseExpertsExpanded = !courseExpertsExpanded;
     applyCourseExpertsState();
@@ -773,7 +758,6 @@
   expertDetailModal.addEventListener("click", (event) => {
     if (event.target === expertDetailModal) closeExpertDetail();
   });
-  expertDetailModal.addEventListener("click", handleExpertCourseLink);
   document.getElementById("dt-alliance-list").addEventListener("click", handleAllianceCard);
   allianceDetailClose.addEventListener("click", closeAllianceDetail);
   allianceDetailModal.addEventListener("click", (event) => {

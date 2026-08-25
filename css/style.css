@@ -593,6 +593,7 @@ ul { list-style: none; }
 /* 每个菜单一套配色（--mi-bg/--mi-bd 为选中时的同色系浅底与浅边） */
 .menu-item[data-target="dual-teacher"]    { --mi-color: #269ED8; --mi-tint: rgba(38, 158, 216, .13); --mi-glow: rgba(38, 158, 216, .38); --mi-bg: #D2E9F7; --mi-bd: #A9D4F0; }
 .menu-item[data-target="ai-lab"]          { --mi-color: #8B5CF6; --mi-tint: rgba(139, 92, 246, .13); --mi-glow: rgba(139, 92, 246, .38); --mi-bg: #E6DEFB; --mi-bd: #CDBEF7; }
+.menu-item[data-target="expert-alliance"] { --mi-color: #0F9F8F; --mi-tint: rgba(15, 159, 143, .13); --mi-glow: rgba(15, 159, 143, .36); --mi-bg: #D4F1EC; --mi-bd: #A7DED5; }
 .menu-item[data-target="my-courses"]      { --mi-color: #10B981; --mi-tint: rgba(16, 185, 129, .14); --mi-glow: rgba(16, 185, 129, .38); --mi-bg: #CFF0E4; --mi-bd: #9FE1CB; }
 .menu-item[data-target="my-experiments"]  { --mi-color: #06B6D4; --mi-tint: rgba(6, 182, 212, .14); --mi-glow: rgba(6, 182, 212, .38); --mi-bg: #CCEEF5; --mi-bd: #96E0EE; }
 .menu-item[data-target="subject-research"]{ --mi-color: #E8890B; --mi-tint: rgba(245, 158, 11, .15); --mi-glow: rgba(245, 158, 11, .40); --mi-bg: #FBEACB; --mi-bd: #F6D391; }
@@ -2379,9 +2380,9 @@ ul { list-style: none; }
 /* ---- 双师 AI 课首页：课程 / 课程专家 / 生态联盟 ---- */
 .dt-resource-home { display: flex; flex-direction: column; gap: 24px; }
 .dt-home-section { margin-bottom: 0; padding: clamp(22px, 2.5vw, 30px); }
-.dt-home-section:nth-child(1) { background: rgba(255, 255, 255, .96); }
-.dt-home-section:nth-child(2) { background: linear-gradient(145deg, rgba(248,252,255,.98), rgba(241,249,253,.96)); }
-.dt-home-section:nth-child(3) { background: linear-gradient(145deg, rgba(250,253,252,.98), rgba(241,249,247,.96)); }
+.dt-course-section { background: rgba(255, 255, 255, .96); }
+.dt-expert-section { background: linear-gradient(145deg, rgba(248,252,255,.98), rgba(241,249,253,.96)); }
+.dt-alliance-section { background: linear-gradient(145deg, rgba(250,253,252,.98), rgba(241,249,247,.96)); }
 .course-category-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-bottom: var(--sp-5); }
 .course-category-tabs button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; border: 1px solid rgba(20,58,64,.1); border-radius: 11px; color: var(--text-mid); background: #F5F8F9; font-size: 13px; font-weight: 800; line-height: 1; transition: color .16s, border-color .16s, background .16s, box-shadow .16s, transform .16s; }
 .course-category-tabs button:hover:not(.active) { color: var(--primary-dark); border-color: rgba(38,158,216,.28); background: #fff; transform: translateY(-1px); }
@@ -2396,6 +2397,8 @@ ul { list-style: none; }
 #dt-home-experts { overflow: hidden; transition: max-height .28s ease; }
 .teaching-expert-card { min-width: 0; display: flex; flex-direction: column; padding: 20px; border: 1px solid rgba(38, 158, 216, .14); border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: 0 7px 20px rgba(20,58,64,.06); transition: transform .18s, box-shadow .18s, border-color .18s; }
 .teaching-expert-card:hover { transform: translateY(-2px); border-color: rgba(38,158,216,.3); box-shadow: 0 12px 28px rgba(20,58,64,.1); }
+#dt-home-experts .teaching-expert-card:hover,
+#dt-course-experts .teaching-expert-card:hover { transform: none; box-shadow: inset 0 0 0 1px rgba(38,158,216,.2), 0 10px 24px rgba(20,58,64,.09); }
 .expert-profile { display: flex; align-items: center; gap: 14px; }
 .expert-avatar { width: 70px; height: 82px; flex: 0 0 70px; overflow: hidden; border: 3px solid rgba(255,255,255,.92); border-radius: 16px; background: #EAF3F8; box-shadow: 0 8px 18px rgba(30,100,150,.16); }
 .expert-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 32%; }
@@ -2412,6 +2415,8 @@ ul { list-style: none; }
 .expert-more:focus-visible { outline: 3px solid rgba(38,158,216,.24); outline-offset: 2px; border-radius: 6px; }
 .expert-courses { margin-top: auto; }
 .expert-courses > div { min-width: 0; display: flex; flex-wrap: nowrap; gap: 7px; }
+.expert-direction-tag { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 9px; color: var(--primary-dark); background: var(--primary-light); font-size: 11.5px; font-weight: 700; }
+#dt-home-experts .expert-courses > div { flex-wrap: wrap; }
 .expert-course-link { max-width: 100%; min-width: 0; min-height: 32px; flex: 1 1 auto; display: inline-flex; align-items: center; padding: 0 9px; overflow: hidden; border: 1px solid transparent; border-radius: 9px; color: var(--primary-dark); background: var(--primary-light); font-size: 11.5px; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; transition: color .15s, border-color .15s, background .15s, transform .15s; }
 .expert-course-link:hover { color: var(--primary); border-color: rgba(38,158,216,.24); background: #fff; transform: translateY(-1px); }
 .expert-course-link:focus-visible { outline: 3px solid rgba(38,158,216,.24); outline-offset: 2px; }
@@ -2440,7 +2445,8 @@ ul { list-style: none; }
 .teaching-expert-card.is-compact .expert-bio { margin: 12px 0 11px; padding-top: 11px; }
 .teaching-expert-card.is-compact .expert-bio p { min-height: 39px; font-size: 11.5px; line-height: 1.65; -webkit-line-clamp: 2; }
 .teaching-expert-card.is-compact .expert-more { min-height: 28px; margin-top: 3px; font-size: 11px; }
-.teaching-expert-card.is-compact .expert-courses > div { gap: 5px; }
+.teaching-expert-card.is-compact .expert-courses > div { flex-wrap: wrap; gap: 5px; }
+.teaching-expert-card.is-compact .expert-direction-tag { min-height: 30px; padding: 0 7px; font-size: 10.5px; }
 .teaching-expert-card.is-compact .expert-course-link { min-height: 30px; padding: 0 6px; font-size: 10px; }
 .teaching-expert-card.is-compact .expert-course-overflow { width: 30px; min-height: 30px; flex-basis: 30px; }
 .course-experts-toggle { min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 16px auto 0; padding: 0 15px; border: 1px solid rgba(38,158,216,.22); border-radius: 20px; color: var(--primary-dark); background: var(--primary-light); font-size: 12px; font-weight: 800; transition: color .15s, border-color .15s, background .15s; }
