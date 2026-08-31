@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=178">
+<link rel="stylesheet" href="css/style.css?v=181">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
@@ -171,11 +171,28 @@
         </button>
       </div>
 
-      <div class="sidebar-help">
+      <div class="sidebar-help" aria-label="帮助与客服">
         <button class="menu-item" data-target="help-guide">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.6 2.3c-.8.4-1.1 1-1.1 1.8v.2"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg>
           <span>帮助指南</span>
         </button>
+        <div class="customer-service-entry" id="customer-service-entry">
+          <button class="menu-item customer-service-trigger" id="customer-service-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="customer-service-menu">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h1v-7H6a2 2 0 0 0-2 1z"/><path d="M20 13v4a2 2 0 0 1-2 2h-1v-7h1a2 2 0 0 1 2 1z"/><path d="M17 19c0 1.1-.9 2-2 2h-3"/></svg>
+            <span>客服</span>
+          </button>
+          <div class="customer-service-menu" id="customer-service-menu" role="menu" aria-label="选择客服方式" hidden>
+            <span class="customer-service-menu-title">选择咨询方式</span>
+            <button class="customer-service-channel phone" type="button" role="menuitem" data-service-channel="phone">
+              <span class="customer-service-channel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg></span>
+              <span><b>电话客服</b><small>400-168-0260</small></span>
+            </button>
+            <button class="customer-service-channel wechat" type="button" role="menuitem" data-service-channel="wechat">
+              <span class="customer-service-channel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 5C4.9 5 2 7.5 2 10.6c0 1.8 1 3.4 2.5 4.4l-.6 2.1 2.4-1.2c.7.2 1.4.3 2.2.3 3.6 0 6.5-2.5 6.5-5.6S12.1 5 8.5 5z"/><path d="M14.5 9c4.1 0 7.5 2.8 7.5 6.3 0 1.9-1 3.7-2.8 4.8l.7 2.4-2.7-1.4c-.8.3-1.7.4-2.7.4-2.9 0-5.4-1.4-6.7-3.5"/><circle cx="6.5" cy="9.5" r=".7" fill="currentColor" stroke="none"/><circle cx="10.5" cy="9.5" r=".7" fill="currentColor" stroke="none"/></svg></span>
+              <span><b>微信客服</b><small>扫码在线咨询</small></span>
+            </button>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -626,6 +643,39 @@
   </div>
 </div>
 
+<!-- 客服联系方式弹窗 -->
+<div class="modal-backdrop" id="customer-service-modal" hidden>
+  <div class="class-modal customer-service-modal" role="dialog" aria-modal="true" aria-labelledby="customer-service-title" aria-describedby="customer-service-desc">
+    <button class="modal-close" id="customer-service-close" type="button" aria-label="关闭客服弹窗">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="customer-service-head">
+      <span class="customer-service-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h1v-7H6a2 2 0 0 0-2 1z"/><path d="M20 13v4a2 2 0 0 1-2 2h-1v-7h1a2 2 0 0 1 2 1z"/><path d="M17 19c0 1.1-.9 2-2 2h-3"/></svg>
+      </span>
+      <div>
+        <h2 id="customer-service-title">联系客服</h2>
+        <p id="customer-service-desc">请选择需要的客服方式</p>
+      </div>
+    </div>
+    <div class="customer-service-body">
+      <div class="customer-service-phone" id="customer-service-phone" hidden>
+        <span class="customer-service-label">客服电话</span>
+        <a href="tel:4001680260" aria-label="拨打客服电话 400-168-0260">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg>
+          <span>400-168-0260</span>
+        </a>
+      </div>
+      <div class="customer-service-wechat" id="customer-service-wechat" hidden>
+        <div class="customer-service-qr">
+          <img src="assets/img/customer-service-wechat.jpg" alt="微信客服二维码" width="623" height="622">
+        </div>
+        <p>微信扫码咨询客服</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="alliance-detail-modal" hidden>
   <div class="class-modal alliance-detail-modal" role="dialog" aria-modal="true" aria-labelledby="alliance-detail-name" aria-describedby="alliance-detail-desc">
     <button class="modal-close" id="alliance-detail-close" type="button" aria-label="关闭机构介绍">
@@ -854,7 +904,7 @@
     <label class="import-drop" id="import-drop">
       <input type="file" id="import-file" accept=".csv,.xlsx,.xls" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span id="import-file-name">点击选择本地表格文件（.csv / .xlsx）</span>
+      <span id="import-file-name">点击选择本地表格文件（.xls / .xlsx / .csv）</span>
     </label>
     <div class="class-modal-actions">
       <button class="secondary-action" id="import-cancel" type="button">取消</button>
@@ -1295,6 +1345,7 @@
 
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
-<script src="js/app.js?v=126"></script>
+<script src="js/vendor/xlsx.full.min.js?v=0.20.3"></script>
+<script src="js/app.js?v=132"></script>
 </body>
 </html>

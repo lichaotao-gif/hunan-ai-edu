@@ -41,6 +41,81 @@
 
   if (sidebarMask) sidebarMask.addEventListener("click", () => setSidebarOpen(false));
 
+  // 客服联系方式：悬浮或点击先选择渠道，再显示对应联系方式。
+  const customerServiceEntry = document.getElementById("customer-service-entry");
+  const customerServiceTrigger = document.getElementById("customer-service-trigger");
+  const customerServiceMenu = document.getElementById("customer-service-menu");
+  const customerServiceChannels = document.querySelectorAll("[data-service-channel]");
+  const customerServiceModal = document.getElementById("customer-service-modal");
+  const customerServiceClose = document.getElementById("customer-service-close");
+  const customerServiceTitle = document.getElementById("customer-service-title");
+  const customerServiceDesc = document.getElementById("customer-service-desc");
+  const customerServicePhone = document.getElementById("customer-service-phone");
+  const customerServiceWechat = document.getElementById("customer-service-wechat");
+  let customerServiceMenuTimer = null;
+
+  function setCustomerServiceMenu(isOpen) {
+    if (!customerServiceMenu || !customerServiceTrigger) return;
+    clearTimeout(customerServiceMenuTimer);
+    customerServiceMenu.hidden = !isOpen;
+    customerServiceTrigger.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  function scheduleCustomerServiceMenuClose() {
+    clearTimeout(customerServiceMenuTimer);
+    customerServiceMenuTimer = setTimeout(() => setCustomerServiceMenu(false), 160);
+  }
+
+  function openCustomerService(channel) {
+    if (!customerServiceModal) return;
+    const isWechat = channel === "wechat";
+    if (customerServiceTitle) customerServiceTitle.textContent = isWechat ? "微信客服" : "电话客服";
+    if (customerServiceDesc) customerServiceDesc.textContent = isWechat ? "微信扫码咨询客服" : "拨打客服电话获取使用帮助";
+    if (customerServicePhone) customerServicePhone.hidden = isWechat;
+    if (customerServiceWechat) customerServiceWechat.hidden = !isWechat;
+    setCustomerServiceMenu(false);
+    customerServiceModal.hidden = false;
+    setSidebarOpen(false);
+    if (customerServiceClose) customerServiceClose.focus();
+  }
+
+  function closeCustomerService() {
+    if (!customerServiceModal || customerServiceModal.hidden) return;
+    customerServiceModal.hidden = true;
+    if (customerServiceTrigger) customerServiceTrigger.focus();
+  }
+
+  if (customerServiceEntry) {
+    customerServiceEntry.addEventListener("mouseenter", () => setCustomerServiceMenu(true));
+    customerServiceEntry.addEventListener("mouseleave", scheduleCustomerServiceMenuClose);
+  }
+  if (customerServiceTrigger) {
+    customerServiceTrigger.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setCustomerServiceMenu(true);
+    });
+  }
+  customerServiceChannels.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openCustomerService(button.dataset.serviceChannel);
+    });
+  });
+  if (customerServiceClose) customerServiceClose.addEventListener("click", closeCustomerService);
+  if (customerServiceModal) {
+    customerServiceModal.addEventListener("click", (event) => {
+      if (event.target === customerServiceModal) closeCustomerService();
+    });
+  }
+  document.addEventListener("click", (event) => {
+    if (customerServiceEntry && !customerServiceEntry.contains(event.target)) setCustomerServiceMenu(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (customerServiceModal && !customerServiceModal.hidden) closeCustomerService();
+    else setCustomerServiceMenu(false);
+  });
+
   // 菜单切换
   const menuItems = document.querySelectorAll(".menu-item[data-target]");
   const sections = document.querySelectorAll(".content-section");
@@ -345,6 +420,13 @@
   const SCHOOL_KEY = isGuestMode ? `hndj_device_school_${deviceId}` : "hndj_school";
   const SCHOOL_REGION_KEY = isGuestMode ? `hndj_device_school_region_${deviceId}` : "hndj_school_region";
   const CLASS_KEY = isGuestMode ? `hndj_device_classes_${deviceId}` : "hndj_classes";
+  const DEMO_STUDENT_NAMES = [
+    "王梓涵", "李明轩", "张雨桐", "刘子墨", "陈思远", "杨欣怡", "赵浩然", "黄诗涵",
+    "周宇辰", "吴佳宁", "徐一诺", "孙嘉懿", "胡晨曦", "朱若溪", "高子航", "林语彤",
+    "何俊熙", "郭可欣", "马睿泽", "罗梦琪", "梁博文", "宋依然", "郑景行", "谢芷晴",
+    "韩嘉树", "唐悦宁", "冯奕辰", "于思妍", "董皓轩", "萧安然", "程子谦", "曹欣悦",
+    "袁星宇", "邓语萱", "许铭泽", "曾若琳", "彭嘉佑", "苏沐晴", "叶承泽", "杜婉清",
+  ];
 
   // 当前登录老师姓名（用作新班级的默认管理教师）
   let currentTeacher = isGuestMode ? "设备用户" : "老师";
@@ -375,13 +457,20 @@
       const raw = localStorage.getItem(CLASS_KEY);
       if (raw) {
         const arr = JSON.parse(raw);
+        let rosterAdded = false;
         arr.forEach((c) => { // 兼容旧数据
           if (!Array.isArray(c.courses)) c.courses = [];
           c.courses.forEach((co) => {
             if (!co.plan || typeof co.plan !== "object") co.plan = { on: false, days: [] };
             if (!Array.isArray(co.plan.days)) co.plan.days = [];
           });
+          if ((c.id === "cls-1" || c.name === "四年级(6)班") && (!Array.isArray(c.studentNames) || !c.studentNames.length)) {
+            c.studentNames = [...DEMO_STUDENT_NAMES];
+            c.students = DEMO_STUDENT_NAMES.length;
+            rosterAdded = true;
+          }
         });
+        if (rosterAdded) localStorage.setItem(CLASS_KEY, JSON.stringify(arr));
         return arr;
       }
     } catch (e) { /* ignore */ }
@@ -392,7 +481,7 @@
     }
     // 首次种子数据
     const seed = [
-      { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: 0, intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime(), courses: [
+      { id: "cls-1", name: "四年级(6)班", type: "行政班", teacher: currentTeacher, students: DEMO_STUDENT_NAMES.length, studentNames: [...DEMO_STUDENT_NAMES], intro: "", createdAt: new Date("2023-03-07T14:28:00").getTime(), courses: [
         { id: "co-1", package: "人工智能（四下）", plan: { on: true, days: ["每周二"] } },
         { id: "co-2", package: "人工智能（五下）", plan: { on: true, days: ["每周四"] } },
         { id: "co-3", package: "体验课", plan: { on: false, days: [] } },
@@ -1509,7 +1598,7 @@
     importClassId = classId;
     importPickedFile = null;
     importFileInput.value = "";
-    importFileName.textContent = "点击选择本地表格文件（.csv / .xlsx）";
+    importFileName.textContent = "点击选择本地表格文件（.xls / .xlsx / .csv）";
     importDrop.classList.remove("has-file");
     importConfirmBtn.disabled = true;
     document.getElementById("import-modal-class").textContent = c.name;
@@ -1529,10 +1618,19 @@
 
   document.getElementById("import-tpl").addEventListener("click", () => {
     const rows = [
-      ["姓名", "学号", "性别", "备注"],
-      ["张三", "20240101", "男", "示例行，可删除"],
-      ["李四", "20240102", "女", "示例行，可删除"],
+      ["学生姓名（此标题行保留不动）"],
+      ["张三"],
+      ["李四"],
     ];
+    if (window.XLSX) {
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      worksheet["!cols"] = [{ wch: 34 }];
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      XLSX.writeFile(workbook, "班级学生名单导入模板.xlsx");
+      showToast("Excel 模板已下载");
+      return;
+    }
     const csv = "﻿" + rows.map((r) => r.join(",")).join("\r\n"); // BOM 保证 Excel 中文不乱码
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
@@ -1553,23 +1651,42 @@
       importDrop.classList.add("has-file");
       importConfirmBtn.disabled = false;
     } else {
-      importFileName.textContent = "点击选择本地表格文件（.csv / .xlsx）";
+      importFileName.textContent = "点击选择本地表格文件（.xls / .xlsx / .csv）";
       importDrop.classList.remove("has-file");
       importConfirmBtn.disabled = true;
     }
   });
 
-  function countCsvStudents(text) {
-    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && l.replace(/,/g, ""));
-    if (lines.length === 0) return 0;
-    // 跳过表头（含“姓名”视为表头）
-    const start = lines[0].includes("姓名") ? 1 : 0;
-    let n = 0;
-    for (let i = start; i < lines.length; i++) {
-      const name = lines[i].split(",")[0].trim();
-      if (name) n += 1;
+  function extractStudentNames(rows) {
+    if (!Array.isArray(rows) || !rows.length) return [];
+    let headerRow = -1;
+    let nameColumn = 0;
+    for (let rowIndex = 0; rowIndex < Math.min(rows.length, 10); rowIndex++) {
+      const row = Array.isArray(rows[rowIndex]) ? rows[rowIndex] : [rows[rowIndex]];
+      const columnIndex = row.findIndex((cell) => String(cell || "").trim().includes("姓名"));
+      if (columnIndex !== -1) {
+        headerRow = rowIndex;
+        nameColumn = columnIndex;
+        break;
+      }
     }
-    return n;
+    return rows.slice(headerRow + 1).map((row) => {
+      const cells = Array.isArray(row) ? row : [row];
+      return String(cells[nameColumn] || "").trim();
+    }).filter(Boolean);
+  }
+
+  function finishStudentImport(c, names) {
+    if (!names.length) {
+      showToast("未识别到学生数据，请检查模板格式");
+      return;
+    }
+    c.studentNames = names;
+    c.students = names.length;
+    saveClasses();
+    renderClassTable();
+    closeImportModal();
+    showToast(`成功导入 ${names.length} 名学生`);
   }
 
   importConfirmBtn.addEventListener("click", () => {
@@ -1580,23 +1697,30 @@
       const reader = new FileReader();
       reader.onload = () => {
         const text = String(reader.result || "");
-        const count = countCsvStudents(text);
-        if (count === 0) { showToast("未识别到学生数据，请检查模板格式"); return; }
-        const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-        const start = lines[0] && lines[0].includes("姓名") ? 1 : 0;
-        c.studentNames = lines.slice(start).map((line) => line.split(",")[0].trim()).filter(Boolean);
-        c.students = count;
-        saveClasses();
-        renderClassTable();
-        closeImportModal();
-        showToast(`成功导入 ${count} 名学生`);
+        const rows = text.split(/\r?\n/).filter((line) => line.trim()).map((line) => line.split(","));
+        finishStudentImport(c, extractStudentNames(rows));
       };
       reader.onerror = () => showToast("文件读取失败");
       reader.readAsText(importPickedFile, "utf-8");
-    } else {
-      // xlsx 解析需后端/库支持，演示阶段提示使用 CSV 模板
-      showToast("当前演示仅支持 CSV 模板，请下载模板填写后上传");
+      return;
     }
+    if (!window.XLSX || (!name.endsWith(".xlsx") && !name.endsWith(".xls"))) {
+      showToast("暂不支持该文件格式，请使用 Excel 或 CSV 模板");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const workbook = XLSX.read(reader.result, { type: "array" });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "", raw: false });
+        finishStudentImport(c, extractStudentNames(rows));
+      } catch (error) {
+        showToast("Excel 文件解析失败，请检查文件是否损坏");
+      }
+    };
+    reader.onerror = () => showToast("文件读取失败");
+    reader.readAsArrayBuffer(importPickedFile);
   });
 
   document.addEventListener("keydown", (e) => {
