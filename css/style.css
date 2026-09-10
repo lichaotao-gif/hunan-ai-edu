@@ -1947,6 +1947,12 @@ ul { list-style: none; }
 .teach-time { display: flex; gap: 4px; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .teach-video-progress { flex: 1; height: 5px; overflow: hidden; border-radius: 4px; background: rgba(255,255,255,.28); }
 .teach-video-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); transition: width .2s linear; }
+.teach-speed { position: relative; flex: 0 0 auto; }
+.teach-speed::after { content: ""; position: absolute; right: 8px; top: 50%; width: 6px; height: 6px; border-right: 1.8px solid currentColor; border-bottom: 1.8px solid currentColor; pointer-events: none; transform: translateY(-68%) rotate(45deg); }
+.teach-speed select { height: 34px; min-width: 68px; padding: 0 22px 0 9px; border: 1px solid rgba(255,255,255,.28); border-radius: 9px; color: #fff; background: rgba(255,255,255,.12); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; appearance: none; -webkit-appearance: none; }
+.teach-speed select:hover { background: rgba(255,255,255,.2); }
+.teach-speed select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.teach-speed select option { color: #173B4C; background: #fff; }
 .teach-step-nav {
   right: 18px; bottom: 18px; left: auto; transform: none; min-height: 58px;
   display: flex; align-items: center; gap: 8px; padding: 8px;

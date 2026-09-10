@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=181">
+<link rel="stylesheet" href="css/style.css?v=182">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
@@ -1220,6 +1220,15 @@
     </button>
     <div class="teach-time"><span id="teach-time-now">00:00</span><span>/</span><span id="teach-time-total">03:20</span></div>
     <div class="teach-video-progress"><span id="teach-video-progress"></span></div>
+    <label class="teach-speed" title="播放倍速">
+      <select id="teach-speed" aria-label="播放倍速">
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </label>
     <button class="teach-sound" id="teach-sound" type="button" aria-label="静音" title="静音">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M18 6.5a8 8 0 0 1 0 11"/></svg>
     </button>
@@ -1346,6 +1355,6 @@
 <!-- 区域树（省/市/区/学校）与大屏共用同一份数据源 -->
 <script src="js/bigscreen-data.js?v=2"></script>
 <script src="js/vendor/xlsx.full.min.js?v=0.20.3"></script>
-<script src="js/app.js?v=132"></script>
+<script src="js/app.js?v=133"></script>
 </body>
 </html>

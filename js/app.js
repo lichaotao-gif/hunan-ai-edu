@@ -3364,6 +3364,7 @@
   let teachPlayTimer = null;
   let teachSeconds = 0;
   let teachPlaying = false;
+  let teachPlaybackRate = 1;
   let teachRankTab = "group";
 
   const askModal = document.getElementById("ask-modal");
@@ -4024,6 +4025,8 @@
     teachIndex = 0;
     teachCompleted = new Set();
     teachRankTab = "group";
+    teachPlaybackRate = 1;
+    document.getElementById("teach-speed").value = "1";
     teachPage.hidden = false;
     document.body.classList.add("modal-open");
     renderTeach();
@@ -4052,7 +4055,7 @@
       teachPage.classList.add("is-playing");
       teachPlayTimer = setInterval(() => {
         const segment = TEACH_SEGMENTS[teachIndex];
-        teachSeconds++;
+        teachSeconds += teachPlaybackRate;
         if (teachSeconds >= segment.duration) {
           teachSeconds = segment.duration;
           teachCompleted.add(teachIndex);
@@ -4062,6 +4065,12 @@
         }
         updateTeachPlayer();
       }, 1000);
+      showTeachChrome();
+    });
+    document.getElementById("teach-speed").addEventListener("change", (event) => {
+      const rate = parseFloat(event.target.value);
+      teachPlaybackRate = Number.isFinite(rate) ? rate : 1;
+      showToast(`播放速度已切换为 ${event.target.options[event.target.selectedIndex].text}`);
       showTeachChrome();
     });
     document.getElementById("teach-sound").addEventListener("click", () => showToast("已切换课堂声音"));
