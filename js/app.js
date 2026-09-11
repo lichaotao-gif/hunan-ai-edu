@@ -219,7 +219,7 @@
       id: "zhou-mingyuan", name: "周明远", role: "人工智能通识课程专家", title: "教授 · 博士生导师", institution: "天府智能教育研究院",
       portrait: "assets/img/dual-teacher/experts/zhou-mingyuan.png",
       bio: "长期从事基础教育阶段人工智能通识课程与学习科学研究，关注如何将算法思维转化为适合中小学生理解的课堂活动。参与多项青少年人工智能课程设计与教师培训工作，擅长以生活案例讲解机器学习、数据与智能决策等核心概念。",
-      courses: [
+      subject: "人工智能", courses: [
         { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
         { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
         { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
@@ -229,7 +229,7 @@
       id: "chen-zhixing", name: "陈知行", role: "智能机器人课程专家", title: "副教授 · 青少年科技教育专家", institution: "成都创新大学联合实验室",
       portrait: "assets/img/dual-teacher/experts/chen-zhixing.png",
       bio: "研究方向涵盖计算机视觉、智能机器人与项目式学习，持续探索低门槛人工智能实验在学校课堂中的应用。具有丰富的青少年科技教育和教师研修经验，注重通过观察、动手验证与小组协作培养学生解决真实问题的能力。",
-      courses: [
+      subject: "信息科技", courses: [
         { label: "人工智能（五年级下册）", courseKey: "spring", lessonIndex: 1 },
         { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
         { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
@@ -239,7 +239,7 @@
       id: "lin-ruochuan", name: "林若川", role: "生成式人工智能课程专家", title: "教授 · 科普教育导师", institution: "四川青少年科学教育中心",
       portrait: "assets/img/dual-teacher/experts/lin-ruochuan.png",
       bio: "专注生成式人工智能、数字素养与人工智能伦理教育，长期参与面向青少年的科技传播和课程实践。课堂强调技术原理与责任意识并重，通过真实情境引导学生理解内容生成、信息辨别、隐私保护及负责任使用人工智能。",
-      courses: [
+      subject: "科学教育", courses: [
         { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
         { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
         { label: "人工智能（七年级下册）", courseKey: "spring", lessonIndex: 3 },
@@ -249,7 +249,7 @@
       id: "song-jianing", name: "宋嘉宁", role: "人工智能素养课程专家", title: "副教授 · 课程设计导师", institution: "成都未来学习研究中心",
       portrait: "assets/img/dual-teacher/experts/chen-zhixing.png",
       bio: "长期关注儿童认知发展与人工智能素养教育，擅长将抽象技术概念转化为适合小学阶段的观察、讨论和协作任务。参与区域人工智能课程建设与教师研修，强调学生在真实情境中形成提问、验证与表达能力。",
-      courses: [
+      subject: "综合实践", courses: [
         { label: "人工智能（四年级上册）", courseKey: "autumn", lessonIndex: 0 },
         { label: "人工智能（五年级上册）", courseKey: "autumn", lessonIndex: 1 },
         { label: "人工智能（六年级上册）", courseKey: "autumn", lessonIndex: 2 },
@@ -259,7 +259,7 @@
       id: "gao-zhiyuan", name: "高致远", role: "机器人与编程课程专家", title: "高级工程师 · 科创教育导师", institution: "西南智能教育协同中心",
       portrait: "assets/img/dual-teacher/experts/zhou-mingyuan.png",
       bio: "具有智能机器人研发与学校科技课程实践经验，关注传感器、控制算法和工程设计在青少年课堂中的融合。课程强调动手搭建、程序调试与团队协作，引导学生通过迭代解决具体工程问题。",
-      courses: [
+      subject: "信息科技", courses: [
         { label: "人工智能（四年级下册）", courseKey: "spring", lessonIndex: 0 },
         { label: "人工智能（六年级下册）", courseKey: "spring", lessonIndex: 2 },
         { label: "人工智能（八年级下册）", courseKey: "spring", lessonIndex: 4 },
@@ -269,13 +269,15 @@
       id: "xu-qinghe", name: "许清和", role: "人工智能伦理课程专家", title: "教授 · 数字素养研究者", institution: "天府青少年创新中心",
       portrait: "assets/img/dual-teacher/experts/lin-ruochuan.png",
       bio: "主要研究数字素养、人工智能伦理与青少年媒介教育，持续参与学校人工智能综合实践课程。教学中注重把隐私、安全、信息判断和技术责任融入案例讨论，帮助学生建立理性而负责任的技术观。",
-      courses: [
+      subject: "人工智能", courses: [
         { label: "人工智能（七年级上册）", courseKey: "autumn", lessonIndex: 3 },
         { label: "人工智能（八年级上册）", courseKey: "autumn", lessonIndex: 4 },
         { label: "人工智能（九年级下册）", courseKey: "spring", lessonIndex: 5 },
       ], directions: ["人工智能伦理", "数字素养", "信息安全"], teachingKeys: ["autumn", "spring", "combined"], tone: "teal",
     },
   ];
+
+  let activeExpertSubject = "all";
 
   const ECOSYSTEM_ALLIANCE = [
     {
@@ -305,17 +307,24 @@
     return `<article class="teaching-expert-card ${compact ? "is-compact" : ""}">
       <div class="expert-profile">
         <span class="expert-avatar"><img src="${expert.portrait}" alt="${esc(expert.name)}专家头像" loading="lazy"></span>
-        <div class="expert-identity"><h3>${esc(expert.name)}</h3><span>${esc(expert.role)}</span><small>${esc(expert.title)} · ${esc(expert.institution)}</small></div>
+        <div class="expert-identity"><h3>${esc(expert.name)}</h3><div class="expert-subject">${esc(expert.subject)}</div><span>${esc(expert.role)}</span><small>${esc(expert.title)} · ${esc(expert.institution)}</small></div>
       </div>
       <div class="expert-bio"><b>简介</b><p>${esc(expert.bio)}</p><button type="button" class="expert-more" data-expert-id="${expert.id}" aria-label="查看${esc(expert.name)}完整介绍">更多</button></div>
       <div class="expert-courses"><div>${directionTags}</div></div>
     </article>`;
   }
 
-  function renderDualTeacherResources() {
+  function renderHomeExperts() {
     const expertHome = document.getElementById("dt-home-experts");
+    const experts = activeExpertSubject === "all"
+      ? TEACHING_EXPERTS
+      : TEACHING_EXPERTS.filter((expert) => expert.subject === activeExpertSubject);
+    if (expertHome) expertHome.innerHTML = experts.map((expert) => expertCard(expert, false)).join("");
+  }
+
+  function renderDualTeacherResources() {
     const allianceList = document.getElementById("dt-alliance-list");
-    if (expertHome) expertHome.innerHTML = TEACHING_EXPERTS.map((expert) => expertCard(expert, false)).join("");
+    renderHomeExperts();
     if (allianceList) allianceList.innerHTML = ECOSYSTEM_ALLIANCE.map((item) => `<button class="alliance-card" type="button" data-alliance-id="${item.id}" aria-haspopup="dialog" aria-label="查看${esc(item.name)}介绍">
       <span class="alliance-mark"><img src="${item.logo}" alt="" loading="lazy"></span>
       <span class="alliance-card-body"><strong class="alliance-card-title">${esc(item.name)}</strong><span class="alliance-card-desc">${esc(item.desc)}</span><span class="alliance-card-more">查看介绍</span></span>
@@ -392,6 +401,7 @@
   const dtLessons = document.getElementById("dt-lessons");
   const dtGradeFilter = document.getElementById("dt-grade-filter");
   const dtHomeExperts = document.getElementById("dt-home-experts");
+  const dtExpertTabs = document.getElementById("dt-expert-tabs");
   const dtHomeExpertsToggle = document.getElementById("dt-home-experts-toggle");
   const dtCourseExperts = document.getElementById("dt-course-experts");
   const dtCourseExpertsToggle = document.getElementById("dt-course-experts-toggle");
@@ -506,6 +516,19 @@
   let selectedClassId = classStore[0] && classStore[0].id;
   let homeExpertsExpanded = false;
   let courseExpertsExpanded = false;
+
+  function selectExpertSubject(subject, focusTab) {
+    activeExpertSubject = subject;
+    dtExpertTabs.querySelectorAll('[role="tab"]').forEach((tab) => {
+      const selected = tab.dataset.expertSubject === subject;
+      tab.classList.toggle("active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      if (selected && focusTab) tab.focus();
+    });
+    renderHomeExperts();
+    configureHomeExperts(true);
+  }
 
   function applyHomeExpertsState() {
     const collapsedHeight = Number(dtHomeExperts.dataset.collapsedHeight || 0);
@@ -825,6 +848,22 @@
     card.addEventListener("click", () => openCourse(card.dataset.course));
   });
   renderDualTeacherResources();
+  dtExpertTabs.addEventListener("click", (event) => {
+    const tab = event.target.closest('[role="tab"][data-expert-subject]');
+    if (tab) selectExpertSubject(tab.dataset.expertSubject);
+  });
+  dtExpertTabs.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const tabs = Array.from(dtExpertTabs.querySelectorAll('[role="tab"]'));
+    const currentIndex = Math.max(0, tabs.indexOf(document.activeElement));
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = tabs.length - 1;
+    event.preventDefault();
+    selectExpertSubject(tabs[nextIndex].dataset.expertSubject, true);
+  });
   document.getElementById("dt-home-experts").addEventListener("click", handleExpertMore);
   document.getElementById("dt-course-experts").addEventListener("click", handleExpertMore);
   dtCourseExpertsToggle.addEventListener("click", () => {

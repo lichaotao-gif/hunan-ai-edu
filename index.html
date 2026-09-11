@@ -335,8 +335,17 @@
         <div class="dt-resource-home expert-alliance-home">
           <section class="page-panel dt-home-section dt-expert-section" aria-labelledby="dt-expert-heading">
             <div class="dt-section-heading">
-              <div><h2 id="dt-expert-heading">课程专家</h2></div>
+              <div><h2 id="dt-expert-heading">专家</h2></div>
               <p>汇聚人工智能、科学教育与综合实践领域的专家力量</p>
+            </div>
+            <div class="expert-filter-row">
+              <div class="expert-subject-tabs" id="dt-expert-tabs" role="tablist" aria-label="按所属科目筛选专家">
+                <button class="active" type="button" role="tab" data-expert-subject="all" aria-selected="true" tabindex="0">全部</button>
+                <button type="button" role="tab" data-expert-subject="人工智能" aria-selected="false" tabindex="-1">人工智能</button>
+                <button type="button" role="tab" data-expert-subject="信息科技" aria-selected="false" tabindex="-1">信息科技</button>
+                <button type="button" role="tab" data-expert-subject="科学教育" aria-selected="false" tabindex="-1">科学教育</button>
+                <button type="button" role="tab" data-expert-subject="综合实践" aria-selected="false" tabindex="-1">综合实践</button>
+              </div>
             </div>
             <div class="teaching-expert-grid" id="dt-home-experts"></div>
             <button class="course-experts-toggle" id="dt-home-experts-toggle" type="button" aria-controls="dt-home-experts" aria-expanded="false" hidden>
