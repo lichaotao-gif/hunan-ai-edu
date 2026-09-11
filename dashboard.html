@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人工智能教育综合看板</title>
+<link rel="stylesheet" href="css/dashboard.css?v=1">
+<script>
+  if (sessionStorage.getItem("ai_dashboard_authenticated") !== "1") {
+    location.replace("dashboard-login.html");
+  }
+</script>
+</head>
+<body>
+  <header class="db-topbar">
+    <div class="db-top-left">
+      <div class="db-brand">
+        <img class="db-header-logo" src="assets/dashboard-logo.svg" alt="平台 Logo">
+        <h1>人工智能教育综合看板</h1>
+      </div>
+    </div>
+    <div class="db-user-area">
+      <div class="db-status"><span class="db-status-dot" aria-hidden="true"></span><span>数据服务正常</span><time id="db-date">----年--月--日</time><time id="db-time">--:--:--</time></div>
+      <span class="db-user-name">数据管理员</span>
+      <button class="db-logout" id="db-logout" type="button">退出</button>
+    </div>
+  </header>
+
+  <main class="db-main">
+    <section class="db-section db-filter-panel" aria-labelledby="filter-title">
+      <div class="db-section-title" id="filter-title">筛选范围</div>
+      <div class="db-filters">
+        <label class="db-field"><span>区域</span><select id="filter-region"><option value="all">全部区域</option></select></label>
+        <label class="db-field"><span>学期</span><select id="filter-term"><option value="all">全部学期</option><option value="current">本学期</option><option value="previous">上学期</option></select></label>
+        <label class="db-field"><span>学校</span><select id="filter-school"><option value="all">全部学校</option></select></label>
+        <button class="db-reset" id="filter-reset" type="button">重置筛选</button>
+      </div>
+    </section>
+
+    <section class="db-section" aria-labelledby="overview-title">
+      <div class="db-section-title" id="overview-title">管辖范围概览</div>
+      <div class="db-overview" id="db-overview"></div>
+    </section>
+
+    <section class="db-summary-grid" aria-label="教学统计概览">
+      <article class="db-section db-summary-card">
+        <div class="db-section-title">开课情况统计（班）</div>
+        <div class="db-course-stats" id="db-course-stats"></div>
+      </article>
+      <article class="db-section db-summary-card">
+        <div class="db-section-title">实验情况统计（学生）</div>
+        <div class="db-lab-stats" id="db-lab-stats"></div>
+      </article>
+    </section>
+
+    <section class="db-data-section" aria-labelledby="charts-title">
+      <div class="db-data-title" id="charts-title">数据视图</div>
+      <div class="db-chart-grid">
+        <article class="db-chart-card">
+          <p>当前筛选下已完成课时增长曲线（最近 14 天）</p>
+          <div class="db-chart-head"><h2>开课已完课时增长曲线</h2><span><i class="legend-dot pink"></i>已完成课时</span></div>
+          <div class="db-chart" id="course-chart" role="img" aria-label="最近14天已完成课时折线图"></div>
+        </article>
+        <article class="db-chart-card">
+          <p>实验与测验全完成人数最近 14 天走势</p>
+          <div class="db-chart-head"><h2>学生实验与测验完成人数</h2><span><i class="legend-dot blue"></i>实验 <i class="legend-dot orange"></i>测验</span></div>
+          <div class="db-chart" id="student-chart" role="img" aria-label="最近14天实验与测验完成人数折线图"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="db-schools-section" aria-labelledby="school-progress-title">
+      <div class="db-schools-heading">
+        <div><div class="db-data-title" id="school-progress-title">学校统计进度</div><p>展示当前筛选范围内各学校的课程、实验与测验完成情况</p></div>
+        <span id="school-result-count"></span>
+      </div>
+      <div class="db-school-grid" id="db-school-grid"></div>
+    </section>
+  </main>
+
+  <div class="db-modal-layer" id="class-modal" hidden>
+    <section class="db-modal" role="dialog" aria-modal="true" aria-labelledby="class-modal-title">
+      <header class="db-modal-head">
+        <div><span>班级使用明细</span><h2 id="class-modal-title">使用班级详情</h2><p id="class-modal-subtitle"></p></div>
+        <button class="db-modal-close" id="class-modal-close" type="button" aria-label="关闭班级详情">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+      <div class="db-modal-tools">
+        <label for="class-grade-filter">年级</label>
+        <select id="class-grade-filter"><option value="all">全部年级</option></select>
+      </div>
+      <div class="db-table-wrap">
+        <table class="db-class-table">
+          <thead><tr><th>学校</th><th>班级</th><th>教师</th><th>学生</th><th>课程进度</th><th>最近使用</th><th>状态</th></tr></thead>
+          <tbody id="class-modal-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/dashboard.js?v=1"></script>
+</body>
+</html>

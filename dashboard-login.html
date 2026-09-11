@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · 人工智能教育综合看板</title>
+<link rel="stylesheet" href="css/dashboard.css?v=1">
+</head>
+<body class="db-login-body">
+  <main class="db-login-shell">
+    <a class="db-login-back" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      返回人工智能课堂
+    </a>
+    <section class="db-login-card" aria-labelledby="dashboard-login-title">
+      <img class="db-login-logo" src="assets/dashboard-logo.svg" alt="平台 Logo">
+      <h1 id="dashboard-login-title">人工智能教育综合看板</h1>
+      <p>登录后查看教学运行数据、趋势分析与班级明细</p>
+      <form id="dashboard-login-form" novalidate>
+        <label class="db-login-field"><span>管理员账号</span><input id="dashboard-account" name="account" autocomplete="username" value="admin" required></label>
+        <label class="db-login-field"><span>登录密码</span><input id="dashboard-password" name="password" type="password" autocomplete="current-password" value="123456" required></label>
+        <div class="db-login-error" id="dashboard-login-error" role="alert" aria-live="polite"></div>
+        <button class="db-login-submit" type="submit">登录数据看板</button>
+      </form>
+      <div class="db-login-hint">账号已自动填写，可直接登录</div>
+    </section>
+  </main>
+  <script src="js/dashboard-login.js?v=1"></script>
+</body>
+</html>

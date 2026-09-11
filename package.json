@@ -5,7 +5,7 @@
   "description": "湖南人工智能教育综合平台静态原型",
   "scripts": {
     "dev": "python3 -m http.server 4179 --bind 127.0.0.1",
-    "test": "node --check js/app.js && node --check js/login.js && node --check js/bigscreen-data.js && node --check js/bigscreen.js",
+    "test": "node --check js/app.js && node --check js/login.js && node --check js/bigscreen-data.js && node --check js/bigscreen.js && node --check js/dashboard.js && node --check js/dashboard-login.js",
     "work:start": "bash scripts/work-start.sh",
     "work:stop": "bash scripts/work-stop.sh",
     "sync:down": "bash scripts/work-start.sh",
