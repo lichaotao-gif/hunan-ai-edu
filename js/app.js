@@ -1121,6 +1121,10 @@
   }
 
   function openSchoolModal() {
+    if (typeof window.openBingoSchoolBinding === "function") {
+      window.openBingoSchoolBinding();
+      return;
+    }
     schoolSelection = loadSchool();
     const savedRegion = loadSchoolRegion();
     const from = isGuestMode && savedRegion.city ? savedRegion : scopeFromSchool(schoolSelection);
@@ -1200,6 +1204,23 @@
     if (typeof renderOnboard === "function") renderOnboard();
     closeSchoolModal();
     showToast("已绑定 " + schoolSelection);
+  });
+  window.addEventListener("hndj:school-bound", (event) => {
+    const { school, city, district } = event.detail || {};
+    if (!school || !city || !district) return;
+    schoolScope.city = city;
+    schoolScope.district = district;
+    saveSchool(school);
+    saveSchoolRegion();
+    if (isGuestMode) {
+      classStore.forEach((item) => { if (!item.school) item.school = school; });
+      saveClasses();
+    }
+    renderSchoolBanner();
+    renderProfileSchool();
+    if (typeof refreshMcClasses === "function") refreshMcClasses();
+    if (typeof renderOnboard === "function") renderOnboard();
+    showToast("已绑定 " + school);
   });
 
   // --- 创建 / 编辑班级弹窗 ---
