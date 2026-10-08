@@ -17,7 +17,6 @@
   const schoolConfirm = document.getElementById("redeem-school-confirm");
   const choiceConfirm = document.getElementById("redeem-school-choice-confirm");
   const region = window.BigScreenData;
-  const isLocalPreview = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   const previewCourses = [
     { title: "一年级 AI 基础课程", cover: "assets/img/ai-course-autumn-redesign.png" },
     { title: "二年级 AI 探索课程", cover: "assets/img/course-robot-world.png" },
@@ -87,7 +86,7 @@
     content.innerHTML = `<label class="redeem-label" for="redeem-code">课程兑换码</label>
       <div class="redeem-code-row"><input class="redeem-input" id="redeem-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="请输入卡片上的兑换码" value="${escapeHtml(currentCode)}"><button class="redeem-primary" id="redeem-lookup" type="button">查看课程</button></div>
       <p class="redeem-code-hint">兑换前可先查看该码包含的课程，不会立即消耗兑换次数。</p>
-      ${isLocalPreview ? '<p class="redeem-preview-code">本地预览可用：<code>BINGO-2026-01</code>、<code>BINGO-2026-05</code><small>仅供界面体验，正式环境不提供这些示例码。</small></p>' : ""}
+      <p class="redeem-preview-code">预览兑换码：<code>BINGO-2026-01</code>、<code>BINGO-2026-05</code><small>仅供界面体验，正式环境不提供这些示例码。</small></p>
       <p class="redeem-inline-error" id="redeem-code-error" role="alert" ${message ? "" : "hidden"}>${escapeHtml(message || "")}</p>`;
     const codeInput = document.getElementById("redeem-code");
     codeInput.addEventListener("input", () => { currentCode = codeInput.value.toUpperCase().trim(); document.getElementById("redeem-code-error").hidden = true; });
