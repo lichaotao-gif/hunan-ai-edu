@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人工智能课堂</title>
-<link rel="stylesheet" href="css/style.css?v=185">
+<link rel="stylesheet" href="css/style.css?v=186">
 <script>
   (function () {
     var mode = new URLSearchParams(window.location.search).get("mode");
@@ -1337,11 +1337,14 @@
   <section class="redeem-dialog" role="dialog" aria-modal="true" aria-labelledby="redeem-title" aria-describedby="redeem-description">
     <button class="redeem-close" id="redeem-close" type="button" aria-label="关闭兑换窗口">×</button>
     <div class="redeem-head">
-      <span class="redeem-eyebrow">课程兑换</span>
       <h2 id="redeem-title">输入卡片上的兑换码</h2>
       <p id="redeem-description">查看课程内容，确认后即可加入我的课程。</p>
     </div>
-    <div class="redeem-progress" aria-label="兑换步骤"><span class="active">1 输入兑换码</span><span id="redeem-step-2">2 确认课程</span><span id="redeem-step-3">3 完成兑换</span></div>
+    <ol class="redeem-progress step-1" aria-label="兑换步骤">
+      <li class="active" aria-current="step"><span class="redeem-step-dot">1</span><span class="redeem-step-label">输入兑换码</span></li>
+      <li><span class="redeem-step-dot">2</span><span class="redeem-step-label">确认课程</span></li>
+      <li><span class="redeem-step-dot">3</span><span class="redeem-step-label">完成兑换</span></li>
+    </ol>
     <div id="redeem-content"></div>
   </section>
 </div>
@@ -1417,6 +1420,6 @@
 <script src="js/bigscreen-data.js?v=2"></script>
 <script src="js/vendor/xlsx.full.min.js?v=0.20.3"></script>
 <script src="js/app.js?v=134"></script>
-<script src="js/redeem.js?v=7"></script>
+<script src="js/redeem.js?v=8"></script>
 </body>
 </html>

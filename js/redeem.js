@@ -53,8 +53,15 @@
   }
   function boundSchool() { return localStorage.getItem(schoolStorageKeys().school) || ""; }
   function setStep(step) {
-    [1, 2, 3].forEach((n) => document.querySelector(`#redeem-step-${n}`)?.classList.toggle("active", n === step));
-    document.querySelector(".redeem-progress span:first-child").classList.toggle("active", step === 1);
+    const progress = document.querySelector(".redeem-progress");
+    progress.className = `redeem-progress step-${step}`;
+    progress.querySelectorAll("li").forEach((item, index) => {
+      const number = index + 1;
+      item.classList.toggle("active", number === step);
+      item.classList.toggle("done", number < step);
+      if (number === step) item.setAttribute("aria-current", "step");
+      else item.removeAttribute("aria-current");
+    });
     document.getElementById("redeem-title").textContent = ["", "输入卡片上的兑换码", "确认本次兑换的课程", "课程兑换"][step];
     document.getElementById("redeem-description").textContent = ["", "查看课程内容，确认后即可加入我的课程。", "核对课程、激活规则和有效期。", "兑换流程已完成。"][step];
   }
